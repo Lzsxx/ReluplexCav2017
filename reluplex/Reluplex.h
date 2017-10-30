@@ -316,8 +316,9 @@ public:
                 unsigned violatingLevelInStack;
 
 				// 否则，还有越界的basic变量，或者broken的relu，就调用process继续处理
-				// 如果处理成功，返回true,进入下个循环
-				// 如果处理不成功，返回false，调用smtScore，给出一个上一刻的决策值，如果没有，就返回UNSAT
+
+				// 如果处理不成功，返回false（只有在我们的算法明确表示找不到解决方案NO_SOLUTION_EXISTS，才会返回false），
+				// 此时调用smtScore，给出一个上一刻的决策值，如果没有，就返回UNSAT
                 if ( !progress( violatingLevelInStack ) )	
                 {
 					// 如果需要进行冲突处理，则调用_smtCore
@@ -328,6 +329,10 @@ public:
 
                     setMinStackSecondPhase( _currentStackDepth );
                 }
+
+				// 如果progress处理成功，返回true,可能是SOLVER_FAILED，也可能是SOLVER_FOUND，
+				// 进入下个循环
+
             }
         }
         catch ( const Error &e )
@@ -401,7 +406,7 @@ public:
 
             dump();
 
-			/********已下开始papaer中所写**********/
+			/********以下开始papaer中所写**********/
 
             List<unsigned> outOfBoundVariables;
             findOutOfBounds( outOfBoundVariables );	//在basic中找到越界变量，存入List中
@@ -413,25 +418,31 @@ public:
 
                 GlpkWrapper::GlpkAnswer answer = fixOutOfBounds();
 
+				// _consecutiveGlpkFailureCount用于记录GLPK Failures的次数=10，如果大于，则报错
                 if ( _consecutiveGlpkFailureCount > MAX_GLPK_FAILURES_BEFORE_RESOTRATION )
                 {
                     printf( "Error: %u Consecutive GLPK failures\n", MAX_GLPK_FAILURES_BEFORE_RESOTRATION );
                     throw Error( Error::CONSECUTIVE_GLPK_FAILURES );
                 }
 
+				// 如果返回 NO_SOLUTION_EXISTS，表示没有找到解决方案
                 if ( answer == GlpkWrapper::NO_SOLUTION_EXISTS )
                     return false;
 
+				// 如果返回 SOLVER_FAILED，表示本次解决失败，回溯到之前的步骤再解决
                 if ( answer == GlpkWrapper::SOLVER_FAILED )
                 {
                     // In this case, we restored from the original tableau; nothing left to do here.
                     return true;
                 }
 
+				// 如果返回值非以上两种，则只可能是 SOLUTION_FOUND，表示找到了解决方案
+				// 此时如果没有broken的ReluPair，则直接返回true
                 if ( allRelusHold() )
                     return true;
 
                 // Glpk solved, but we have a relu problem. See if any relu pairs can be eliminated.
+
                 if ( learnedGlpkBounds() )
                 {
                     timeval boundStart = Time::sampleMicro();
