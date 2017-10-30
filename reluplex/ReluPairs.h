@@ -61,6 +61,7 @@ public:
 
     bool isB( unsigned backwardVar ) const
     {
+		// 通过是否能找到一个forward变量，来判断这是否是一个backward变量
         return _bToF.exists( backwardVar );
     }
 
