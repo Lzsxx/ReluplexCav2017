@@ -968,22 +968,26 @@ public:
 
     void computeSlackBounds()
     {
-        _slackToLowerBound.clear();
+        _slackToLowerBound.clear();	// Map<unsigned, VariableBound>
         _slackToUpperBound.clear();
-        _activeSlackRowVars.clear();
+        _activeSlackRowVars.clear();	//  Set<unsigned>
         _activeSlackColVars.clear();
 
+		// 遍历所有的 Relu关系
         const Set<ReluPairs::ReluPair> &pairs( _reluPairs.getPairs() );
         for ( const auto &pair : pairs )
         {
             unsigned b = pair.getB();
             unsigned f = pair.getF();
 
+			// 如果是已经elinimate的，就不需要管
+			// 否则，需要
             if ( !_dissolvedReluVariables.exists( f ) )
             {
-                unsigned slackRowVar = _fToSlackRowVar[f];
+                unsigned slackRowVar = _fToSlackRowVar[f];	// 找到forward在_slackRowVariableToF和_slackRowVariableToB中的键值
                 _activeSlackRowVars.insert( slackRowVar );
 
+				// 默认进入if分支
                 if ( _useSlackVariablesForRelus == USE_ROW_SLACK_VARIABLES )
                 {
                     _slackToLowerBound[slackRowVar].setBound( 0.0 );
@@ -1020,24 +1024,25 @@ public:
 
         timeval lpStart = Time::sampleMicro();
         GlpkWrapper glpkWrapper;
-        _currentGlpkWrapper = &glpkWrapper;
-        _glpkStoredLowerBounds.clear();
-        _glpkStoredUpperBounds.clear();
-        _activeSlackRowVars.clear();
+        _currentGlpkWrapper = &glpkWrapper;	//  GlpkWrapper *_currentGlpkWrapper;
+        _glpkStoredLowerBounds.clear();		// Map<unsigned, VariableBound>
+        _glpkStoredUpperBounds.clear();	
+        _activeSlackRowVars.clear();	// Set<unsigned>
         _activeSlackColVars.clear();
 
         if ( _useSlackVariablesForRelus != DONT_USE_SLACK_VARIABLES )
         {
-            if ( _temporarilyDontUseSlacks )
+            if ( _temporarilyDontUseSlacks )	// bool默认初始化时为false,所以第一次调用fixOutOfBounds时会进入else分支
             {
                 log( "Temporarily disabling slacks\n" );
                 _temporarilyDontUseSlacks = false;
             }
             else
-                computeSlackBounds();
+				// 设置_slackToLowerBound，但不知道什么意思
+                computeSlackBounds();	
         }
 
-        _reluUpdateFrequency.clear();
+        _reluUpdateFrequency.clear();	//  Map<unsigned, unsigned>
 
         glpkWrapper.setBoundCalculationHook( &boundCalculationHook );
         glpkWrapper.setIterationCountCallback( &iterationCountCallback );
@@ -1045,6 +1050,7 @@ public:
 
         GlpkWrapper::GlpkAnswer answer;
 
+		/*****正式调用GLPK进行求解******/
         try
         {
             answer = glpkWrapper.run( *this );
@@ -1070,6 +1076,8 @@ public:
         if ( timePassed > _maxLpSolverTimeMilli )
             _maxLpSolverTimeMilli = timePassed;
 
+
+		// 如果GLPK给出的答案是 找到了解决办法
         if ( answer == GlpkWrapper::SOLUTION_FOUND )
         {
             log( "LP solver solved the problem. Updating tableau and assignment\n" );
@@ -1896,11 +1904,13 @@ public:
     {
         _reluPairs.addPair( backward, forward );
 
+		//_useSlackVariablesForRelus可取3个可枚举值，初始化时默认为 USE_ROW_SLACK_VARIABLES，除非手动设定，否则运行过程中不会更改
+
         if ( _useSlackVariablesForRelus != DONT_USE_SLACK_VARIABLES )
         {
             unsigned nextIndex = _fToSlackRowVar.size() + _fToSlackColVar.size();
-            _fToSlackRowVar[forward] = _numVariables + nextIndex;
-            _slackRowVariableToF[_numVariables + nextIndex] = forward;
+            _fToSlackRowVar[forward] = _numVariables + nextIndex;	// Map<u,u>类型
+            _slackRowVariableToF[_numVariables + nextIndex] = forward;	// Map<u,u>类型
             _slackRowVariableToB[_numVariables + nextIndex] = backward;
 
             if ( _useSlackVariablesForRelus == USE_ROW_AND_COL_SLACK_VARIABLES )
@@ -3598,11 +3608,14 @@ private:
     Set<unsigned> _activeSlackRowVars;
     Set<unsigned> _activeSlackColVars;
 
-    Map<unsigned, unsigned> _fToSlackRowVar;
-    Map<unsigned, unsigned> _fToSlackColVar;
+    Map<unsigned, unsigned> _fToSlackRowVar;// _fToSlackRowVar 以及 _slackRowVariableToF都是在setReluPair里初始化赋值的，后续都不再更改
+											// 其中，_fToSlackRowVar用于根据forward变量的编号，找到一个键，再通过键，从Map _slackRowVariableToF中
+											// 找到Forward变量，或从Map _slackRowVariableToB中找到backward变量
+    Map<unsigned, unsigned> _fToSlackColVar;// 默认不用
 
     Map<unsigned, unsigned> _slackRowVariableToF;
-    Map<unsigned, unsigned> _slackRowVariableToB;
+    Map<unsigned, unsigned> _slackRowVariableToB;// _fToSlackRowVar 以及 _slackRowVariableToF都是在setReluPair里初始化赋值的，后续都不再更改
+
     Map<unsigned, VariableBound> _slackToLowerBound;
     Map<unsigned, VariableBound> _slackToUpperBound;
 
