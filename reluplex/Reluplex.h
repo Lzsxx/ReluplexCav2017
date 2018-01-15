@@ -256,6 +256,9 @@ public:
 		//（此时的non-basic是所有具有真实意义的值，因为此时没有经过pivot，所有人工变量都是basic）
 		// 如果non-baisc有越界值，要更新值使非基变量non-basic在上下界内，（即使使basic越界也无所谓
 		// 如果被update的值是relu中的一个，要立即考虑是否需要fix，如果需要，立即在update中用updateB或updateF来进行fix
+
+        /*** make all non-baisc in their bounds ***/
+        // 将现阶段所有的non-basic都update到上下界之内，没有执行过Pivot
         initialUpdate();
 
 		// 处理无穷大变量，以及non-basic的上下界tighter
@@ -271,14 +274,15 @@ public:
 
         try
         {
+            /*** first step*****/
+            // 处理non-basic变量的越界问题，以及对无穷界限进行缩小
             if ( !_wasInitialized )
-				// 
                 initialize();
 
             countVarsWithInfiniteBounds();
 
-			// 尽可能地先消除辅助变量
-			// 只要有一个辅助变量无法pivot，就返回错误？（大概是simplex的要求，所有辅助变量都必须变换到等式右边，否则视为解不通
+            /*** second step*****/
+            // 消除所有另外引入的辅助变量,即所有basic变量，即使只有一个无法消除，也会使整个项目failed
             if ( !eliminateAuxVariables() )
             {
                 _finalStatus = Reluplex::ERROR;
@@ -287,7 +291,9 @@ public:
                 return _finalStatus;
             }
 
-			// 保存一些需要的数据，如initialize后的Tableau、
+
+            /** third step*****/
+            // 保存一些需要的数据，如initialize后的Tableau、
             storePreprocessedMatrix();
 
 			// 打印信息和存入Log
@@ -297,13 +303,15 @@ public:
             printf( "Starting the main loop\n" );
 
 
+            /** forth step*****/
             while ( !_quit )
             {
                 computeVariableStatus();
-
-				// 如果满足这两个条件，则返回SAT
+                /** fifth step*****/
+                // 如果满足这两个条件，则返回SAT
                 if ( allVarsWithinBounds() && allRelusHold() )
                 {
+                    log( "\nIt can be solved. current state is: \n" );
                     dump();
                     printStatistics();
                     _finalStatus = Reluplex::SAT;
@@ -319,13 +327,17 @@ public:
 
 				// 如果处理不成功，返回false（只有在我们的算法明确表示找不到解决方案NO_SOLUTION_EXISTS，才会返回false），
 				// 此时调用smtScore，给出一个上一刻的决策值，如果没有，就返回UNSAT
-                if ( !progress( violatingLevelInStack ) )	
+
+                // 完成了一次fix broken relu pair，返回true,然后再进入下一个while循环
+
+
+                if ( !progress( violatingLevelInStack ) )
                 {
-					// 如果需要进行冲突处理，则调用_smtCore
+					// 如果需要进行冲突处理，则调用_smtCore, default value is true
                     if ( _useConflictAnalysis )
-                        _smtCore.pop( violatingLevelInStack );
+                        _smtCore.pop( violatingLevelInStack );  // if has conflict Analysis, it will go back several steps
                     else
-                        _smtCore.pop();
+                        _smtCore.pop();     // if has no , it will just go back one step
 
                     setMinStackSecondPhase( _currentStackDepth );
                 }
@@ -377,7 +389,14 @@ public:
 
     bool progress( unsigned &violatingLevelInStack )
     {
-        log( "Progress starting\n" );
+        /**
+         * progress()有两个出口返回true
+         * 1. basic变量中没有越界变量，但整体有broken relu Pairs，成功修复后，返回true
+         * 2. basic变量中有越界变量，调用Glpk进行求解，得到SOLVER_FAILED的结果。返回true
+         * 3. basic变量中有越界变量，调用Glpk进行求解，得到SOLUTION_FOUND结果，且此时没有broken的relu Pair,返回true.
+         * 如果有relu pair问题，要先fix,然后才返回true
+         */
+        log( "\nProgress starting\n" );
 
         try
         {
@@ -400,7 +419,7 @@ public:
 			// 每调用500次进行一次数据打印
             if ( _numCallsToProgress % PRINT_STATISTICS == 0 )
                 printStatistics();
-			// 打印赋值
+			// 每500次打印赋值
             if ( _printAssignment && _numCallsToProgress % PRINT_ASSIGNMENT == 0 )
                 printAssignment();
 
@@ -483,15 +502,16 @@ public:
             // If we got here, either there are no OOB variables, or they were fixed without changing the tableau
             // and we still have broken relus. Split on one of them.
             List<unsigned> brokenRelus;
-            findBrokenRelues( brokenRelus );
+            findBrokenRelues( brokenRelus );    // 找到broken的ReLU Pair，存储在broeknRelus列表中
             _totalNumBrokenRelues += brokenRelus.size();
 
             unsigned brokenReluVar = *brokenRelus.begin();
+            // 找到broken的ReluPair中的forward变量
             unsigned f = _reluPairs.isF( brokenReluVar ) ? brokenReluVar : _reluPairs.toPartner( brokenReluVar );
 
             if ( _smtCore.notifyBrokenRelu( f ) )
                 return true; // Splitting/Merging is a form of progress
-            return fixBrokenRelu( f );
+            return fixBrokenRelu( f );  // fix完成一次，返回true
         }
 
         catch ( const InvariantViolationError &e )
@@ -538,8 +558,10 @@ public:
     bool allVarsWithinBounds( bool print = false ) const
     {
         // Only basic variables can be out-of-bounds
-		
+
 		// 在运算过程中所有的non-basic都是在界限范围内的，所以现在只需要检查basic，如果都在界限范围内，那么就意味着所有变量都在范围内了
+        print = true;
+
         for ( auto i : _basicVariables )
             if ( outOfBounds( i ) )
             {
@@ -968,26 +990,22 @@ public:
 
     void computeSlackBounds()
     {
-        _slackToLowerBound.clear();	// Map<unsigned, VariableBound>
+        _slackToLowerBound.clear();
         _slackToUpperBound.clear();
-        _activeSlackRowVars.clear();	//  Set<unsigned>
+        _activeSlackRowVars.clear();
         _activeSlackColVars.clear();
 
-		// 遍历所有的 Relu关系
         const Set<ReluPairs::ReluPair> &pairs( _reluPairs.getPairs() );
         for ( const auto &pair : pairs )
         {
             unsigned b = pair.getB();
             unsigned f = pair.getF();
 
-			// 如果是已经elinimate的，就不需要管
-			// 否则，需要
             if ( !_dissolvedReluVariables.exists( f ) )
             {
-                unsigned slackRowVar = _fToSlackRowVar[f];	// 找到forward在_slackRowVariableToF和_slackRowVariableToB中的键值
+                unsigned slackRowVar = _fToSlackRowVar[f];
                 _activeSlackRowVars.insert( slackRowVar );
 
-				// 默认进入if分支
                 if ( _useSlackVariablesForRelus == USE_ROW_SLACK_VARIABLES )
                 {
                     _slackToLowerBound[slackRowVar].setBound( 0.0 );
@@ -1024,25 +1042,24 @@ public:
 
         timeval lpStart = Time::sampleMicro();
         GlpkWrapper glpkWrapper;
-        _currentGlpkWrapper = &glpkWrapper;	//  GlpkWrapper *_currentGlpkWrapper;
-        _glpkStoredLowerBounds.clear();		// Map<unsigned, VariableBound>
-        _glpkStoredUpperBounds.clear();	
-        _activeSlackRowVars.clear();	// Set<unsigned>
+        _currentGlpkWrapper = &glpkWrapper;
+        _glpkStoredLowerBounds.clear();
+        _glpkStoredUpperBounds.clear();
+        _activeSlackRowVars.clear();
         _activeSlackColVars.clear();
 
         if ( _useSlackVariablesForRelus != DONT_USE_SLACK_VARIABLES )
         {
-            if ( _temporarilyDontUseSlacks )	// bool默认初始化时为false,所以第一次调用fixOutOfBounds时会进入else分支
+            if ( _temporarilyDontUseSlacks )
             {
                 log( "Temporarily disabling slacks\n" );
                 _temporarilyDontUseSlacks = false;
             }
             else
-				// 设置_slackToLowerBound，但不知道什么意思
-                computeSlackBounds();	
+                computeSlackBounds();
         }
 
-        _reluUpdateFrequency.clear();	//  Map<unsigned, unsigned>
+        _reluUpdateFrequency.clear();
 
         glpkWrapper.setBoundCalculationHook( &boundCalculationHook );
         glpkWrapper.setIterationCountCallback( &iterationCountCallback );
@@ -1050,7 +1067,6 @@ public:
 
         GlpkWrapper::GlpkAnswer answer;
 
-		/*****正式调用GLPK进行求解******/
         try
         {
             answer = glpkWrapper.run( *this );
@@ -1076,8 +1092,6 @@ public:
         if ( timePassed > _maxLpSolverTimeMilli )
             _maxLpSolverTimeMilli = timePassed;
 
-
-		// 如果GLPK给出的答案是 找到了解决办法
         if ( answer == GlpkWrapper::SOLUTION_FOUND )
         {
             log( "LP solver solved the problem. Updating tableau and assignment\n" );
@@ -1904,13 +1918,11 @@ public:
     {
         _reluPairs.addPair( backward, forward );
 
-		//_useSlackVariablesForRelus可取3个可枚举值，初始化时默认为 USE_ROW_SLACK_VARIABLES，除非手动设定，否则运行过程中不会更改
-
         if ( _useSlackVariablesForRelus != DONT_USE_SLACK_VARIABLES )
         {
             unsigned nextIndex = _fToSlackRowVar.size() + _fToSlackColVar.size();
-            _fToSlackRowVar[forward] = _numVariables + nextIndex;	// Map<u,u>类型
-            _slackRowVariableToF[_numVariables + nextIndex] = forward;	// Map<u,u>类型
+            _fToSlackRowVar[forward] = _numVariables + nextIndex;
+            _slackRowVariableToF[_numVariables + nextIndex] = forward;
             _slackRowVariableToB[_numVariables + nextIndex] = backward;
 
             if ( _useSlackVariablesForRelus == USE_ROW_AND_COL_SLACK_VARIABLES )
@@ -1946,14 +1958,14 @@ public:
 
     void initialUpdate()
     {
-		// 计算当前变量值是否越界的状态
+		// 计算当前变量值是否越界的状态,write in _varToStatus, so we can judge their bounds more convenient
         computeVariableStatus();
 
         for ( unsigned i = 0; i < _numVariables; ++i )
         {
             unsigned violatingStackLevel;
 
-			// 判断所有值的上下界是否是符合常理的，如果不，要抛出异常
+			// 判断所有值的上下界是否是符合常理的(That is : lower bound is less than upper bound)，如果不，要抛出异常
             if ( !boundInvariantHolds( i, violatingStackLevel ) )
             {
                 printf( "Bound invariant violation on variable: %s\n", toName( i ).ascii() );
@@ -1980,9 +1992,10 @@ public:
 
         log( "Checking invariants after initial update\n" );
 		// check Tableau的值是否有异常、non-basic是否在上下界范围内、relu是否正常
-        checkInvariants();
+        checkInvariants();  //if has error, it will exit(1) immediately
     }
 
+    // 先设置好fix时不同variable需要的参数，然后进行fix，优先fix b与f一致，其次再考虑设置f与b一致
     bool fixBrokenRelu( unsigned toFix )
     {
         bool isF = _reluPairs.isF( toFix );
@@ -1999,16 +2012,17 @@ public:
         double fDelta;
         double bDelta;
 
+        // 如果forward变量为正，且backward变量为非正，则若要纠正f,则
         if ( FloatUtils::isPositive( fVal ) && !FloatUtils::isPositive( bVal ) )
         {
             fDelta = -fVal;
             bDelta = fVal - bVal;
-        }
+        }// 如果f为正，且b为正，则各自delta为两者的差值
         else if ( FloatUtils::isPositive( fVal ) && FloatUtils::isPositive( bVal ) )
         {
             fDelta = bVal - fVal;
             bDelta = fVal - bVal;
-        }
+        }// 如果f为0，b为正数，则纠正f时将f置为b，纠正b时将b置为负数
         else if ( FloatUtils::isZero( fVal ) && FloatUtils::isPositive( bVal ) )
         {
             fDelta = bVal;
@@ -2027,10 +2041,12 @@ public:
         return true;
     }
 
+
     bool fixBrokenReluVariable( unsigned var, bool increase, double &delta, unsigned &_brokenReluStat )
     {
         log( Stringf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta ) );
 
+        // 若为non-basic变量
         if ( !_basicVariables.exists( var ) )
         {
             DEBUG(
@@ -2056,7 +2072,7 @@ public:
             log( Stringf( "Var %s isn't basic; no pivot needed, simply updating\n", toName( var ).ascii() ) );
             update( var, delta, true );
             return true;
-        }
+        }// 若为 basic 变量，需要先pivot()，然后再update
         else
         {
             ++_brokenReluStat;
@@ -2112,10 +2128,10 @@ public:
 		// 每次赋值之后，都要对接近0的变量进行置0操作，并根据当前assignment重新计算当前的变量的状态
         while ( columnEntry != NULL )
         {
-            current = columnEntry;
-            columnEntry = columnEntry->nextInColumn();
+            current = columnEntry;      // current is the non-basic in this time to update
+            columnEntry = columnEntry->nextInColumn();  // columnEntry is the same non-basic which appear in the next row
 
-            unsigned row = current->getRow();
+            unsigned row = current->getRow();   // get the row number ,in order to compare with the variable, if it equals, the value is always -1, no need to update
             if ( row != variable )
             {
                 _assignment[row] += delta * current->getValue();
@@ -2138,6 +2154,8 @@ public:
 
             // If the partner is basic, it's okay for the pair to be broken
 			// 现在variable肯定不是basic, 所以如果它的partner是basic , 可以允许暂时broken,
+            // because the rules made by algorithm need this, if it is basic , it might be changed by another non-basic
+            // only if all the relu pair's two variable are non-baisc , we need to fix them
 
             if ( _basicVariables.exists( partner ) )
             {
@@ -2458,7 +2476,7 @@ public:
     bool eliminateAuxVariables()
     {
         log( "eliminateAuxVariables starting\n" );
-        computeVariableStatus();
+        computeVariableStatus();    // 设置_varToStatus
 
         Set<unsigned> initialAuxVariables = _basicVariables;
 
@@ -2487,7 +2505,7 @@ public:
             printf( "Attempted to eliminate a relu variable. They shouldn't be marked as aux\n" );
             exit( 1 );
         }
-		// 判断是否超越下界
+		// 判断是否超越下界,这里的var只会是最初调用时的辅助变量，所以一定时候basic
         bool increase = tooLow( var );
 
 		// 根据越界情况，取delta为上或下界与value的差值
@@ -2508,7 +2526,7 @@ public:
 
 		// 进行pivot操作
         pivot( pivotCandidate, var );
-		// 更新
+		// 更新,如果delta为0，则自动返回
         update( var, delta );
 
         if ( !fixedAtZero( var ) )
@@ -3565,7 +3583,7 @@ private:
     Map<unsigned, ReluDissolutionType> _preprocessedDissolvedRelus;
 
     bool _printAssignment;
-    Set<unsigned> _eliminatedVars;
+    Set<unsigned> _eliminatedVars;  // 存储被消除的辅助变量，
 
     unsigned _numOutOfBoundFixes;
     unsigned _numOutOfBoundFixesViaBland;
@@ -3608,14 +3626,11 @@ private:
     Set<unsigned> _activeSlackRowVars;
     Set<unsigned> _activeSlackColVars;
 
-    Map<unsigned, unsigned> _fToSlackRowVar;// _fToSlackRowVar 以及 _slackRowVariableToF都是在setReluPair里初始化赋值的，后续都不再更改
-											// 其中，_fToSlackRowVar用于根据forward变量的编号，找到一个键，再通过键，从Map _slackRowVariableToF中
-											// 找到Forward变量，或从Map _slackRowVariableToB中找到backward变量
-    Map<unsigned, unsigned> _fToSlackColVar;// 默认不用
+    Map<unsigned, unsigned> _fToSlackRowVar;
+    Map<unsigned, unsigned> _fToSlackColVar;
 
     Map<unsigned, unsigned> _slackRowVariableToF;
-    Map<unsigned, unsigned> _slackRowVariableToB;// _fToSlackRowVar 以及 _slackRowVariableToF都是在setReluPair里初始化赋值的，后续都不再更改
-
+    Map<unsigned, unsigned> _slackRowVariableToB;
     Map<unsigned, VariableBound> _slackToLowerBound;
     Map<unsigned, VariableBound> _slackToUpperBound;
 

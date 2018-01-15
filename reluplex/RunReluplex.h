@@ -75,7 +75,7 @@ public:
         _reluplex->setLowerBound( 8, 0.0 );
         _reluplex->setUpperBound( 8, 0.0 );
 
-        _reluplex->setLowerBound( 1, -9.0 );
+        _reluplex->setLowerBound( 1, -9.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
         _reluplex->setUpperBound( 1, 9.0 );
         _reluplex->setUpperBound( 2, 9.0 );
         _reluplex->setLowerBound( 3, -9.0 );
@@ -155,8 +155,9 @@ public:
     {
         // Choose between the 2 available examples
         example1();
-        // example2();
+//         example2();
 
+        _reluplex->setLogging( true );
         _reluplex->setDumpStates( true );
 
         try
