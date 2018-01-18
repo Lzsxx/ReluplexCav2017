@@ -4,7 +4,7 @@ use our update		Update: x4 += 0.50
 Checking invariants after initial update
 makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
 
-03:50:03 Statistics update:
+05:47:49 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 0. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -45,7 +45,7 @@ makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
 
 makeAllBoundsFinite -- Done (0 vars with infinite bounds)
 
-03:50:03 Statistics update:
+05:47:49 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 0. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -110,7 +110,7 @@ Variable x7 fixed at zero. Eliminating...
 eliminateAuxVariables finished successfully
 Initialization steps over.
 
-03:50:03 Statistics update:
+05:47:49 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 3. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -238,7 +238,7 @@ Visiting state:
      x7|                                                        |  0.00 <=  0.00   <=  0.00
 
 
-03:50:03 Statistics update:
+05:47:49 Statistics update:
 	Calls to 'progress': 2. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 5. Total pivot time: 0 milli.
 	Average pivot time: 0 milli

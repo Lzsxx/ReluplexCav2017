@@ -188,9 +188,15 @@ public:
                 printCurrentAE();
 
                 /*** Add By Lzs ***/
-//                while ( !_reluplex->stopFind ){
-//                    example1();
-//                }
+                // 每次调用progress前都要存储此时_reluplex对象的状态，如果findPivotCandidate中有多个候选者，则将进入这段代码之前
+                // 存储的_reluplex对象的状态正式投入使用，在运行完一次得到解答之后，回到算法中当时运行progress时的状态，
+                // 继续尝试运行，并在findPivotCandidate之时排除上一次所选的候选者
+
+
+
+
+
+
             }
             else if ( result == Reluplex::UNSAT )
                 printf( "\n*** Can't Solve ***\n" );

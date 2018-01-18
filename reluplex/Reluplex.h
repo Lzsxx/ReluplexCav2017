@@ -79,7 +79,7 @@ public:
 
     bool stopFind;  // Add by lzs
     double *_assignment;	//数组，存储所有变量的相应值
-
+    int *candidateNode;
 
     enum FinalStatus {
         SAT = 0,
@@ -103,6 +103,7 @@ public:
     Reluplex( unsigned numVariables, char *finalOutputFile = NULL, String reluplexName = "" )
         : stopFind(false)
             , _assignment( NULL )
+          ,candidateNode(NULL)
         , _numVariables( numVariables )	//所有变量的总数
         , _reluplexName( reluplexName )	//
         , _finalOutputFile( finalOutputFile )
@@ -188,6 +189,15 @@ public:
         , _totalTimeEvalutingGlpkRows( 0 )
         , _consecutiveGlpkFailureCount( 0 )
     {
+        // add by lzs
+        candidateNode = new int[_numVariables];
+        for (int i = 0; i < _numVariables; i++) {
+            candidateNode[i] = -1;
+        }
+        candidateNode[0] = 0;   // 用下标0记录长度，而候选者会去除自身，所以_numVariables -1 个空间完全够存储候选者
+
+        // add end
+
         activeReluplex = this;
 
         srand( time( 0 ) );
@@ -521,8 +531,10 @@ public:
             // 找到broken的ReluPair中的forward变量
             unsigned f = _reluPairs.isF( brokenReluVar ) ? brokenReluVar : _reluPairs.toPartner( brokenReluVar );
 
-            if ( _smtCore.notifyBrokenRelu( f ) )
+            if ( _smtCore.notifyBrokenRelu( f ) ){
+                printf("use smtCore");
                 return true; // Splitting/Merging is a form of progress
+            }
             return fixBrokenRelu( f );  // fix完成一次，返回true
         }
 
@@ -2558,8 +2570,10 @@ public:
     }
 
     bool findPivotCandidate( unsigned variable, bool increase, unsigned &pivotCandidate,
-                             bool ensureNumericalStability = true )
+                             bool ensureNumericalStability = true ) // ensureNumericalStability只在initial时会传入false
     {
+
+
         const Tableau::Entry *rowEntry = _tableau.getRow( variable );
         const Tableau::Entry *current;
 
@@ -2625,6 +2639,21 @@ public:
             // Have a candidate with a small pivot coefficient
 			// 如果找到了一个候选者，但是它的值非常小，先将第一个记录下来，再进行后续比较，如果后续还发现了符合条件，而权重值更大的pivot候选者，就更新least记录
             found = true;
+
+            /*** find a candidate ****/
+            candidateNode[0] ++ ;
+            int index =  candidateNode[0];
+            candidateNode[index] = column;
+
+            if (index > 1){
+                // 当有不止一个候选者时，就要记录当前_reluplex的数值状态，便于以后回溯
+                printf("Begin copy _reluplex");
+
+            }
+
+
+
+
             if ( FloatUtils::gt( weight, leastEvilWeight ) )
             {
                 leastEvilWeight = weight;
@@ -3009,7 +3038,6 @@ public:
 		// 初始化时暂时不涉及
         _preprocessedDissolvedRelus = _dissolvedReluVariables;
 
-		
 		// _basicVariables;	//markBasic中初始化，pivot中修改
         _preprocessedBasicVariables = _basicVariables;
 
