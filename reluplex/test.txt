@@ -1,10 +1,10 @@
 Float Utils: default epsilon = 0.000000000100000
 Almost-broken nuking marging: 0.001000000000000
-		Update: x4 += 0.50
+use our update		Update: x4 += 0.50
 Checking invariants after initial update
 makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
 
-02:33:15 Statistics update:
+03:50:03 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 0. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -45,7 +45,7 @@ makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
 
 makeAllBoundsFinite -- Done (0 vars with infinite bounds)
 
-02:33:15 Statistics update:
+03:50:03 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 0. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -90,7 +90,7 @@ PivotAndUpdate: <x5,  0.50, x3f>
 		Pivot: x5 <--> x3f
 			Pivot--clearing 1 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 4 calcs)
-		Update: x5 += 0.50
+use our update		Update: x5 += 0.50
 
 Variable x5 fixed at zero. Eliminating...
 
@@ -98,19 +98,19 @@ PivotAndUpdate: <x6,  0.00, x2b>
 		Pivot: x6 <--> x2b
 			Pivot--clearing 1 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
-
+use our update
 Variable x6 fixed at zero. Eliminating...
 
 PivotAndUpdate: <x7,  0.00, x3b>
 		Pivot: x7 <--> x3b
 			Pivot--clearing 1 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
-
+use our update
 Variable x7 fixed at zero. Eliminating...
 eliminateAuxVariables finished successfully
 Initialization steps over.
 
-02:33:15 Statistics update:
+03:50:03 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 3. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -192,7 +192,7 @@ PivotAndUpdate: <x3f, -0.50, x2f>
 		Pivot: x3f <--> x2f
 			Pivot--clearing 1 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
-		Update: x3f += -0.50
+use our update		Update: x3f += -0.50
 
 Progress starting
 
@@ -219,9 +219,9 @@ PivotAndUpdate: <x2b,  0.50, x1>
 		Pivot: x2b <--> x1
 			Pivot--clearing 2 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
-		Update: x2b += 0.50
+use our update		Update: x2b += 0.50
 
- It can be solved. current state is:
+It can be solved. current state is: 
 
 Visiting state:
 
@@ -238,7 +238,7 @@ Visiting state:
      x7|                                                        |  0.00 <=  0.00   <=  0.00
 
 
-02:33:15 Statistics update:
+03:50:03 Statistics update:
 	Calls to 'progress': 2. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 5. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -279,3 +279,12 @@ Visiting state:
 
 
 *** Solved! ***
+Variable 0 : value = 0.5000000000 
+Variable 1 : value = 0.5000000000 
+Variable 2 : value = 0.5000000000 
+Variable 3 : value = -0.5000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.0000000000 
+Variable 7 : value = 0.0000000000 
+Variable 8 : value = 0.0000000000 

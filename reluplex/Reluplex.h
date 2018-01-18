@@ -76,6 +76,11 @@ String milliToString( unsigned long long milliseconds )
 class Reluplex : public IReluplex
 {
 public:
+
+    bool stopFind;  // Add by lzs
+    double *_assignment;	//数组，存储所有变量的相应值
+
+
     enum FinalStatus {
         SAT = 0,
         UNSAT = 1,
@@ -96,7 +101,9 @@ public:
     };
 
     Reluplex( unsigned numVariables, char *finalOutputFile = NULL, String reluplexName = "" )
-        : _numVariables( numVariables )	//所有变量的总数
+        : stopFind(false)
+            , _assignment( NULL )
+        , _numVariables( numVariables )	//所有变量的总数
         , _reluplexName( reluplexName )	//
         , _finalOutputFile( finalOutputFile )
         , _finalStatus( NOT_DONE )
@@ -107,7 +114,6 @@ public:
         , _lowerBounds( NULL )
         , _preprocessedUpperBounds( NULL )
         , _preprocessedLowerBounds( NULL )
-        , _assignment( NULL )
         , _preprocessedAssignment( NULL )// 所有和bounds和assignment有关的变量，都是数组，存储所有变量的上下界和赋值
         , _smtCore( this, _numVariables )
         , _useApproximations( true )
@@ -267,8 +273,14 @@ public:
         _wasInitialized = true;
     }
 
-    FinalStatus solve()
+    FinalStatus solve( double **currentAdversaryE, int num_AE, int num_Node )
     {
+        for (int j = 0; j < num_AE; ++j) {
+            for (int k = 0; k < num_Node; ++k) {
+                printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+            }
+        }
+
         timeval start = Time::sampleMicro();
         timeval end;
 
@@ -2109,6 +2121,8 @@ public:
 
     void update( unsigned variable, double delta, bool ignoreRelu = false )
     {
+        printf("use our update");
+
 		// delta可能是正数，也可能是负数，
 
         if ( FloatUtils::isZero( delta ) )
@@ -3529,7 +3543,6 @@ private:
     VariableBound *_lowerBounds;	//数组，存储所有变量的相应值
     VariableBound *_preprocessedUpperBounds;	//数组，存储所有变量的相应值
     VariableBound *_preprocessedLowerBounds;	//数组，存储所有变量的相应值
-    double *_assignment;	//数组，存储所有变量的相应值
     double *_preprocessedAssignment;	//数组，存储所有变量的相应值
     Set<unsigned> _basicVariables;	// Set
     Set<unsigned> _preprocessedBasicVariables;
@@ -3647,6 +3660,7 @@ private:
     bool _quit;
     bool _fullTightenAllBounds;
     bool _glpkExtractJustBasics;
+
 
     unsigned long long _totalTimeEvalutingGlpkRows;
     unsigned _consecutiveGlpkFailureCount;

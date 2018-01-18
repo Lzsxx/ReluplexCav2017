@@ -18,8 +18,15 @@
 class RunReluplex
 {
 public:
-    RunReluplex() : _reluplex( NULL )
+    int num_Node = 9;
+    int num_AE = 0;
+
+    RunReluplex() : _reluplex( NULL ),currentAdversaryE(NULL)
     {
+        currentAdversaryE = new double*[num_Node];
+        for (int i = 0; i < num_Node; i++) {
+            currentAdversaryE[i] = new double[i];
+        }
     }
 
     ~RunReluplex()
@@ -151,6 +158,14 @@ public:
         _reluplex->setReluPair( 3, 4 );
     }
 
+    void printCurrentAE(){
+        for (int j = 0; j < num_AE; ++j) {
+            for (int k = 0; k < num_Node; ++k) {
+                printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+            }
+        }
+    }
+
     void go()
     {
         // Choose between the 2 available examples
@@ -162,9 +177,21 @@ public:
 
         try
         {
-            Reluplex::FinalStatus result = _reluplex->solve();
-            if ( result == Reluplex::SAT )
+            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node);
+            if ( result == Reluplex::SAT ){
                 printf( "\n*** Solved! ***\n" );
+                for (int i = 0; i < num_Node; i++) {
+                    currentAdversaryE[num_AE][i] = _reluplex->_assignment[i];
+                }
+                num_AE ++;
+
+                printCurrentAE();
+
+                /*** Add By Lzs ***/
+//                while ( !_reluplex->stopFind ){
+//                    example1();
+//                }
+            }
             else if ( result == Reluplex::UNSAT )
                 printf( "\n*** Can't Solve ***\n" );
             else if ( result == Reluplex::ERROR )
@@ -187,6 +214,7 @@ public:
 
 private:
     Reluplex *_reluplex;
+    double **currentAdversaryE ;
 };
 
 #endif // __RunReluplex_h__
