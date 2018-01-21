@@ -33,8 +33,7 @@ public:
         _finite = true;
         _bound = bound;
     }
-
-    // just called in copy_reluplex()
+        // just called in copy_reluplex()
     void setFinite( bool finite )
     {
         _finite = finite;

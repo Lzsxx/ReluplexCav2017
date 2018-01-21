@@ -56,7 +56,8 @@ public:
         : _reluplex( reluplex )
         , _numVariables( numVariables )
         , _totalSmtCoreTimeMilli( 0 )
-        , _logging( false )
+        , _logging( true )
+//        , _logging(false )
     {
     }
 

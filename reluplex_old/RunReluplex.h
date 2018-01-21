@@ -18,13 +18,12 @@
 class RunReluplex
 {
 public:
-    Reluplex *myCopyReluplex;
-    double **currentAdversaryE ;
+    Reluplex *copyReluplex;
 
     int num_Node = 9;
     int num_AE = 0;
 
-    RunReluplex() : _reluplex( NULL )
+    RunReluplex() : _reluplex( NULL ),currentAdversaryE(NULL)
     {
         currentAdversaryE = new double*[num_Node];
         for (int i = 0; i < num_Node; i++) {
@@ -38,20 +37,12 @@ public:
             delete _reluplex;
     }
 
-    void printCurrentAE(){
-        printf("printCurrentAE:\n");
-        for (int j = 0; j < num_AE; ++j) {
-            for (int k = 0; k < num_Node; ++k) {
-                printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
-            }
-        }
-    }
-
     // This is the simple example from the paper.
     void example1()
     {
         _reluplex = new Reluplex( 9 );
-        myCopyReluplex = new Reluplex(9);
+        copyReluplex = new Reluplex(9);
+
 
         _reluplex->setName( 0, "x1" );
         _reluplex->setName( 1, "x2b" );
@@ -171,6 +162,15 @@ public:
         _reluplex->setReluPair( 3, 4 );
     }
 
+    void printCurrentAE(){
+        printf("printCurrentAE:\n");
+        for (int j = 0; j < num_AE; ++j) {
+            for (int k = 0; k < num_Node; ++k) {
+                printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+            }
+        }
+    }
+
     void go()
     {
         // Choose between the 2 available examples
@@ -182,21 +182,26 @@ public:
 
         try
         {
-            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node, myCopyReluplex);
+
+            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node, *copyReluplex);
             if ( result == Reluplex::SAT ){
                 printf( "\n*** Solved! ***\n" );
-
-                /*** add by lzs **/
-
                 for (int i = 0; i < num_Node; i++) {
                     currentAdversaryE[num_AE][i] = _reluplex->_assignment[i];
                 }
                 num_AE ++;
+
                 printCurrentAE();
 
+                /*** Add By Lzs ***/
                 // 每次调用progress前都要存储此时_reluplex对象的状态，如果findPivotCandidate中有多个候选者，则将进入这段代码之前
                 // 存储的_reluplex对象的状态正式投入使用，在运行完一次得到解答之后，回到算法中当时运行progress时的状态，
                 // 继续尝试运行，并在findPivotCandidate之时排除上一次所选的候选者
+
+
+
+
+
 
             }
             else if ( result == Reluplex::UNSAT )
@@ -221,6 +226,7 @@ public:
 
 private:
     Reluplex *_reluplex;
+    double **currentAdversaryE ;
 };
 
 #endif // __RunReluplex_h__

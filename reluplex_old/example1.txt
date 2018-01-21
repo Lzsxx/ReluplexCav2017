@@ -1,12 +1,19 @@
 Float Utils: default epsilon = 0.000000000100000
 Almost-broken nuking marging: 0.001000000000000
-Float Utils: default epsilon = 0.000000000100000
-Almost-broken nuking marging: 0.001000000000000
+Setting name: x1 --> 0
+Setting name: x2b --> 1
+Setting name: x2f --> 2
+Setting name: x3b --> 3
+Setting name: x3f --> 4
+Setting name: x4 --> 5
+Setting name: x5 --> 6
+Setting name: x6 --> 7
+Setting name: x7 --> 8
 		Update: x4 += 0.50
 Checking invariants after initial update
 makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
 
-07:45:37 Statistics update:
+04:42:41 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 0. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -47,7 +54,7 @@ makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
 
 makeAllBoundsFinite -- Done (0 vars with infinite bounds)
 
-07:45:37 Statistics update:
+04:42:41 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 0. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -87,8 +94,6 @@ makeAllBoundsFinite -- Done (0 vars with infinite bounds)
 		6. Unaccounted for: 0 milli (0%)
 
 eliminateAuxVariables starting
-Enter findPivotCandidate 
-find a candidate and ensureNumericalStability is false : 4, 0 
 
 PivotAndUpdate: <x5,  0.50, x3f>
 		Pivot: x5 <--> x3f
@@ -97,8 +102,6 @@ PivotAndUpdate: <x5,  0.50, x3f>
 		Update: x5 += 0.50
 
 Variable x5 fixed at zero. Eliminating...
-Enter findPivotCandidate 
-find a candidate and ensureNumericalStability is false : 1, 0 
 
 PivotAndUpdate: <x6,  0.00, x2b>
 		Pivot: x6 <--> x2b
@@ -106,8 +109,6 @@ PivotAndUpdate: <x6,  0.00, x2b>
 			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
 
 Variable x6 fixed at zero. Eliminating...
-Enter findPivotCandidate 
-find a candidate and ensureNumericalStability is false : 3, 0 
 
 PivotAndUpdate: <x7,  0.00, x3b>
 		Pivot: x7 <--> x3b
@@ -118,7 +119,7 @@ Variable x7 fixed at zero. Eliminating...
 eliminateAuxVariables finished successfully
 Initialization steps over.
 
-07:45:37 Statistics update:
+04:42:41 Statistics update:
 	Calls to 'progress': 0. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 3. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -173,9 +174,6 @@ Visiting state:
      x7|                                                        |  0.00 <=  0.00   <=  0.00
 
 Starting the main loop
-
-Begin copy _reluplex
-
 Progress starting
 
 Visiting state:
@@ -196,20 +194,13 @@ No OOB variables to fix, looking at broken relus
 
 Attempting broken-relu fix on var: x3f
 fixBrokenReluVariable Starting: var = x3b, delta = 0.500000
-Enter findPivotCandidate 
 fixBrokenReluVariable Starting: var = x3f, delta = -0.500000
-Enter findPivotCandidate 
-find a candidate: 2 
-findPivotCandidate: forced to pick a bad candidate! Weight = 1.000000
 
 PivotAndUpdate: <x3f, -0.50, x2f>
 		Pivot: x3f <--> x2f
 			Pivot--clearing 1 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
 		Update: x3f += -0.50
-
-Begin copy _reluplex
-
 Progress starting
 
 Visiting state:
@@ -230,17 +221,12 @@ No OOB variables to fix, looking at broken relus
 
 Attempting broken-relu fix on var: x2f
 fixBrokenReluVariable Starting: var = x2b, delta = 0.500000
-Enter findPivotCandidate 
-find a candidate: 0 
-findPivotCandidate: forced to pick a bad candidate! Weight = 1.000000
 
 PivotAndUpdate: <x2b,  0.50, x1>
 		Pivot: x2b <--> x1
 			Pivot--clearing 2 column entries--starting
 			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
 		Update: x2b += 0.50
-
-It can be solved. current state is: 
 
 Visiting state:
 
@@ -257,7 +243,7 @@ Visiting state:
      x7|                                                        |  0.00 <=  0.00   <=  0.00
 
 
-07:45:37 Statistics update:
+04:42:41 Statistics update:
 	Calls to 'progress': 2. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 5. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -298,13 +284,3 @@ Visiting state:
 
 
 *** Solved! ***
-printCurrentAE:
-Variable 0 : value = 0.5000000000 
-Variable 1 : value = 0.5000000000 
-Variable 2 : value = 0.5000000000 
-Variable 3 : value = -0.5000000000 
-Variable 4 : value = 0.0000000000 
-Variable 5 : value = 0.5000000000 
-Variable 6 : value = 0.0000000000 
-Variable 7 : value = 0.0000000000 
-Variable 8 : value = 0.0000000000 
