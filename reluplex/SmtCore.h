@@ -116,6 +116,7 @@ public:
         _reluplex->computeVariableStatus();
     }
 
+    // 判断是否需要进行split，还是要进行Merge。如果F是正数，则B一定也是同样的值，此时是merge，如果F是0，则B是负值，此时为split
     bool beginWithSplit( unsigned f )
     {
         // Return true for split, false for merge.
@@ -135,6 +136,7 @@ public:
         return true;
     }
 
+    // 执行论文中 ReluSplit,并将当前状态存入栈中
     void dissolveReluOnVar( unsigned variable )
     {
         log( Stringf( "Resolving relu on var: %s. (current depth = %u)\n",
@@ -152,7 +154,7 @@ public:
         // Set the type for the first attempt
         splitInformation->_firstAttempt = true;
 
-        if ( beginWithSplit( variable ) )
+        if ( beginWithSplit( variable ) )   // 判断应该进行spilt，还是应该进行merge
         {
             // Do a split
             splitInformation->_type = SplitInformation::SPLITTING_RELU;
@@ -198,6 +200,7 @@ public:
     {
         timeval start = Time::sampleMicro();
 
+        // while true循环，会一直回退到有分叉的地方，即：oldState->firstAttempt为true时表示此处还有分叉，否则就都是已经遍历过的
         while ( true )
         {
             if ( _stack.empty() )
@@ -281,6 +284,10 @@ public:
 
         ++_fToViolations[f];
 
+        // 对于broken relu pair 采用的策略是先update-f 或 update-b，只有当update次数超过一定阈值时，才进行split
+        //// notifyBrokenRelu函数的作用就是判断是否update已经超出一定次数 NUM_RELU_OPERATIONS_BEFORE_SPLIT，
+        //// 若是，则调用dissolveReluOnVar（）执行论文中的ReluSplit步骤，返回true
+        //// 否则，直接返回false
         if ( _fToViolations[f] >= NUM_RELU_OPERATIONS_BEFORE_SPLIT )
         {
             DEBUG(

@@ -18,7 +18,6 @@
 class RunReluplex
 {
 public:
-    Reluplex *myCopyReluplex;
     double **currentAdversaryE ;
 
     int num_Node = 9;
@@ -51,7 +50,6 @@ public:
     void example1()
     {
         _reluplex = new Reluplex( 9 );
-        myCopyReluplex = new Reluplex(9);
 
         _reluplex->setName( 0, "x1" );
         _reluplex->setName( 1, "x2b" );
@@ -182,7 +180,7 @@ public:
 
         try
         {
-            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node, myCopyReluplex);
+            Reluplex::FinalStatus result = _reluplex->solve();
             if ( result == Reluplex::SAT ){
                 printf( "\n*** Solved! ***\n" );
 
@@ -198,6 +196,7 @@ public:
                 // 存储的_reluplex对象的状态正式投入使用，在运行完一次得到解答之后，回到算法中当时运行progress时的状态，
                 // 继续尝试运行，并在findPivotCandidate之时排除上一次所选的候选者
 
+                /*** add end ***/
             }
             else if ( result == Reluplex::UNSAT )
                 printf( "\n*** Can't Solve ***\n" );

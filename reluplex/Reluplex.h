@@ -614,15 +614,9 @@ public:
         _wasInitialized = true;
     }
 
-    FinalStatus solve( double **currentAdversaryE, int num_AE, int num_Node, Reluplex *myCopyReluplex )
-    {
-        // 每次调用solve()时，打印此时已经解出的值
-        for (int j = 0; j < num_AE; ++j) {
-            for (int k = 0; k < num_Node; ++k) {
-                printf( "In solve() currentAdversaryE: Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
-            }
-        }
 
+    FinalStatus solve()
+    {
         timeval start = Time::sampleMicro();
         timeval end;
 
@@ -650,7 +644,7 @@ public:
             // 保存一些需要的数据，如initialize后的Tableau、
             storePreprocessedMatrix();
 
-			// 打印信息和存入Log
+            // 打印信息和存入Log
             printf( "Initialization steps over.\n" );
             printStatistics();
             dump();
@@ -674,20 +668,25 @@ public:
                     return _finalStatus;
                 }
 
-				// violatingLevelInStack默认初始化为0，表示导致violation进行了多少次split,而smtCore需要根据这个值重做多少次decisions
+                // violatingLevelInStack默认初始化为0，表示导致violation进行了多少次split,而smtCore需要根据这个值重做多少次decisions
                 unsigned violatingLevelInStack;
 
-				// 否则，还有越界的basic变量，或者broken的relu，就调用process继续处理
+                // 否则，还有越界的basic变量，或者broken的relu，就调用process继续处理
+                // 如果处理成功，表明进行了一次值的更新，返回true,进行下一次循环
 
-				// 如果处理不成功，返回false（只有在我们的算法明确表示找不到解决方案NO_SOLUTION_EXISTS，才会返回false），
-				// 此时调用smtScore，给出一个上一刻的决策值，如果没有，就返回UNSAT
+                // 如果处理不成功，返回false
+                // 可能导致返回false的情况：1、GLPK没有找到解决方案NO_SOLUTION_EXISTS
+                // 2、出现异常
+                // 3、fix越界变量时没有找到可以Pivot的候选者
 
-                // 完成了一次fix broken relu pair，返回true,然后再进入下一个while循环
+                // 此时调用smtScore，根据_useConflictAnalysis，对栈进行pop一次或者多次，pop之后之前的状态直接就还原进入了_reluplex对象
+                // 进入下一次循环，继续处理
 
-
-                if ( !progress( violatingLevelInStack, myCopyReluplex ) )
+                if ( !progress( violatingLevelInStack ) )
                 {
-					// 如果需要进行冲突处理，则调用_smtCore, default value is true
+                    // 如果需要进行冲突处理，则调用_smtCore, default value is true
+                    // violatingLevelInStack的值是刚进入progress时的_currentStackDepth，
+
                     if ( _useConflictAnalysis )
                         _smtCore.pop( violatingLevelInStack );  // if has conflict Analysis, it will go back several steps
                     else
@@ -696,8 +695,8 @@ public:
                     setMinStackSecondPhase( _currentStackDepth );
                 }
 
-				// 如果progress处理成功，返回true,可能是SOLVER_FAILED，也可能是SOLVER_FOUND，
-				// 进入下个循环
+                // 如果progress处理成功，返回true,可能是SOLVER_FAILED，也可能是SOLVER_FOUND，
+                // 进入下个循环
 
             }
         }
@@ -743,7 +742,7 @@ public:
 
 
 
-    bool progress( unsigned &violatingLevelInStack, Reluplex *myCopyReluplex )
+    bool progress( unsigned &violatingLevelInStack )
     {
         /**
          * progress()有两个出口返回true
@@ -753,9 +752,7 @@ public:
          * 如果有relu pair问题，要先fix,然后才返回true
          */
 
-
-
-        copy_reluplex( myCopyReluplex );
+//        copy_reluplex( myCopyReluplex );
 
 
         log( "\nProgress starting\n" );
@@ -817,7 +814,7 @@ public:
                     return true;
                 }
 
-				// 如果返回值非以上两种，则只可能是 SOLUTION_FOUND，表示找到了解决方案
+				//// 如果返回值非以上两种，则只可能是 SOLUTION_FOUND，表示找到了解决方案
 				// 此时如果没有broken的ReluPair，则直接返回true
                 if ( allRelusHold() )
                     return true;
@@ -855,6 +852,8 @@ public:
                 return true;
             }
 
+            //// 没有越界变量，就要查看是否有broken的pair
+
             // Reset the GLPK failure measures
             _consecutiveGlpkFailureCount = 0;
             _previousGlpkAnswer = GlpkWrapper::SOLUTION_FOUND;
@@ -871,8 +870,11 @@ public:
             // 找到broken的ReluPair中的forward变量
             unsigned f = _reluPairs.isF( brokenReluVar ) ? brokenReluVar : _reluPairs.toPartner( brokenReluVar );
 
+            //// notifyBrokenRelu()如果返回true,表示update-f或update-b已经超过阈值，在notifyBrokenRelu中进行了split，并将状态存入栈中
             if ( _smtCore.notifyBrokenRelu( f ) )
-                return true; // Splitting/Merging is a form of progress
+                return true; // Splitting/Merging is a form of progress，已进行过split，直接返回true，以便进入下一次progress循环
+
+            //// 否则，若是notifyBrokenRelu返回false，表示此时还不需要进行split，可以继续用update-f-b来进行修复pair
             return fixBrokenRelu( f );  // fix完成一次，返回true
         }
 
@@ -2905,21 +2907,10 @@ public:
         return true;
     }
 
+
     bool findPivotCandidate( unsigned variable, bool increase, unsigned &pivotCandidate,
                              bool ensureNumericalStability = true )
     {
-        printf("Enter findPivotCandidate \n");
-
-        /*** add by lzs ***/
-        for (int i = 1; i <= candidateNode[0]; ++i) {
-            candidateNode[i] = -1;
-        }
-        candidateNode[0] = 0;
-
-
-        /*** add end ***/
-
-
         const Tableau::Entry *rowEntry = _tableau.getRow( variable );
         const Tableau::Entry *current;
 
@@ -2976,40 +2967,15 @@ public:
             // 默认值为true,但是传入值为false,一定会进入if,返回true
             // ensureNumericalStability是指是否需要保证数字的稳定性，因为当数字太小时，由于计算机固有误差，会近似等于0
             // 而此时刚刚开始进行计算，传入false,可以忽略这一要求，保证在满足slack条件的情况下一定能找到pivot候选者
-
-            /*** modify by lzs ***/
-
-//            if ( !ensureNumericalStability || FloatUtils::gte( weight, NUMBERICAL_INSTABILITY_CONSTANT ) )
-
-            /*** modify end ***/
-
-
-            if ( !ensureNumericalStability  )
+            if ( !ensureNumericalStability || FloatUtils::gte( weight, NUMBERICAL_INSTABILITY_CONSTANT ) )
             {
                 pivotCandidate = column;
-                printf("find a candidate and ensureNumericalStability is false : %u, %d \n",column, ensureNumericalStability);
                 return true;
             }
 
             // Have a candidate with a small pivot coefficient
             // 如果找到了一个候选者，但是它的值非常小，先将第一个记录下来，再进行后续比较，如果后续还发现了符合条件，而权重值更大的pivot候选者，就更新least记录
             found = true;
-
-            /*** find a candidate ****/
-            candidateNode[0] ++ ;
-            int index =  candidateNode[0];
-            candidateNode[index] = column;
-
-            if (index > 1){
-                // 当有不止一个候选者时，就要记录当前_reluplex的数值状态，便于以后回溯
-                printf("there has more than one candidate");
-
-            } else{
-                printf("find a candidate: %u \n",column);
-            }
-
-            /*** add end***/
-
             if ( FloatUtils::gt( weight, leastEvilWeight ) )
             {
                 leastEvilWeight = weight;
@@ -3023,9 +2989,11 @@ public:
             pivotCandidate = leastEvilNonBasic;
             return true;
         }
+
         // 没找到pivot候选者
         return false;
     }
+
 
     const VariableBound *getLowerBounds() const
     {
