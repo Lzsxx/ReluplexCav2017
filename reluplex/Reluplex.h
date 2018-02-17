@@ -682,6 +682,8 @@ public:
                 // 此时调用smtScore，根据_useConflictAnalysis，对栈进行pop一次或者多次，pop之后之前的状态直接就还原进入了_reluplex对象
                 // 进入下一次循环，继续处理
 
+                //// 每次progress可能是用GLPK进行一次fix越界变量，或者是用update-b-f更新有问题的pair，或者是用smtCore进行split,并记录状态在stack中
+
                 if ( !progress( violatingLevelInStack ) )
                 {
                     // 如果需要进行冲突处理，则调用_smtCore, default value is true
