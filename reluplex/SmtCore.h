@@ -226,6 +226,7 @@ public:
                     // Earlier round was a split. Now comes the merge.
 
                     log( "Popped a split, now doing a merge\n" );
+                    printf( "Popped a split, now doing a merge\n" );
                     log( Stringf( "Column size of %s when doing the merge: %u\n",
                                   _reluplex->toName( oldState->_variable ).ascii(),
                                   _reluplex->getColumnSize( oldState->_variable ) ) );
@@ -242,6 +243,7 @@ public:
                 {
                     // Earlier round was a merge. Now comes the split.
                     log( "Popped a merge, now doing a split\n" );
+                    printf( "Popped a merge, now doing a split\n" );
 
                     oldState->_type = SmtCore::SplitInformation::SPLITTING_RELU;
                     _stack.push( oldState );

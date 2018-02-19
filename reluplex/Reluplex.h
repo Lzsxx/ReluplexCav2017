@@ -122,7 +122,7 @@ public:
         , _useApproximations( true )
         , _findAllPivotCandidates( false )
         , _conflictAnalysisCausedPop( 0 )
-        , _logging( false )
+        , _logging( true )     // change by lzs
         , _dumpStates( false )
         , _numCallsToProgress( 0 )
         , _numPivots( 0 )
@@ -191,15 +191,6 @@ public:
         , _totalTimeEvalutingGlpkRows( 0 )
         , _consecutiveGlpkFailureCount( 0 )
     {
-
-        // add by lzs
-        candidateNode = new int[_numVariables];
-        for (unsigned i = 0; i < _numVariables; i++) {
-            candidateNode[i] = -1;
-        }
-        candidateNode[0] = 0;   // 用下标0记录长度，而候选者会去除自身，所以_numVariables -1 个空间完全够存储候选者
-
-        // add end
 
         activeReluplex = this;
 
@@ -615,7 +606,7 @@ public:
     }
 
 
-    FinalStatus solve()
+    FinalStatus solve(double **currentAdversaryE, int &num_AE)
     {
         timeval start = Time::sampleMicro();
         timeval end;
@@ -646,7 +637,8 @@ public:
 
             // 打印信息和存入Log
             printf( "Initialization steps over.\n" );
-            printStatistics();
+            printf("\n----- printStatistics() ----\n");
+            //printStatistics();
             dump();
             printf( "Starting the main loop\n" );
 
@@ -665,6 +657,36 @@ public:
                     _finalStatus = Reluplex::SAT;
                     end = Time::sampleMicro();
                     _totalProgressTimeMilli += Time::timePassed( start, end );
+
+
+                    /*** add by lzs **/
+                    for (unsigned c = 0; c < _numVariables; c++) {
+                        currentAdversaryE[num_AE][c] = _assignment[c];
+                    }
+                    num_AE ++;
+
+                    printf("printCurrentAE in RunReluplex:\n");
+                    for (int j = 0; j < num_AE; ++j) {
+                        printf("This is a adversial example:\n");
+                        for (unsigned k = 0; k < _numVariables; ++k) {
+                            printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+                        }
+                    }
+
+                    // √?????”√progress?∞??“????????±_reluplex?‘???????¨?¨??π?findPivotCandidate÷–”–??∏?∫?—°’??¨‘?Ω?Ω???’????˙??÷??∞
+                    // ??????_reluplex?‘???????¨’??Ω?????π”√?¨‘?‘?––??“????√?ΩΩ???÷?∫??¨???Ω??∑?÷–?±?±‘?––progress?±?????¨?¨
+                    // ??–?≥??‘‘?––?¨≤?‘?findPivotCandidate÷??±≈≈≥?…?“?????—°??∫?—°’?
+
+//                    if (num_AE < 3){
+//                        _smtCore.pop();
+//                        continue;
+//                    } else{
+//                        return _finalStatus;
+//                    }
+
+                    /*** add end ***/
+
+
                     return _finalStatus;
                 }
 
@@ -778,8 +800,10 @@ public:
             }
 
 			// 每调用500次进行一次数据打印
-            if ( _numCallsToProgress % PRINT_STATISTICS == 0 )
-                printStatistics();
+            if ( _numCallsToProgress % PRINT_STATISTICS == 0 ){
+                printf("\n----- printStatistics() ----\n");
+//                printStatistics();
+            }
 			// 每500次打印赋值
             if ( _printAssignment && _numCallsToProgress % PRINT_ASSIGNMENT == 0 )
                 printAssignment();
@@ -2411,6 +2435,7 @@ public:
     bool fixBrokenReluVariable( unsigned var, bool increase, double &delta, unsigned &_brokenReluStat )
     {
         log( Stringf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta ) );
+        printf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta );
 
         // 若为non-basic变量
         if ( !_basicVariables.exists( var ) )
@@ -3104,7 +3129,8 @@ public:
 		// 计算上或下界中有无穷大值的变量的个数
         countVarsWithInfiniteBounds();
         log( Stringf( "makeAllBoundsFinite -- Starting (%u vars with infinite bounds)\n", _varsWithInfiniteBounds ) );
-        printStatistics();
+        printf("\n----- printStatistics() ----\n");
+//        printStatistics();
 
 		// 不懂
         for ( const auto &basic : _basicVariables )
@@ -3112,7 +3138,8 @@ public:
 
         countVarsWithInfiniteBounds();
         log( Stringf( "makeAllBoundsFinite -- Done (%u vars with infinite bounds)\n", _varsWithInfiniteBounds ) );
-        printStatistics();
+        printf("\n----- printStatistics() ----\n");
+//        printStatistics();
 
         if ( _varsWithInfiniteBounds != 0 )
             throw Error( Error::EXPECTED_NO_INFINITE_VARS );

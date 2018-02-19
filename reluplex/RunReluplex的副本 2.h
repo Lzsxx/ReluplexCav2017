@@ -452,16 +452,18 @@ public:
         try
         {
             printf("num_AE: %d \n", num_AE);
-            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE);
+            Reluplex::FinalStatus result = _reluplex->solve();
             if ( result == Reluplex::SAT ){
                 printf( "\n*** Solved! ***\n" );
 
                 /*** add by lzs **/
 
-//                for (int i = 0; i < num_Node; i++) {
-//                    currentAdversaryE[num_AE][i] = _reluplex->_assignment[i];
-//                }
-//                num_AE ++;
+                for (int i = 0; i < num_Node; i++) {
+                    currentAdversaryE[num_AE][i] = _reluplex->_assignment[i];
+                }
+                num_AE ++;
+
+                //// -----------------
 
                 example3(_reluplex->_assignment[0]);
                 _reluplex->setLogging( true );
@@ -469,9 +471,14 @@ public:
                 try {
 
                     printf("num_AE: %d \n", num_AE);
-                    Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE);
+                    Reluplex::FinalStatus result = _reluplex->solve();
                     if (result == Reluplex::SAT) {
                         printf("\n*** Solved! ***\n");
+
+                        for (int i = 0; i < num_Node; i++) {
+                            currentAdversaryE[num_AE][i] = _reluplex->_assignment[i];
+                        }
+                        num_AE ++;
 
                     }
                     else if ( result == Reluplex::UNSAT )
@@ -480,7 +487,8 @@ public:
                         printf( "Reluplex error!\n" );
                     else
                         printf( "Reluplex not done (quit called?)\n" );
-                }catch ( const Error &e )
+                }
+                catch ( const Error &e )
                 {
                     if ( e.code() == Error::STACK_IS_EMPTY )
                         printf( "\n*** Can't Solve (STACK EMPTY) ***\n" );
