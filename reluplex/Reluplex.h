@@ -88,6 +88,9 @@ public:
         UNSAT = 1,
         ERROR = 2,
         NOT_DONE = 3,
+        SAT_BUT_THEN_UNSAT = 4,
+        SAT_BUT_THEN_ERROR = 5,
+        SAT_BUT_THEN_NOT_DONE = 6,
     };
 
     struct GlpkRowEntry
@@ -122,7 +125,7 @@ public:
         , _useApproximations( true )
         , _findAllPivotCandidates( false )
         , _conflictAnalysisCausedPop( 0 )
-        , _logging( true )     // change by lzs
+        , _logging(false )     // change by lzs
         , _dumpStates( false )
         , _numCallsToProgress( 0 )
         , _numPivots( 0 )
@@ -190,6 +193,7 @@ public:
         , _glpkExtractJustBasics( true )
         , _totalTimeEvalutingGlpkRows( 0 )
         , _consecutiveGlpkFailureCount( 0 )
+        , alreadySAT(false)
     {
 
         activeReluplex = this;
@@ -258,333 +262,333 @@ public:
         }
     }
 
-    void copy_reluplex(Reluplex *myCopyReluplex)
-    {
-
-        printf("\nBegin copy _reluplex\n");
-
-        unsigned num = _numVariables;
-        myCopyReluplex->stopFind = stopFind;
-        memcpy( myCopyReluplex->_assignment, _assignment, sizeof(double) * num );
-        memcpy( myCopyReluplex->candidateNode, candidateNode, sizeof(int) * num );
-        myCopyReluplex->_numVariables = _numVariables;
-
-        /*** copy String type _reluplexName ***/
-        String *str2 = &_reluplexName;
-        const char * charStr2 = str2->ascii();
-        String *tempName = new String(charStr2);
-        myCopyReluplex->_reluplexName = *tempName;
-//        printf("_reluplexName :  %s \n" ,str2->ascii() );
-//        printf("copyReluplex->_reluplexName :  %s \n" ,tempName->ascii() );
-
-        myCopyReluplex->_finalOutputFile = _finalOutputFile; // 是指针，但这个值在运行过程中不会改变，所以不需要另外生成对象
-        myCopyReluplex->_finalStatus = _finalStatus;
-        myCopyReluplex->_wasInitialized = _wasInitialized;
-        _tableau.backupIntoMatrix( &myCopyReluplex->_tableau );
-        _preprocessedTableau.backupIntoMatrix( &myCopyReluplex->_preprocessedTableau );
-        memcpy( myCopyReluplex->_upperBounds, _upperBounds, sizeof(VariableBound) * num );
-        memcpy( myCopyReluplex->_lowerBounds, _lowerBounds, sizeof(VariableBound) * num );
-        memcpy( myCopyReluplex->_preprocessedUpperBounds, _preprocessedUpperBounds, sizeof(VariableBound) * num );
-        memcpy( myCopyReluplex->_preprocessedLowerBounds, _preprocessedLowerBounds, sizeof(VariableBound) * num );
-        memcpy( myCopyReluplex->_preprocessedAssignment, _preprocessedAssignment, sizeof(double) * num );
-
-        Set<unsigned>::iterator itr_set_2;
-        for(itr_set_2=_basicVariables.begin();itr_set_2!=_basicVariables.end();itr_set_2++){
-            myCopyReluplex->_basicVariables.insert(*itr_set_2);
-//            printf("_basicVariables : %u \n" , *itr_set_2);
-        }
-
-        Set<unsigned>::iterator itr_set_3;
-        for(itr_set_3=_preprocessedBasicVariables.begin();itr_set_3!=_preprocessedBasicVariables.end();itr_set_3++){
-            myCopyReluplex->_preprocessedBasicVariables.insert(*itr_set_3);
-//            printf("_preprocessedBasicVariables : %u \n" , *itr_set_3);
-        }
-
-        Map<unsigned, String>::iterator iter_map_13;
-        iter_map_13 = _variableNames.begin();
-        while(iter_map_13 != _variableNames.end()) {
-            String *str = &iter_map_13->second;
-            const char * charStr = str->ascii();
-            String *temp = new String(charStr);
-            myCopyReluplex->_variableNames[iter_map_13->first] = *temp;
-//            printf("_variableNames : %u :  %s \n" ,iter_map_13->first,temp->ascii() );
-            iter_map_13++;
-        }
-
-        /**** Copy _reluPairs ****/
-        /**
-         * Set<ReluPair> _reluPairs;
-                Map<unsigned, unsigned> _bToF;
-                Map<unsigned, unsigned> _fToB;
-         */
-        const Set<ReluPairs::ReluPair> &copyPairs( _reluPairs.getPairs() );
-        for ( const auto &pair : copyPairs )
-        {
-            unsigned b = pair.getB();
-            unsigned f = pair.getF();
-            myCopyReluplex->_reluPairs.addPair(b,f);
-//            printf("b: %u, f: %u \n", b, f);
-        }
-//        const Set<ReluPairs::ReluPair> &copyPairs222( copyReluplex._reluPairs.getPairs() );
-//        for ( const auto &pair : copyPairs222 )
+//    void copy_reluplex(Reluplex *myCopyReluplex)
+//    {
+//
+//        printf("\nBegin copy _reluplex\n");
+//
+//        unsigned num = _numVariables;
+//        myCopyReluplex->stopFind = stopFind;
+//        memcpy( myCopyReluplex->_assignment, _assignment, sizeof(double) * num );
+//        memcpy( myCopyReluplex->candidateNode, candidateNode, sizeof(int) * num );
+//        myCopyReluplex->_numVariables = _numVariables;
+//
+//        /*** copy String type _reluplexName ***/
+//        String *str2 = &_reluplexName;
+//        const char * charStr2 = str2->ascii();
+//        String *tempName = new String(charStr2);
+//        myCopyReluplex->_reluplexName = *tempName;
+////        printf("_reluplexName :  %s \n" ,str2->ascii() );
+////        printf("copyReluplex->_reluplexName :  %s \n" ,tempName->ascii() );
+//
+//        myCopyReluplex->_finalOutputFile = _finalOutputFile; // 是指针，但这个值在运行过程中不会改变，所以不需要另外生成对象
+//        myCopyReluplex->_finalStatus = _finalStatus;
+//        myCopyReluplex->_wasInitialized = _wasInitialized;
+//        _tableau.backupIntoMatrix( &myCopyReluplex->_tableau );
+//        _preprocessedTableau.backupIntoMatrix( &myCopyReluplex->_preprocessedTableau );
+//        memcpy( myCopyReluplex->_upperBounds, _upperBounds, sizeof(VariableBound) * num );
+//        memcpy( myCopyReluplex->_lowerBounds, _lowerBounds, sizeof(VariableBound) * num );
+//        memcpy( myCopyReluplex->_preprocessedUpperBounds, _preprocessedUpperBounds, sizeof(VariableBound) * num );
+//        memcpy( myCopyReluplex->_preprocessedLowerBounds, _preprocessedLowerBounds, sizeof(VariableBound) * num );
+//        memcpy( myCopyReluplex->_preprocessedAssignment, _preprocessedAssignment, sizeof(double) * num );
+//
+//        Set<unsigned>::iterator itr_set_2;
+//        for(itr_set_2=_basicVariables.begin();itr_set_2!=_basicVariables.end();itr_set_2++){
+//            myCopyReluplex->_basicVariables.insert(*itr_set_2);
+////            printf("_basicVariables : %u \n" , *itr_set_2);
+//        }
+//
+//        Set<unsigned>::iterator itr_set_3;
+//        for(itr_set_3=_preprocessedBasicVariables.begin();itr_set_3!=_preprocessedBasicVariables.end();itr_set_3++){
+//            myCopyReluplex->_preprocessedBasicVariables.insert(*itr_set_3);
+////            printf("_preprocessedBasicVariables : %u \n" , *itr_set_3);
+//        }
+//
+//        Map<unsigned, String>::iterator iter_map_13;
+//        iter_map_13 = _variableNames.begin();
+//        while(iter_map_13 != _variableNames.end()) {
+//            String *str = &iter_map_13->second;
+//            const char * charStr = str->ascii();
+//            String *temp = new String(charStr);
+//            myCopyReluplex->_variableNames[iter_map_13->first] = *temp;
+////            printf("_variableNames : %u :  %s \n" ,iter_map_13->first,temp->ascii() );
+//            iter_map_13++;
+//        }
+//
+//        /**** Copy _reluPairs ****/
+//        /**
+//         * Set<ReluPair> _reluPairs;
+//                Map<unsigned, unsigned> _bToF;
+//                Map<unsigned, unsigned> _fToB;
+//         */
+//        const Set<ReluPairs::ReluPair> &copyPairs( _reluPairs.getPairs() );
+//        for ( const auto &pair : copyPairs )
 //        {
 //            unsigned b = pair.getB();
 //            unsigned f = pair.getF();
-//            printf("copyReluplex:  b: %u, f: %u \n", b, f);
+//            myCopyReluplex->_reluPairs.addPair(b,f);
+////            printf("b: %u, f: %u \n", b, f);
 //        }
-
-        /**
-         * _smtCore 对象复制
-         */
-        // //_smtCore( this, _numVariables )
-        myCopyReluplex->_smtCore = _smtCore;
-
-
-        myCopyReluplex->_useApproximations = _useApproximations;
-        myCopyReluplex->_findAllPivotCandidates = _findAllPivotCandidates;
-        myCopyReluplex->_conflictAnalysisCausedPop = _conflictAnalysisCausedPop;
-        myCopyReluplex->_previousGlpkAnswer = _previousGlpkAnswer;
-        myCopyReluplex->_logging = _logging;
-        myCopyReluplex->_dumpStates = _dumpStates;
-        myCopyReluplex->_numCallsToProgress = _numCallsToProgress;
-        myCopyReluplex->_numPivots = _numPivots;
-        myCopyReluplex->_totalPivotTimeMilli = _totalPivotTimeMilli;
-        myCopyReluplex->_totalDegradationCheckingTimeMilli = _totalDegradationCheckingTimeMilli;
-        myCopyReluplex->_totalRestorationTimeMilli = _totalRestorationTimeMilli;
-        myCopyReluplex->_totalPivotCalculationCount = _totalPivotCalculationCount;
-        myCopyReluplex->_totalNumBrokenRelues = _totalNumBrokenRelues;
-        myCopyReluplex->_brokenRelusFixed = _brokenRelusFixed;
-        myCopyReluplex->_brokenReluFixByUpdate = _brokenReluFixByUpdate;
-        myCopyReluplex->_brokenReluFixByPivot = _brokenReluFixByPivot;
-        myCopyReluplex->_brokenReluFixB = _brokenReluFixB;
-        myCopyReluplex->_brokenReluFixF = _brokenReluFixF;
-        myCopyReluplex->_numEliminatedVars = _numEliminatedVars;
-        myCopyReluplex->_varsWithInfiniteBounds = _varsWithInfiniteBounds;
-        myCopyReluplex->_numStackSplits = _numStackSplits;
-        myCopyReluplex->_numStackMerges = _numStackMerges;
-        myCopyReluplex->_numStackPops = _numStackPops;
-        myCopyReluplex->_numStackVisitedStates = _numStackVisitedStates;
-        myCopyReluplex->_currentStackDepth = _currentStackDepth;
-        myCopyReluplex->_minStackSecondPhase = _minStackSecondPhase;
-        myCopyReluplex->_maximalStackDepth = _maximalStackDepth;
-        myCopyReluplex->_boundsTightendByTightenAllBounds = _boundsTightendByTightenAllBounds;
-        myCopyReluplex->_almostBrokenReluPairCount = _almostBrokenReluPairCount;
-        myCopyReluplex->_almostBrokenReluPairFixedCount = _almostBrokenReluPairFixedCount;
-        myCopyReluplex->_numBoundsDerivedThroughGlpk = _numBoundsDerivedThroughGlpk;
-        myCopyReluplex->_numBoundsDerivedThroughGlpkOnSlacks = _numBoundsDerivedThroughGlpkOnSlacks;
-        myCopyReluplex->_totalTightenAllBoundsTime = _totalTightenAllBoundsTime;
-        myCopyReluplex->_eliminateAlmostBrokenRelus = _eliminateAlmostBrokenRelus;
-
-        Map<unsigned, VariableStatus>::iterator iter_map_10;
-        iter_map_10 = _varToStatus.begin();
-        while(iter_map_10 != _varToStatus.end()) {
-            myCopyReluplex->_varToStatus[iter_map_10->first] = iter_map_10->second;
-//            printf("_varToStatus : %u :  %d \n" ,iter_map_10->first,copyReluplex._varToStatus[iter_map_10->first]);
-            iter_map_10++;
-        }
-
-        Map<unsigned, ReluDissolutionType>::iterator iter_map_11;
-        iter_map_11 = _dissolvedReluVariables.begin();
-        while(iter_map_11 != _dissolvedReluVariables.end()) {
-            myCopyReluplex->_dissolvedReluVariables[iter_map_11->first] = iter_map_11->second;
-//            printf("_dissolvedReluVariables : %u :  %d \n" ,iter_map_11->first,copyReluplex._dissolvedReluVariables[iter_map_11->first]);
-            iter_map_11++;
-        }
-
-        Map<unsigned, ReluDissolutionType>::iterator iter_map_12;
-        iter_map_12 = _preprocessedDissolvedRelus.begin();
-        while(iter_map_12 != _preprocessedDissolvedRelus.end()) {
-            myCopyReluplex->_preprocessedDissolvedRelus[iter_map_12->first] = iter_map_12->second;
-//            printf("_preprocessedDissolvedRelus : %u :  %d \n" ,iter_map_12->first,copyReluplex._preprocessedDissolvedRelus[iter_map_12->first]);
-            iter_map_12++;
-        }
-
-        myCopyReluplex->_printAssignment = _printAssignment;
-
-        Set<unsigned>::iterator itr_set_1;
-        for(itr_set_1=_eliminatedVars.begin();itr_set_1!=_eliminatedVars.end();itr_set_1++){
-            myCopyReluplex->_eliminatedVars.insert(*itr_set_1);
-//            printf("_eliminatedVars : %u \n" , *itr_set_1);
-        }
-
-        myCopyReluplex->_numOutOfBoundFixes = _numOutOfBoundFixes;
-        myCopyReluplex->_numOutOfBoundFixesViaBland = _numOutOfBoundFixesViaBland;
-        myCopyReluplex->_useDegradationChecking = _useDegradationChecking;
-        myCopyReluplex->_numLpSolverInvocations = _numLpSolverInvocations;
-        myCopyReluplex->_numLpSolverFoundSolution = _numLpSolverFoundSolution;
-        myCopyReluplex->_numLpSolverNoSolution = _numLpSolverNoSolution;
-        myCopyReluplex->_numLpSolverFailed = _numLpSolverFailed;
-        myCopyReluplex->_numLpSolverIncorrectAssignment = _numLpSolverIncorrectAssignment;
-        myCopyReluplex->_totalLpSolverTimeMilli = _totalLpSolverTimeMilli;
-        myCopyReluplex->_totalLpExtractionTime = _totalLpExtractionTime;
-        myCopyReluplex->_totalLpPivots = _totalLpPivots;
-        myCopyReluplex->_maxLpSolverTimeMilli = _maxLpSolverTimeMilli;
-        myCopyReluplex->_numberOfRestorations = _numberOfRestorations;
-        myCopyReluplex->_maxDegradation = _maxDegradation;
-        myCopyReluplex->_totalProgressTimeMilli = _totalProgressTimeMilli;
-        myCopyReluplex->_timeTighteningGlpkBoundsMilli = _timeTighteningGlpkBoundsMilli;
-
-        /**
-         * GlpkWrapper *_currentGlpkWrapper;
-         */
-//        glp_prob *_lp;
-//        Map<unsigned, unsigned> _basicToRowIndex;
-//        Map<unsigned, unsigned> _nonBasicToColumnIndex;
+////        const Set<ReluPairs::ReluPair> &copyPairs222( copyReluplex._reluPairs.getPairs() );
+////        for ( const auto &pair : copyPairs222 )
+////        {
+////            unsigned b = pair.getB();
+////            unsigned f = pair.getF();
+////            printf("copyReluplex:  b: %u, f: %u \n", b, f);
+////        }
 //
-//        unsigned _nextGlpkInternalIndex;
-//        Map<unsigned, unsigned> _glpkEncodingToVariable;
-//        Map<unsigned, unsigned> _variableToGlpkEncoding;
+//        /**
+//         * _smtCore 对象复制
+//         */
+//        // //_smtCore( this, _numVariables )
+//        myCopyReluplex->_smtCore = _smtCore;
 //
-//        BoundCalculationHook _boundCalculationHook;
-//        IterationCountCallback _iterationCountCallback;
-//        ReportSoiCallback _reportSoiCallback;
-//        MakeReluAdjustmentsCallback _makeReluAdjustmentsCallback;
 //
-//        int *_columnIndices;
-//        double *_values;
+//        myCopyReluplex->_useApproximations = _useApproximations;
+//        myCopyReluplex->_findAllPivotCandidates = _findAllPivotCandidates;
+//        myCopyReluplex->_conflictAnalysisCausedPop = _conflictAnalysisCausedPop;
+//        myCopyReluplex->_previousGlpkAnswer = _previousGlpkAnswer;
+//        myCopyReluplex->_logging = _logging;
+//        myCopyReluplex->_dumpStates = _dumpStates;
+//        myCopyReluplex->_numCallsToProgress = _numCallsToProgress;
+//        myCopyReluplex->_numPivots = _numPivots;
+//        myCopyReluplex->_totalPivotTimeMilli = _totalPivotTimeMilli;
+//        myCopyReluplex->_totalDegradationCheckingTimeMilli = _totalDegradationCheckingTimeMilli;
+//        myCopyReluplex->_totalRestorationTimeMilli = _totalRestorationTimeMilli;
+//        myCopyReluplex->_totalPivotCalculationCount = _totalPivotCalculationCount;
+//        myCopyReluplex->_totalNumBrokenRelues = _totalNumBrokenRelues;
+//        myCopyReluplex->_brokenRelusFixed = _brokenRelusFixed;
+//        myCopyReluplex->_brokenReluFixByUpdate = _brokenReluFixByUpdate;
+//        myCopyReluplex->_brokenReluFixByPivot = _brokenReluFixByPivot;
+//        myCopyReluplex->_brokenReluFixB = _brokenReluFixB;
+//        myCopyReluplex->_brokenReluFixF = _brokenReluFixF;
+//        myCopyReluplex->_numEliminatedVars = _numEliminatedVars;
+//        myCopyReluplex->_varsWithInfiniteBounds = _varsWithInfiniteBounds;
+//        myCopyReluplex->_numStackSplits = _numStackSplits;
+//        myCopyReluplex->_numStackMerges = _numStackMerges;
+//        myCopyReluplex->_numStackPops = _numStackPops;
+//        myCopyReluplex->_numStackVisitedStates = _numStackVisitedStates;
+//        myCopyReluplex->_currentStackDepth = _currentStackDepth;
+//        myCopyReluplex->_minStackSecondPhase = _minStackSecondPhase;
+//        myCopyReluplex->_maximalStackDepth = _maximalStackDepth;
+//        myCopyReluplex->_boundsTightendByTightenAllBounds = _boundsTightendByTightenAllBounds;
+//        myCopyReluplex->_almostBrokenReluPairCount = _almostBrokenReluPairCount;
+//        myCopyReluplex->_almostBrokenReluPairFixedCount = _almostBrokenReluPairFixedCount;
+//        myCopyReluplex->_numBoundsDerivedThroughGlpk = _numBoundsDerivedThroughGlpk;
+//        myCopyReluplex->_numBoundsDerivedThroughGlpkOnSlacks = _numBoundsDerivedThroughGlpkOnSlacks;
+//        myCopyReluplex->_totalTightenAllBoundsTime = _totalTightenAllBoundsTime;
+//        myCopyReluplex->_eliminateAlmostBrokenRelus = _eliminateAlmostBrokenRelus;
 //
-//        bool _logging;
-
-//        GlpkWrapper *glpkWrapper = new GlpkWrapper();
-//        glpkWrapper->_logging = _currentGlpkWrapper->_logging;
-
-        myCopyReluplex->_currentGlpkWrapper = _currentGlpkWrapper;
-
-
-
-
-
-
-
-
-
-        myCopyReluplex->_relusDissolvedByGlpkBounds = _relusDissolvedByGlpkBounds;
-
-        Map<unsigned, VariableBound>::iterator iter_map_8;
-        iter_map_8 = _glpkStoredUpperBounds.begin();
-        while(iter_map_8 != _glpkStoredUpperBounds.end()) {
-            VariableBound *sec = &iter_map_8->second;
-            VariableBound *temp = new VariableBound();
-            temp->setBound(sec->getBound());
-            temp->setLevel(sec->getLevel());
-            temp->setFinite(sec->finite());
-            myCopyReluplex->_glpkStoredUpperBounds[iter_map_8->first] = *temp;
-//            printf("_glpkStoredUpperBounds : %u :  %lf \n" ,iter_map_8->first, temp->getBound());
-            iter_map_8++;
-        }
-
-        Map<unsigned, VariableBound>::iterator iter_map_9;
-        iter_map_9 = _glpkStoredLowerBounds.begin();
-        while(iter_map_9 != _glpkStoredLowerBounds.end()) {
-            VariableBound *sec = &iter_map_9->second;
-            VariableBound *temp = new VariableBound();
-            temp->setBound(sec->getBound());
-            temp->setLevel(sec->getLevel());
-            temp->setFinite(sec->finite());
-            myCopyReluplex->_glpkStoredLowerBounds[iter_map_9->first] = *temp;
-//            printf("_glpkStoredLowerBounds : %u :  %lf \n" ,iter_map_9->first, temp->getBound());
-            iter_map_9++;
-        }
-
-        myCopyReluplex->_glpkSoi = _glpkSoi;
-        myCopyReluplex->_storeGlpkBoundTighteningCalls = _storeGlpkBoundTighteningCalls;
-        myCopyReluplex->_storeGlpkBoundTighteningCallsOnSlacks = _storeGlpkBoundTighteningCallsOnSlacks;
-        myCopyReluplex->_storeGlpkBoundTighteningIgnored = _storeGlpkBoundTighteningIgnored;
-        myCopyReluplex->_maxBrokenReluAfterGlpk = _maxBrokenReluAfterGlpk;
-        myCopyReluplex->_totalBrokenReluAfterGlpk = _totalBrokenReluAfterGlpk;
-        myCopyReluplex->_totalBrokenNonBasicReluAfterGlpk = _totalBrokenNonBasicReluAfterGlpk;
-//                , _useSlackVariablesForRelus( USE_ROW_SLACK_VARIABLES )
-
-
-        Set<unsigned>::iterator itr_set_4;
-        for(itr_set_4=_activeSlackRowVars.begin();itr_set_4!=_activeSlackRowVars.end();itr_set_4++){
-            myCopyReluplex->_activeSlackRowVars.insert(*itr_set_4);
-//            printf("_activeSlackRowVars : %u \n" , *itr_set_4);
-        }
-        Set<unsigned>::iterator itr_set_5;
-        for(itr_set_5=_activeSlackColVars.begin();itr_set_5!=_activeSlackColVars.end();itr_set_5++){
-            myCopyReluplex->_activeSlackColVars.insert(*itr_set_5);
-//            printf("_activeSlackColVars : %u \n" , *itr_set_5);
-        }
-
-        Map<unsigned, unsigned>::iterator iter_map_1;
-        iter_map_1 = _fToSlackRowVar.begin();
-        while(iter_map_1 != _fToSlackRowVar.end()) {
-            myCopyReluplex->_fToSlackRowVar[iter_map_1->first] = iter_map_1->second;
-//            printf("_fToSlackRowVar : %u : %u \n" , iter_map_1->first,copyReluplex._fToSlackRowVar[iter_map_1->first]);
-            iter_map_1++;
-
-        }
-
-        Map<unsigned, unsigned>::iterator iter_map_2;
-        iter_map_2 = _fToSlackColVar.begin();
-        while(iter_map_2 != _fToSlackColVar.end()) {
-            myCopyReluplex->_fToSlackColVar[iter_map_2->first] = iter_map_2->second;
-//            printf("_fToSlackColVar : %u :  %u \n" ,iter_map_2->first, copyReluplex._fToSlackColVar[iter_map_2->first]);
-            iter_map_2++;
-        }
-
-        Map<unsigned, unsigned>::iterator iter_map_3;
-        iter_map_3 = _slackRowVariableToF.begin();
-        while(iter_map_3 != _slackRowVariableToF.end()) {
-            myCopyReluplex->_slackRowVariableToF[iter_map_3->first] = iter_map_3->second;
-            iter_map_3++;
-        }
-
-        Map<unsigned, unsigned>::iterator iter_map_4;
-        iter_map_4 = _slackRowVariableToB.begin();
-        while(iter_map_4 != _slackRowVariableToB.end()) {
-            myCopyReluplex->_slackRowVariableToB[iter_map_4->first] = iter_map_4->second;
-            iter_map_4++;
-        }
-
-        Map<unsigned, VariableBound>::iterator iter_map_5;
-        iter_map_5 = _slackToLowerBound.begin();
-        while(iter_map_5 != _slackToLowerBound.end()) {
-            VariableBound *sec = &iter_map_5->second;
-            VariableBound *temp = new VariableBound();
-            temp->setBound(sec->getBound());
-            temp->setLevel(sec->getLevel());
-            temp->setFinite(sec->finite());
-            myCopyReluplex->_slackToLowerBound[iter_map_5->first] = *temp;
-//            printf("_slackToLowerBound : %u :  %lf \n" ,iter_map_5->first, temp->getBound());
-            iter_map_5++;
-        }
-
-        Map<unsigned, VariableBound>::iterator iter_map_6;
-        iter_map_6 = _slackToUpperBound.begin();
-        while(iter_map_6 != _slackToUpperBound.end()) {
-            VariableBound *sec = &iter_map_6->second;
-            VariableBound *temp = new VariableBound();
-            temp->setBound(sec->getBound());
-            temp->setLevel(sec->getLevel());
-            temp->setFinite(sec->finite());
-            myCopyReluplex->_slackToUpperBound[iter_map_6->first] = *temp;
-//            printf("_slackToUpperBound : %u :  %lf \n" ,iter_map_6->first, temp->getBound());
-            iter_map_6++;
-        }
-
-        Map<unsigned, unsigned>::iterator iter_map_7;
-        iter_map_7 = _reluUpdateFrequency.begin();
-        while(iter_map_7 != _reluUpdateFrequency.end()) {
-            myCopyReluplex->_reluUpdateFrequency[iter_map_7->first] = iter_map_7->second;
-            iter_map_7++;
-        }
-
-        myCopyReluplex->_fixRelusInGlpkAssignmentFixes = _fixRelusInGlpkAssignmentFixes;
-        myCopyReluplex->_fixRelusInGlpkAssignmentInvoked = _fixRelusInGlpkAssignmentInvoked;
-        myCopyReluplex->_fixRelusInGlpkAssignmentIgnore = _fixRelusInGlpkAssignmentIgnore;
-        myCopyReluplex->_maximalGlpkBoundTightening = _maximalGlpkBoundTightening;
-        myCopyReluplex->_useConflictAnalysis = _useConflictAnalysis;
-        myCopyReluplex->_temporarilyDontUseSlacks = _temporarilyDontUseSlacks;
-        myCopyReluplex->_quit = _quit;
-        myCopyReluplex->_fullTightenAllBounds = _fullTightenAllBounds;
-        myCopyReluplex->_glpkExtractJustBasics = _glpkExtractJustBasics;
-        myCopyReluplex->_totalTimeEvalutingGlpkRows = _totalTimeEvalutingGlpkRows;
-        myCopyReluplex->_consecutiveGlpkFailureCount = _consecutiveGlpkFailureCount;
-
-
-    }
+//        Map<unsigned, VariableStatus>::iterator iter_map_10;
+//        iter_map_10 = _varToStatus.begin();
+//        while(iter_map_10 != _varToStatus.end()) {
+//            myCopyReluplex->_varToStatus[iter_map_10->first] = iter_map_10->second;
+////            printf("_varToStatus : %u :  %d \n" ,iter_map_10->first,copyReluplex._varToStatus[iter_map_10->first]);
+//            iter_map_10++;
+//        }
+//
+//        Map<unsigned, ReluDissolutionType>::iterator iter_map_11;
+//        iter_map_11 = _dissolvedReluVariables.begin();
+//        while(iter_map_11 != _dissolvedReluVariables.end()) {
+//            myCopyReluplex->_dissolvedReluVariables[iter_map_11->first] = iter_map_11->second;
+////            printf("_dissolvedReluVariables : %u :  %d \n" ,iter_map_11->first,copyReluplex._dissolvedReluVariables[iter_map_11->first]);
+//            iter_map_11++;
+//        }
+//
+//        Map<unsigned, ReluDissolutionType>::iterator iter_map_12;
+//        iter_map_12 = _preprocessedDissolvedRelus.begin();
+//        while(iter_map_12 != _preprocessedDissolvedRelus.end()) {
+//            myCopyReluplex->_preprocessedDissolvedRelus[iter_map_12->first] = iter_map_12->second;
+////            printf("_preprocessedDissolvedRelus : %u :  %d \n" ,iter_map_12->first,copyReluplex._preprocessedDissolvedRelus[iter_map_12->first]);
+//            iter_map_12++;
+//        }
+//
+//        myCopyReluplex->_printAssignment = _printAssignment;
+//
+//        Set<unsigned>::iterator itr_set_1;
+//        for(itr_set_1=_eliminatedVars.begin();itr_set_1!=_eliminatedVars.end();itr_set_1++){
+//            myCopyReluplex->_eliminatedVars.insert(*itr_set_1);
+////            printf("_eliminatedVars : %u \n" , *itr_set_1);
+//        }
+//
+//        myCopyReluplex->_numOutOfBoundFixes = _numOutOfBoundFixes;
+//        myCopyReluplex->_numOutOfBoundFixesViaBland = _numOutOfBoundFixesViaBland;
+//        myCopyReluplex->_useDegradationChecking = _useDegradationChecking;
+//        myCopyReluplex->_numLpSolverInvocations = _numLpSolverInvocations;
+//        myCopyReluplex->_numLpSolverFoundSolution = _numLpSolverFoundSolution;
+//        myCopyReluplex->_numLpSolverNoSolution = _numLpSolverNoSolution;
+//        myCopyReluplex->_numLpSolverFailed = _numLpSolverFailed;
+//        myCopyReluplex->_numLpSolverIncorrectAssignment = _numLpSolverIncorrectAssignment;
+//        myCopyReluplex->_totalLpSolverTimeMilli = _totalLpSolverTimeMilli;
+//        myCopyReluplex->_totalLpExtractionTime = _totalLpExtractionTime;
+//        myCopyReluplex->_totalLpPivots = _totalLpPivots;
+//        myCopyReluplex->_maxLpSolverTimeMilli = _maxLpSolverTimeMilli;
+//        myCopyReluplex->_numberOfRestorations = _numberOfRestorations;
+//        myCopyReluplex->_maxDegradation = _maxDegradation;
+//        myCopyReluplex->_totalProgressTimeMilli = _totalProgressTimeMilli;
+//        myCopyReluplex->_timeTighteningGlpkBoundsMilli = _timeTighteningGlpkBoundsMilli;
+//
+//        /**
+//         * GlpkWrapper *_currentGlpkWrapper;
+//         */
+////        glp_prob *_lp;
+////        Map<unsigned, unsigned> _basicToRowIndex;
+////        Map<unsigned, unsigned> _nonBasicToColumnIndex;
+////
+////        unsigned _nextGlpkInternalIndex;
+////        Map<unsigned, unsigned> _glpkEncodingToVariable;
+////        Map<unsigned, unsigned> _variableToGlpkEncoding;
+////
+////        BoundCalculationHook _boundCalculationHook;
+////        IterationCountCallback _iterationCountCallback;
+////        ReportSoiCallback _reportSoiCallback;
+////        MakeReluAdjustmentsCallback _makeReluAdjustmentsCallback;
+////
+////        int *_columnIndices;
+////        double *_values;
+////
+////        bool _logging;
+//
+////        GlpkWrapper *glpkWrapper = new GlpkWrapper();
+////        glpkWrapper->_logging = _currentGlpkWrapper->_logging;
+//
+//        myCopyReluplex->_currentGlpkWrapper = _currentGlpkWrapper;
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//        myCopyReluplex->_relusDissolvedByGlpkBounds = _relusDissolvedByGlpkBounds;
+//
+//        Map<unsigned, VariableBound>::iterator iter_map_8;
+//        iter_map_8 = _glpkStoredUpperBounds.begin();
+//        while(iter_map_8 != _glpkStoredUpperBounds.end()) {
+//            VariableBound *sec = &iter_map_8->second;
+//            VariableBound *temp = new VariableBound();
+//            temp->setBound(sec->getBound());
+//            temp->setLevel(sec->getLevel());
+//            temp->setFinite(sec->finite());
+//            myCopyReluplex->_glpkStoredUpperBounds[iter_map_8->first] = *temp;
+////            printf("_glpkStoredUpperBounds : %u :  %lf \n" ,iter_map_8->first, temp->getBound());
+//            iter_map_8++;
+//        }
+//
+//        Map<unsigned, VariableBound>::iterator iter_map_9;
+//        iter_map_9 = _glpkStoredLowerBounds.begin();
+//        while(iter_map_9 != _glpkStoredLowerBounds.end()) {
+//            VariableBound *sec = &iter_map_9->second;
+//            VariableBound *temp = new VariableBound();
+//            temp->setBound(sec->getBound());
+//            temp->setLevel(sec->getLevel());
+//            temp->setFinite(sec->finite());
+//            myCopyReluplex->_glpkStoredLowerBounds[iter_map_9->first] = *temp;
+////            printf("_glpkStoredLowerBounds : %u :  %lf \n" ,iter_map_9->first, temp->getBound());
+//            iter_map_9++;
+//        }
+//
+//        myCopyReluplex->_glpkSoi = _glpkSoi;
+//        myCopyReluplex->_storeGlpkBoundTighteningCalls = _storeGlpkBoundTighteningCalls;
+//        myCopyReluplex->_storeGlpkBoundTighteningCallsOnSlacks = _storeGlpkBoundTighteningCallsOnSlacks;
+//        myCopyReluplex->_storeGlpkBoundTighteningIgnored = _storeGlpkBoundTighteningIgnored;
+//        myCopyReluplex->_maxBrokenReluAfterGlpk = _maxBrokenReluAfterGlpk;
+//        myCopyReluplex->_totalBrokenReluAfterGlpk = _totalBrokenReluAfterGlpk;
+//        myCopyReluplex->_totalBrokenNonBasicReluAfterGlpk = _totalBrokenNonBasicReluAfterGlpk;
+////                , _useSlackVariablesForRelus( USE_ROW_SLACK_VARIABLES )
+//
+//
+//        Set<unsigned>::iterator itr_set_4;
+//        for(itr_set_4=_activeSlackRowVars.begin();itr_set_4!=_activeSlackRowVars.end();itr_set_4++){
+//            myCopyReluplex->_activeSlackRowVars.insert(*itr_set_4);
+////            printf("_activeSlackRowVars : %u \n" , *itr_set_4);
+//        }
+//        Set<unsigned>::iterator itr_set_5;
+//        for(itr_set_5=_activeSlackColVars.begin();itr_set_5!=_activeSlackColVars.end();itr_set_5++){
+//            myCopyReluplex->_activeSlackColVars.insert(*itr_set_5);
+////            printf("_activeSlackColVars : %u \n" , *itr_set_5);
+//        }
+//
+//        Map<unsigned, unsigned>::iterator iter_map_1;
+//        iter_map_1 = _fToSlackRowVar.begin();
+//        while(iter_map_1 != _fToSlackRowVar.end()) {
+//            myCopyReluplex->_fToSlackRowVar[iter_map_1->first] = iter_map_1->second;
+////            printf("_fToSlackRowVar : %u : %u \n" , iter_map_1->first,copyReluplex._fToSlackRowVar[iter_map_1->first]);
+//            iter_map_1++;
+//
+//        }
+//
+//        Map<unsigned, unsigned>::iterator iter_map_2;
+//        iter_map_2 = _fToSlackColVar.begin();
+//        while(iter_map_2 != _fToSlackColVar.end()) {
+//            myCopyReluplex->_fToSlackColVar[iter_map_2->first] = iter_map_2->second;
+////            printf("_fToSlackColVar : %u :  %u \n" ,iter_map_2->first, copyReluplex._fToSlackColVar[iter_map_2->first]);
+//            iter_map_2++;
+//        }
+//
+//        Map<unsigned, unsigned>::iterator iter_map_3;
+//        iter_map_3 = _slackRowVariableToF.begin();
+//        while(iter_map_3 != _slackRowVariableToF.end()) {
+//            myCopyReluplex->_slackRowVariableToF[iter_map_3->first] = iter_map_3->second;
+//            iter_map_3++;
+//        }
+//
+//        Map<unsigned, unsigned>::iterator iter_map_4;
+//        iter_map_4 = _slackRowVariableToB.begin();
+//        while(iter_map_4 != _slackRowVariableToB.end()) {
+//            myCopyReluplex->_slackRowVariableToB[iter_map_4->first] = iter_map_4->second;
+//            iter_map_4++;
+//        }
+//
+//        Map<unsigned, VariableBound>::iterator iter_map_5;
+//        iter_map_5 = _slackToLowerBound.begin();
+//        while(iter_map_5 != _slackToLowerBound.end()) {
+//            VariableBound *sec = &iter_map_5->second;
+//            VariableBound *temp = new VariableBound();
+//            temp->setBound(sec->getBound());
+//            temp->setLevel(sec->getLevel());
+//            temp->setFinite(sec->finite());
+//            myCopyReluplex->_slackToLowerBound[iter_map_5->first] = *temp;
+////            printf("_slackToLowerBound : %u :  %lf \n" ,iter_map_5->first, temp->getBound());
+//            iter_map_5++;
+//        }
+//
+//        Map<unsigned, VariableBound>::iterator iter_map_6;
+//        iter_map_6 = _slackToUpperBound.begin();
+//        while(iter_map_6 != _slackToUpperBound.end()) {
+//            VariableBound *sec = &iter_map_6->second;
+//            VariableBound *temp = new VariableBound();
+//            temp->setBound(sec->getBound());
+//            temp->setLevel(sec->getLevel());
+//            temp->setFinite(sec->finite());
+//            myCopyReluplex->_slackToUpperBound[iter_map_6->first] = *temp;
+////            printf("_slackToUpperBound : %u :  %lf \n" ,iter_map_6->first, temp->getBound());
+//            iter_map_6++;
+//        }
+//
+//        Map<unsigned, unsigned>::iterator iter_map_7;
+//        iter_map_7 = _reluUpdateFrequency.begin();
+//        while(iter_map_7 != _reluUpdateFrequency.end()) {
+//            myCopyReluplex->_reluUpdateFrequency[iter_map_7->first] = iter_map_7->second;
+//            iter_map_7++;
+//        }
+//
+//        myCopyReluplex->_fixRelusInGlpkAssignmentFixes = _fixRelusInGlpkAssignmentFixes;
+//        myCopyReluplex->_fixRelusInGlpkAssignmentInvoked = _fixRelusInGlpkAssignmentInvoked;
+//        myCopyReluplex->_fixRelusInGlpkAssignmentIgnore = _fixRelusInGlpkAssignmentIgnore;
+//        myCopyReluplex->_maximalGlpkBoundTightening = _maximalGlpkBoundTightening;
+//        myCopyReluplex->_useConflictAnalysis = _useConflictAnalysis;
+//        myCopyReluplex->_temporarilyDontUseSlacks = _temporarilyDontUseSlacks;
+//        myCopyReluplex->_quit = _quit;
+//        myCopyReluplex->_fullTightenAllBounds = _fullTightenAllBounds;
+//        myCopyReluplex->_glpkExtractJustBasics = _glpkExtractJustBasics;
+//        myCopyReluplex->_totalTimeEvalutingGlpkRows = _totalTimeEvalutingGlpkRows;
+//        myCopyReluplex->_consecutiveGlpkFailureCount = _consecutiveGlpkFailureCount;
+//
+//
+//    }
 
     void initialize()
     {
@@ -605,8 +609,11 @@ public:
         _wasInitialized = true;
     }
 
+    FinalStatus solve(){
+        return Reluplex::SAT;
+    }
 
-    FinalStatus solve(double **currentAdversaryE, int &num_AE)
+    FinalStatus solve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
     {
         timeval start = Time::sampleMicro();
         timeval end;
@@ -625,6 +632,12 @@ public:
             if ( !eliminateAuxVariables() )
             {
                 _finalStatus = Reluplex::ERROR;
+
+                //// add by lzs
+                if (alreadySAT){
+                    _finalStatus = Reluplex::SAT_BUT_THEN_ERROR;
+                }
+                //// add end
                 end = Time::sampleMicro();
                 _totalProgressTimeMilli += Time::timePassed( start, end );
                 return _finalStatus;
@@ -637,8 +650,8 @@ public:
 
             // 打印信息和存入Log
             printf( "Initialization steps over.\n" );
-            printf("\n----- printStatistics() ----\n");
-            //printStatistics();
+            printf("\n----- printStatistics():after initialize() ----\n");
+            printStatistics();
             dump();
             printf( "Starting the main loop\n" );
 
@@ -653,41 +666,93 @@ public:
                 {
                     log( "\nIt can be solved. current state is: \n" );
                     dump();
+                    printf("\n----- printStatistics():find an SAT answer ----\n");
                     printStatistics();
                     _finalStatus = Reluplex::SAT;
                     end = Time::sampleMicro();
                     _totalProgressTimeMilli += Time::timePassed( start, end );
 
+                    /*** add by lzs : adv ***/
+                    alreadySAT = true;
+                    unsigned inputLayerSize = 5;
 
-                    /*** add by lzs **/
-                    for (unsigned c = 0; c < _numVariables; c++) {
-                        currentAdversaryE[num_AE][c] = _assignment[c];
+                    Map<unsigned, unsigned> indexToVar;
+                    indexToVar[0] = 0;
+                    indexToVar[1] = 1;
+                    indexToVar[2] = 2;
+                    indexToVar[3] = 3;
+                    indexToVar[4] = 4;
+                    indexToVar[5] = 905;
+                    indexToVar[6] = 906;
+                    indexToVar[7] = 907;
+                    indexToVar[8] = 908;
+                    indexToVar[9] = 909;
+
+                    for (unsigned c = 0; c < num_Node; c++) {
+                        currentAdversaryE[num_AE][c] = _assignment[ indexToVar[c] ];
                     }
                     num_AE ++;
 
-                    printf("printCurrentAE in RunReluplex:\n");
-                    for (int j = 0; j < num_AE; ++j) {
-                        printf("This is a adversial example:\n");
-                        for (unsigned k = 0; k < _numVariables; ++k) {
-                            printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+                    printf("printCurrentAE in solve()'s main loop:\n");
+//                    for (unsigned j = 0; j < num_AE; ++j) {   // 输出AE数组里的全部内容
+                    for (unsigned j = num_AE - 1; j < num_AE; ++j) {     //简便输出，只输出最近找到的一个
+                        printf("This is a adversial example: %u \n", num_AE);
+                        for (unsigned k = 0; k < num_Node; ++k) {
+                            if( k < inputLayerSize){
+                                printf( "Input Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+                            } else{
+                                printf( "Output Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+                            }
                         }
                     }
 
-                    // √?????”√progress?∞??“????????±_reluplex?‘???????¨?¨??π?findPivotCandidate÷–”–??∏?∫?—°’??¨‘?Ω?Ω???’????˙??÷??∞
-                    // ??????_reluplex?‘???????¨’??Ω?????π”√?¨‘?‘?––??“????√?ΩΩ???÷?∫??¨???Ω??∑?÷–?±?±‘?––progress?±?????¨?¨
-                    // ??–?≥??‘‘?––?¨≤?‘?findPivotCandidate÷??±≈≈≥?…?“?????—°??∫?—°’?
+                    if (num_AE < num_Expected_AE){
+                        _smtCore.pop();
+                        printf("\nWe find a AE, but will run continuely：%u \n",num_AE);
+                        printf("After pop(), current assignment is : \n");
+                        for (unsigned c = 0; c < num_Node; c++) {
+                            if(c < inputLayerSize){  //
+                                printf("input[%u]:%.10lf \n",c,_assignment[ indexToVar[c] ]);
+                            } else{
+                                printf("output[%u]:%.10lf \n",c,_assignment[ indexToVar[c] ]);
+                            }
+                        }
+                        printf("\n");
 
+                        continue;
+                    } else{
+                        return _finalStatus;
+                    }
+
+                    /*** add end ***/
+
+
+
+//                    /*** add by lzs **/
+//                    for (unsigned c = 0; c < _numVariables; c++) {
+//                        currentAdversaryE[num_AE][c] = _assignment[c];
+//                    }
+//                    num_AE ++;
+//
+//                    printf("printCurrentAE in Reluplex:\n");
+//                    for (unsigned j = 0; j < num_AE; ++j) {
+//                        printf("This is a adversial example:\n");
+//                        for (unsigned k = 0; k < num_Node; ++k) {
+//                            printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
+//                        }
+//                    }
+//
 //                    if (num_AE < 3){
 //                        _smtCore.pop();
 //                        continue;
 //                    } else{
 //                        return _finalStatus;
 //                    }
+//
+//                    /*** add end ***/
 
-                    /*** add end ***/
 
-
-                    return _finalStatus;
+//                    return _finalStatus;
                 }
 
                 // violatingLevelInStack默认初始化为0，表示导致violation进行了多少次split,而smtCore需要根据这个值重做多少次decisions
@@ -732,13 +797,22 @@ public:
             if ( e.code() == Error::STACK_IS_EMPTY )
             {
                 _finalStatus = Reluplex::UNSAT;
+                //// add by lzs
+                if( alreadySAT ) {
+                    _finalStatus = Reluplex::SAT_BUT_THEN_UNSAT;
+                }
+                //// add end
                 return _finalStatus;
             }
             else
             {
                 printf( "Found error: %u\n", e.code() );
-
                 _finalStatus = Reluplex::ERROR;
+                //// add by lzs
+                if( alreadySAT ) {
+                    _finalStatus = Reluplex::SAT_BUT_THEN_ERROR;
+                }
+                //// add end
                 return _finalStatus;
             }
         }
@@ -747,6 +821,11 @@ public:
             end = Time::sampleMicro();
             _totalProgressTimeMilli += Time::timePassed( start, end );
             _finalStatus = Reluplex::UNSAT;
+            //// add by lzs
+            if( alreadySAT ){
+                _finalStatus = Reluplex::SAT_BUT_THEN_UNSAT;
+            }
+            //// add end
             return _finalStatus;
         }
         catch ( ... )
@@ -754,11 +833,21 @@ public:
             end = Time::sampleMicro();
             _totalProgressTimeMilli += Time::timePassed( start, end );
             _finalStatus = Reluplex::ERROR;
+            //// add by lzs
+            if( alreadySAT ){
+                _finalStatus = Reluplex::SAT_BUT_THEN_ERROR;
+            }
+            //// add end
             return _finalStatus;
         }
 
         // Quit was called
         _finalStatus = Reluplex::NOT_DONE;
+        //// add by lzs
+        if( alreadySAT ){
+            _finalStatus = Reluplex::SAT_BUT_THEN_NOT_DONE;
+        }
+        //// add end
         end = Time::sampleMicro();
         _totalProgressTimeMilli += Time::timePassed( start, end );
         return _finalStatus;
@@ -801,8 +890,8 @@ public:
 
 			// 每调用500次进行一次数据打印
             if ( _numCallsToProgress % PRINT_STATISTICS == 0 ){
-                printf("\n----- printStatistics() ----\n");
-//                printStatistics();
+                printf("\n----- printStatistics():500 ----\n");
+                printStatistics();
             }
 			// 每500次打印赋值
             if ( _printAssignment && _numCallsToProgress % PRINT_ASSIGNMENT == 0 )
@@ -950,7 +1039,6 @@ public:
         // Only basic variables can be out-of-bounds
 
 		// 在运算过程中所有的non-basic都是在界限范围内的，所以现在只需要检查basic，如果都在界限范围内，那么就意味着所有变量都在范围内了
-        print = true;
 
         for ( auto i : _basicVariables )
             if ( outOfBounds( i ) )
@@ -1354,7 +1442,19 @@ public:
                 break;
 
             case NOT_DONE:
-                status = "TIMEOUT";
+                status = "NOT_DONE:TIMEOUT";
+                break;
+
+            case SAT_BUT_THEN_UNSAT:
+                status = "SAT_BUT_THEN_UNSAT";
+                break;
+
+            case SAT_BUT_THEN_ERROR:
+                status = "SAT_BUT_THEN_ERROR";
+                break;
+
+            case SAT_BUT_THEN_NOT_DONE:
+                status = "SAT_BUT_THEN_NOT_DONE";
                 break;
             }
 
@@ -1532,7 +1632,8 @@ public:
 
             DEBUG( checkInvariants() );
 
-            if ( !allVarsWithinBounds( true ) )
+            if ( !allVarsWithinBounds() )
+//            if ( !allVarsWithinBounds( true ) )
             {
                 // This rarely happens, but when it does - need to restore.
                 // I'm guessing this is due to numerical instability when restoring the basics.
@@ -2435,7 +2536,7 @@ public:
     bool fixBrokenReluVariable( unsigned var, bool increase, double &delta, unsigned &_brokenReluStat )
     {
         log( Stringf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta ) );
-        printf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta );
+        //printf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta );
 
         // 若为non-basic变量
         if ( !_basicVariables.exists( var ) )
@@ -3129,7 +3230,7 @@ public:
 		// 计算上或下界中有无穷大值的变量的个数
         countVarsWithInfiniteBounds();
         log( Stringf( "makeAllBoundsFinite -- Starting (%u vars with infinite bounds)\n", _varsWithInfiniteBounds ) );
-        printf("\n----- printStatistics() ----\n");
+//        printf("\n----- printStatistics() ----\n");
 //        printStatistics();
 
 		// 不懂
@@ -3138,7 +3239,7 @@ public:
 
         countVarsWithInfiniteBounds();
         log( Stringf( "makeAllBoundsFinite -- Done (%u vars with infinite bounds)\n", _varsWithInfiniteBounds ) );
-        printf("\n----- printStatistics() ----\n");
+//        printf("\n----- printStatistics() ----\n");
 //        printStatistics();
 
         if ( _varsWithInfiniteBounds != 0 )
@@ -4045,7 +4146,16 @@ private:
     unsigned long long _totalTimeEvalutingGlpkRows;
     unsigned _consecutiveGlpkFailureCount;
 
+    bool alreadySAT;     // add by lzs
+
+
 public:
+    //// add by lzs
+    void printTableauRow(unsigned row){
+        _tableau.printRow(row);
+    }
+    //// add end
+
     void checkInvariants() const
     {
 #ifndef DEBUG_ON

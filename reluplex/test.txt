@@ -21,6 +21,7 @@ Setting name: a4 --> 17
 Setting name: a5 --> 18
 Setting name: a6 --> 19
 Setting name: a7 --> 20
+num_AE: 0 
 		Update: x1 += 0.50
 Checking invariants after initial update
 makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
@@ -293,7 +294,7 @@ Visiting state:
      a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
 
 
-22:34:16 Statistics update:
+23:12:18 Statistics update:
 	Calls to 'progress': 4. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 8. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -306,7 +307,7 @@ Visiting state:
 	Time in TightenAllBounds: 0 milli. Bounds tightened: 0
 	Relu pairs dissolved: 0. Num splits: 0. Num merges: 0 (remaining: 6 / 6)
 	Num LP solver invocations: 1. Found solution: 1. No Solution: 0. Failed: 0. Incorrect assignments: 0.
-		Total time in LP solver: 1 milli. Max: 1 milli. Avg per invocation: 1 milli
+		Total time in LP solver: 0 milli. Max: 0 milli. Avg per invocation: 0 milli
 		Number of pivots in LP solver: 10. Average time per LP pivot operation: 0 milli
 		Total time extracting tableaus after LP solved: 0 milli. Average: 0 milli.
 		Total time evaulating GLPK rows: 0
@@ -325,13 +326,36 @@ Visiting state:
 
 
 	Summary: Total: 0 milli
-		1. GLPK: 1 milli (0%) 
+		1. GLPK: 0 milli (0%) 
 		2. Extraction + Postprocessing: 0 milli (0%)
 		3. Tightening bounds: 0 milli (0%)
 		4. Stack operations: 0 milli (0%)
 		5. Tableau restoration operations: 0 milli (0%)
-		6. Unaccounted for: 18446744073709551615 milli (0%)
+		6. Unaccounted for: 0 milli (0%)
 
+printCurrentAE in RunReluplex:
+This is a adversial example:
+Variable 0 : value = 0.5000000000 
+Variable 1 : value = 0.5000000000 
+Variable 2 : value = 0.5000000000 
+Variable 3 : value = -0.5000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.5000000000 
+Variable 7 : value = 2.0000000000 
+Variable 8 : value = 2.0000000000 
+Variable 9 : value = 1.5000000000 
+Variable 10 : value = 1.5000000000 
+Variable 11 : value = 1.5000000000 
+Variable 12 : value = 1.5000000000 
+Variable 13 : value = 10.5000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
 
 *** Solved! ***
 Float Utils: default epsilon = 0.000000000100000
@@ -357,6 +381,7 @@ Setting name: a4 --> 17
 Setting name: a5 --> 18
 Setting name: a6 --> 19
 Setting name: a7 --> 20
+num_AE: 1 
 		Update: x1 += 0.40
 Checking invariants after initial update
 makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
@@ -629,7 +654,7 @@ Visiting state:
      a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
 
 
-22:34:16 Statistics update:
+23:12:18 Statistics update:
 	Calls to 'progress': 4. Total time: 0 milli. Average: 0 milli
 	Pivot operations: 8. Total pivot time: 0 milli.
 	Average pivot time: 0 milli
@@ -644,7 +669,7 @@ Visiting state:
 	Num LP solver invocations: 1. Found solution: 1. No Solution: 0. Failed: 0. Incorrect assignments: 0.
 		Total time in LP solver: 0 milli. Max: 0 milli. Avg per invocation: 0 milli
 		Number of pivots in LP solver: 10. Average time per LP pivot operation: 0 milli
-		Total time extracting tableaus after LP solved: 0 milli. Average: 0 milli.
+		Total time extracting tableaus after LP solved: 6 milli. Average: 6 milli.
 		Total time evaulating GLPK rows: 0
 		Glpk bound reports: 20. On slacks: 7 (= 35%). Ignored due to small coefficients: 0. Used: 100.00%
 		Number of GLPK-derived bounds: 12. On slacks: 0 (= 0.00%). Time: 0 milli. Relus consequently dissolved: 0
@@ -662,12 +687,57 @@ Visiting state:
 
 	Summary: Total: 0 milli
 		1. GLPK: 0 milli (0%) 
-		2. Extraction + Postprocessing: 0 milli (0%)
+		2. Extraction + Postprocessing: 6 milli (0%)
 		3. Tightening bounds: 0 milli (0%)
 		4. Stack operations: 0 milli (0%)
 		5. Tableau restoration operations: 0 milli (0%)
-		6. Unaccounted for: 0 milli (0%)
+		6. Unaccounted for: 18446744073709551610 milli (0%)
 
+printCurrentAE in RunReluplex:
+This is a adversial example:
+Variable 0 : value = 0.5000000000 
+Variable 1 : value = 0.5000000000 
+Variable 2 : value = 0.5000000000 
+Variable 3 : value = -0.5000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.5000000000 
+Variable 7 : value = 2.0000000000 
+Variable 8 : value = 2.0000000000 
+Variable 9 : value = 1.5000000000 
+Variable 10 : value = 1.5000000000 
+Variable 11 : value = 1.5000000000 
+Variable 12 : value = 1.5000000000 
+Variable 13 : value = 10.5000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
+This is a adversial example:
+Variable 0 : value = 0.4000000000 
+Variable 1 : value = 0.4000000000 
+Variable 2 : value = 0.4000000000 
+Variable 3 : value = -0.4000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.4000000000 
+Variable 6 : value = 0.4000000000 
+Variable 7 : value = 1.6000000000 
+Variable 8 : value = 1.6000000000 
+Variable 9 : value = 1.2000000000 
+Variable 10 : value = 1.2000000000 
+Variable 11 : value = 1.2000000000 
+Variable 12 : value = 1.2000000000 
+Variable 13 : value = 8.4000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
 
 *** Solved! ***
 printCurrentAE in RunReluplex:
@@ -676,20 +746,20 @@ Variable 0 : value = 0.5000000000
 Variable 1 : value = 0.5000000000 
 Variable 2 : value = 0.5000000000 
 Variable 3 : value = -0.5000000000 
-Variable 4 : value = 0.4000000000 
-Variable 5 : value = 0.4000000000 
-Variable 6 : value = 0.4000000000 
-Variable 7 : value = -0.4000000000 
-Variable 8 : value = 0.0000000000 
-Variable 9 : value = 0.4000000000 
-Variable 10 : value = 0.4000000000 
-Variable 11 : value = 1.6000000000 
-Variable 12 : value = 1.6000000000 
-Variable 13 : value = 1.2000000000 
-Variable 14 : value = 1.2000000000 
-Variable 15 : value = 1.2000000000 
-Variable 16 : value = 1.2000000000 
-Variable 17 : value = 8.4000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.5000000000 
+Variable 7 : value = 2.0000000000 
+Variable 8 : value = 2.0000000000 
+Variable 9 : value = 1.5000000000 
+Variable 10 : value = 1.5000000000 
+Variable 11 : value = 1.5000000000 
+Variable 12 : value = 1.5000000000 
+Variable 13 : value = 10.5000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
 Variable 18 : value = 0.0000000000 
 Variable 19 : value = 0.0000000000 
 Variable 20 : value = 0.0000000000 

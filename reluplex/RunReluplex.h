@@ -20,14 +20,14 @@ class RunReluplex
 public:
     double **currentAdversaryE ;
 
-    int num_Node = 21;
-    int num_AE = 0;
-    int total = 9;
+    unsigned num_Node = 21;
+    unsigned num_AE = 0;
+    unsigned total = 9;
 
     RunReluplex() : _reluplex( NULL )
     {
         currentAdversaryE = new double*[total];
-        for (int i = 0; i < total; i++) {
+        for (unsigned i = 0; i < total; i++) {
             currentAdversaryE[i] = new double[num_Node];
         }
     }
@@ -40,9 +40,9 @@ public:
 
     void printCurrentAE(){
         printf("printCurrentAE in RunReluplex:\n");
-        for (int j = 0; j < num_AE; ++j) {
-            printf("This is a adversial example:\n");
-            for (int k = 0; k < num_Node; ++k) {
+        for (unsigned j = 0; j < num_AE; ++j) {
+            printf("\nThis is a adversial example:\n");
+            for (unsigned k = 0; k < num_Node; ++k) {
                 printf( "Variable %u : value = %.10lf \n", k , currentAdversaryE[j][k]);
             }
         }
@@ -171,139 +171,139 @@ public:
         _reluplex->setReluPair( 3, 4 );
     }
 
-//    void example3()
-//    {
-//        _reluplex = new Reluplex( 21 );
-//
-//        _reluplex->setName( 0, "x1" );
-//        _reluplex->setName( 1, "x2b" );
-//        _reluplex->setName( 2, "x2f" );
-//        _reluplex->setName( 3, "x3b" );
-//        _reluplex->setName( 4, "x3f" );
-//        _reluplex->setName( 5, "x4b" );
-//        _reluplex->setName( 6, "x4f" );
-//        _reluplex->setName( 7, "x5b" );
-//        _reluplex->setName( 8, "x5f" );
-//        _reluplex->setName( 9, "x6b" );
-//        _reluplex->setName( 10, "x6f" );
-//        _reluplex->setName( 11, "x7b" );
-//        _reluplex->setName( 12, "x7f" );
-//        _reluplex->setName( 13, "x8" );
-//        _reluplex->setName( 14, "a1" );
-//        _reluplex->setName( 15, "a2" );
-//        _reluplex->setName( 16, "a3" );
-//        _reluplex->setName( 17, "a4" );
-//        _reluplex->setName( 18, "a5" );
-//        _reluplex->setName( 19, "a6" );
-//        _reluplex->setName( 20, "a7" );
-//
-//        _reluplex->setLogging( true );
-//
-//        _reluplex->initializeCell( 14, 0, -1.0 );
-//        _reluplex->initializeCell( 14, 1, 1.0 );
-//        _reluplex->initializeCell( 14, 14, -1.0 );
-//
-//        _reluplex->initializeCell( 15, 0, 1.0 );
-//        _reluplex->initializeCell( 15, 3, 1.0 );
-//        _reluplex->initializeCell( 15, 15, -1.0 );
-//
-//        _reluplex->initializeCell( 16, 0, -1.0 );
-//        _reluplex->initializeCell( 16, 5, 1.0 );
-//        _reluplex->initializeCell( 16, 16, -1.0 );
-//
-//        _reluplex->initializeCell( 17, 2, -1.0 );
-//        _reluplex->initializeCell( 17, 4, -2.0 );
-//        _reluplex->initializeCell( 17, 6, -3.0 );
-//        _reluplex->initializeCell( 17, 7, 1.0 );
-//        _reluplex->initializeCell( 17, 17, -1.0 );
-//
-//        _reluplex->initializeCell( 18, 2, -2.0 );
-//        _reluplex->initializeCell( 18, 4, -1.0 );
-//        _reluplex->initializeCell( 18, 6, -1.0 );
-//        _reluplex->initializeCell( 18, 9, 1.0 );
-//        _reluplex->initializeCell( 18, 18, -1.0 );
-//
-//        _reluplex->initializeCell( 19, 2, -1.0 );
-//        _reluplex->initializeCell( 19, 4, -2.0 );
-//        _reluplex->initializeCell( 19, 6, -2.0 );
-//        _reluplex->initializeCell( 19, 11, 1.0 );
-//        _reluplex->initializeCell( 19, 19, -1.0 );
-//
-//        _reluplex->initializeCell( 20, 8, -3.0 );
-//        _reluplex->initializeCell( 20, 10, -2.0 );
-//        _reluplex->initializeCell( 20, 12, -1.0 );
-//        _reluplex->initializeCell( 20, 13, 1.0 );
-//        _reluplex->initializeCell( 20, 20, -1.0 );
-//
-//
-//        _reluplex->markBasic( 14 );
-//        _reluplex->markBasic( 15 );
-//        _reluplex->markBasic( 16 );
-//        _reluplex->markBasic( 17 );
-//        _reluplex->markBasic( 18 );
-//        _reluplex->markBasic( 19 );
-//        _reluplex->markBasic( 20 );
-//
-//        _reluplex->setReluPair( 1, 2 );
-//        _reluplex->setReluPair( 3, 4 );
-//        _reluplex->setReluPair( 5, 6 );
-//        _reluplex->setReluPair( 7, 8 );
-//        _reluplex->setReluPair( 9, 10 );
-//        _reluplex->setReluPair( 11, 12 );
-//
-//        // set bound of basic
-//        _reluplex->setLowerBound( 14, 0.0 );
-//        _reluplex->setUpperBound( 14, 0.0 );
-//        _reluplex->setLowerBound( 15, 0.0 );
-//        _reluplex->setUpperBound( 15, 0.0 );
-//        _reluplex->setLowerBound( 16, 0.0 );
-//        _reluplex->setUpperBound( 16, 0.0 );
-//        _reluplex->setLowerBound( 17, 0.0 );
-//        _reluplex->setUpperBound( 17, 0.0 );
-//        _reluplex->setLowerBound( 18, 0.0 );
-//        _reluplex->setUpperBound( 18, 0.0 );
-//        _reluplex->setLowerBound( 19, 0.0 );
-//        _reluplex->setUpperBound( 19, 0.0 );
-//        _reluplex->setLowerBound( 20, 0.0 );
-//        _reluplex->setUpperBound( 20, 0.0 );
-//
-//        // set b bound
-//        _reluplex->setLowerBound( 1, -9999.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
-//        _reluplex->setUpperBound( 1, 9999.0 );
-//        _reluplex->setLowerBound( 3, -9999.0 );
-//        _reluplex->setUpperBound( 3, 9999.0 );
-//        _reluplex->setLowerBound( 5, -9999.0 );
-//        _reluplex->setUpperBound( 5, 9999.0 );
-//        _reluplex->setLowerBound( 7, -9999.0 );
-//        _reluplex->setUpperBound( 7, 9999.0 );
-//        _reluplex->setLowerBound( 9, -9999.0 );
-//        _reluplex->setUpperBound( 9, 9999.0 );
-//        _reluplex->setLowerBound( 11, -9999.0 );
-//        _reluplex->setUpperBound( 11, 9999.0 );
-//
-//        // set f bound
-//        _reluplex->setLowerBound( 2, 0.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
-//        _reluplex->setUpperBound( 2, 9999.0 );
-//        _reluplex->setLowerBound( 4, 0.0 );
-//        _reluplex->setUpperBound( 4, 9999.0 );
-//        _reluplex->setLowerBound( 6, 0.0 );
-//        _reluplex->setUpperBound( 6, 9999.0 );
-//        _reluplex->setLowerBound( 8, 0.0 );
-//        _reluplex->setUpperBound( 8, 9999.0 );
-//        _reluplex->setLowerBound( 10, 0.0 );
-//        _reluplex->setUpperBound( 10, 9999.0 );
-//        _reluplex->setLowerBound( 12, 0.0 );
-//        _reluplex->setUpperBound( 12, 9999.0 );
-//
-//
-//        // set input & output
-//
-//        _reluplex->setLowerBound( 0, 0.5 );
-//        _reluplex->setUpperBound( 0, 1.0 );
-//        _reluplex->setLowerBound( 13, 0.0 );
-//        _reluplex->setUpperBound( 13, 100.0 );
-//
-//    }
+    void example33333()
+    {
+        _reluplex = new Reluplex( 21 );
+
+        _reluplex->setName( 0, "x1" );
+        _reluplex->setName( 1, "x2b" );
+        _reluplex->setName( 2, "x2f" );
+        _reluplex->setName( 3, "x3b" );
+        _reluplex->setName( 4, "x3f" );
+        _reluplex->setName( 5, "x4b" );
+        _reluplex->setName( 6, "x4f" );
+        _reluplex->setName( 7, "x5b" );
+        _reluplex->setName( 8, "x5f" );
+        _reluplex->setName( 9, "x6b" );
+        _reluplex->setName( 10, "x6f" );
+        _reluplex->setName( 11, "x7b" );
+        _reluplex->setName( 12, "x7f" );
+        _reluplex->setName( 13, "x8" );
+        _reluplex->setName( 14, "a1" );
+        _reluplex->setName( 15, "a2" );
+        _reluplex->setName( 16, "a3" );
+        _reluplex->setName( 17, "a4" );
+        _reluplex->setName( 18, "a5" );
+        _reluplex->setName( 19, "a6" );
+        _reluplex->setName( 20, "a7" );
+
+        _reluplex->setLogging( true );
+
+        _reluplex->initializeCell( 14, 0, -1.0 );
+        _reluplex->initializeCell( 14, 1, 1.0 );
+        _reluplex->initializeCell( 14, 14, -1.0 );
+
+        _reluplex->initializeCell( 15, 0, 1.0 );
+        _reluplex->initializeCell( 15, 3, 1.0 );
+        _reluplex->initializeCell( 15, 15, -1.0 );
+
+        _reluplex->initializeCell( 16, 0, -1.0 );
+        _reluplex->initializeCell( 16, 5, 1.0 );
+        _reluplex->initializeCell( 16, 16, -1.0 );
+
+        _reluplex->initializeCell( 17, 2, -1.0 );
+        _reluplex->initializeCell( 17, 4, -2.0 );
+        _reluplex->initializeCell( 17, 6, -3.0 );
+        _reluplex->initializeCell( 17, 7, 1.0 );
+        _reluplex->initializeCell( 17, 17, -1.0 );
+
+        _reluplex->initializeCell( 18, 2, -2.0 );
+        _reluplex->initializeCell( 18, 4, -1.0 );
+        _reluplex->initializeCell( 18, 6, -1.0 );
+        _reluplex->initializeCell( 18, 9, 1.0 );
+        _reluplex->initializeCell( 18, 18, -1.0 );
+
+        _reluplex->initializeCell( 19, 2, -1.0 );
+        _reluplex->initializeCell( 19, 4, -2.0 );
+        _reluplex->initializeCell( 19, 6, -2.0 );
+        _reluplex->initializeCell( 19, 11, 1.0 );
+        _reluplex->initializeCell( 19, 19, -1.0 );
+
+        _reluplex->initializeCell( 20, 8, -3.0 );
+        _reluplex->initializeCell( 20, 10, -2.0 );
+        _reluplex->initializeCell( 20, 12, -1.0 );
+        _reluplex->initializeCell( 20, 13, 1.0 );
+        _reluplex->initializeCell( 20, 20, -1.0 );
+
+
+        _reluplex->markBasic( 14 );
+        _reluplex->markBasic( 15 );
+        _reluplex->markBasic( 16 );
+        _reluplex->markBasic( 17 );
+        _reluplex->markBasic( 18 );
+        _reluplex->markBasic( 19 );
+        _reluplex->markBasic( 20 );
+
+        _reluplex->setReluPair( 1, 2 );
+        _reluplex->setReluPair( 3, 4 );
+        _reluplex->setReluPair( 5, 6 );
+        _reluplex->setReluPair( 7, 8 );
+        _reluplex->setReluPair( 9, 10 );
+        _reluplex->setReluPair( 11, 12 );
+
+        // set bound of basic
+        _reluplex->setLowerBound( 14, 0.0 );
+        _reluplex->setUpperBound( 14, 0.0 );
+        _reluplex->setLowerBound( 15, 0.0 );
+        _reluplex->setUpperBound( 15, 0.0 );
+        _reluplex->setLowerBound( 16, 0.0 );
+        _reluplex->setUpperBound( 16, 0.0 );
+        _reluplex->setLowerBound( 17, 0.0 );
+        _reluplex->setUpperBound( 17, 0.0 );
+        _reluplex->setLowerBound( 18, 0.0 );
+        _reluplex->setUpperBound( 18, 0.0 );
+        _reluplex->setLowerBound( 19, 0.0 );
+        _reluplex->setUpperBound( 19, 0.0 );
+        _reluplex->setLowerBound( 20, 0.0 );
+        _reluplex->setUpperBound( 20, 0.0 );
+
+        // set b bound
+        _reluplex->setLowerBound( 1, -9999.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
+        _reluplex->setUpperBound( 1, 9999.0 );
+        _reluplex->setLowerBound( 3, -9999.0 );
+        _reluplex->setUpperBound( 3, 9999.0 );
+        _reluplex->setLowerBound( 5, -9999.0 );
+        _reluplex->setUpperBound( 5, 9999.0 );
+        _reluplex->setLowerBound( 7, -9999.0 );
+        _reluplex->setUpperBound( 7, 9999.0 );
+        _reluplex->setLowerBound( 9, -9999.0 );
+        _reluplex->setUpperBound( 9, 9999.0 );
+        _reluplex->setLowerBound( 11, -9999.0 );
+        _reluplex->setUpperBound( 11, 9999.0 );
+
+        // set f bound
+        _reluplex->setLowerBound( 2, 0.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
+        _reluplex->setUpperBound( 2, 9999.0 );
+        _reluplex->setLowerBound( 4, 0.0 );
+        _reluplex->setUpperBound( 4, 9999.0 );
+        _reluplex->setLowerBound( 6, 0.0 );
+        _reluplex->setUpperBound( 6, 9999.0 );
+        _reluplex->setLowerBound( 8, 0.0 );
+        _reluplex->setUpperBound( 8, 9999.0 );
+        _reluplex->setLowerBound( 10, 0.0 );
+        _reluplex->setUpperBound( 10, 9999.0 );
+        _reluplex->setLowerBound( 12, 0.0 );
+        _reluplex->setUpperBound( 12, 9999.0 );
+
+
+        // set input & output
+
+        _reluplex->setLowerBound( 0, 0.5 );
+        _reluplex->setUpperBound( 0, 1.0 );
+        _reluplex->setLowerBound( 13, 0.0 );
+        _reluplex->setUpperBound( 13, 100.0 );
+
+    }
 
     void example3(double assign = 0.5, double delta = 0.1 )
     {
@@ -452,7 +452,8 @@ public:
         try
         {
             printf("num_AE: %d \n", num_AE);
-            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE);
+            Reluplex::FinalStatus result = _reluplex->solve();
+//            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node);
             if ( result == Reluplex::SAT ){
                 printf( "\n*** Solved! ***\n" );
 
@@ -469,7 +470,8 @@ public:
                 try {
 
                     printf("num_AE: %d \n", num_AE);
-                    Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE);
+                    Reluplex::FinalStatus result = _reluplex->solve();
+//                    Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node);
                     if (result == Reluplex::SAT) {
                         printf("\n*** Solved! ***\n");
 

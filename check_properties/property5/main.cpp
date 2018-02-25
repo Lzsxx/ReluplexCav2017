@@ -300,8 +300,15 @@ int main( int argc, char **argv )
         }
     }
 
+    // 取得某个变量对应的下标值
     unsigned targetOutputVariable = nodeToVars[Index(numLayersInUse - 1, targetOutputVariableIndex, false)];
     unsigned otherOutputVariable = nodeToVars[Index(numLayersInUse - 1, otherOutputVariableIndex, false)];
+
+    printf("\n Output Layer Information: ");
+    printf("\n targetOutputVariableIndex: %u, targetOutputVariable: %u ",targetOutputVariableIndex, targetOutputVariable);
+    printf("\n otherOutputVariableIndex: %u, otherOutputVariable: %u ",otherOutputVariableIndex, otherOutputVariable);
+    printf("\n outputConstraintVariable: %u \n",outputConstraintVariable);
+
 
     // This is the constraint target - other
     reluplex.initializeCell( outputConstraintVariable, outputConstraintVariable, -1.0 );
