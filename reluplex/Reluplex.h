@@ -613,7 +613,7 @@ public:
         return Reluplex::SAT;
     }
 
-    FinalStatus solve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
+    FinalStatus solrve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
     {
         timeval start = Time::sampleMicro();
         timeval end;

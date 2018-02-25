@@ -182,6 +182,8 @@ bool advMain( int argc, char **argv, unsigned inputPoint, double inputDelta, uns
     else
         finalOutputFile = argv[1];
 
+//    printf("\nfinalOutputFile:%s\n",finalOutputFile);  // 指向summary.txt文件，只有这一个参数，argv[2]指向null, argv[0]指向./check_properties/bin/adversarial.elf
+
     //读取网络
     AcasNeuralNetwork neuralNetwork( networkPath.ascii() );
 
