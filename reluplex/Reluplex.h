@@ -78,7 +78,7 @@ class Reluplex : public IReluplex
 public:
     /*** Add by lzs **/
     bool stopFind;  // Add by lzs
-    double *_assignment;	//Êı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÏàÓ¦Öµ
+    double *_assignment;	//æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ç›¸åº”å€¼
     int *candidateNode;
 
     /*** Add end **/
@@ -109,18 +109,18 @@ public:
         :   stopFind(false)
             , _assignment( NULL )
             ,candidateNode(NULL)
-        ,_numVariables( numVariables )	//ËùÓĞ±äÁ¿µÄ×ÜÊı
+        ,_numVariables( numVariables )	//æ‰€æœ‰å˜é‡çš„æ€»æ•°
         , _reluplexName( reluplexName )	//
         , _finalOutputFile( finalOutputFile )
         , _finalStatus( NOT_DONE )
         , _wasInitialized( false )
         , _tableau( numVariables )
         , _preprocessedTableau( numVariables )
-        , _upperBounds( NULL )	// ËùÓĞºÍboundsºÍassignmentÓĞ¹ØµÄ±äÁ¿£¬¶¼ÊÇÊı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÉÏÏÂ½çºÍ¸³Öµ
+        , _upperBounds( NULL )	// æ‰€æœ‰å’Œboundså’Œassignmentæœ‰å…³çš„å˜é‡ï¼Œéƒ½æ˜¯æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ä¸Šä¸‹ç•Œå’Œèµ‹å€¼
         , _lowerBounds( NULL )
         , _preprocessedUpperBounds( NULL )
         , _preprocessedLowerBounds( NULL )
-        , _preprocessedAssignment( NULL )// ËùÓĞºÍboundsºÍassignmentÓĞ¹ØµÄ±äÁ¿£¬¶¼ÊÇÊı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÉÏÏÂ½çºÍ¸³Öµ
+        , _preprocessedAssignment( NULL )// æ‰€æœ‰å’Œboundså’Œassignmentæœ‰å…³çš„å˜é‡ï¼Œéƒ½æ˜¯æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ä¸Šä¸‹ç•Œå’Œèµ‹å€¼
         , _smtCore( this, _numVariables )
         , _useApproximations( true )
         , _findAllPivotCandidates( false )
@@ -281,7 +281,7 @@ public:
 ////        printf("_reluplexName :  %s \n" ,str2->ascii() );
 ////        printf("copyReluplex->_reluplexName :  %s \n" ,tempName->ascii() );
 //
-//        myCopyReluplex->_finalOutputFile = _finalOutputFile; // ÊÇÖ¸Õë£¬µ«Õâ¸öÖµÔÚÔËĞĞ¹ı³ÌÖĞ²»»á¸Ä±ä£¬ËùÒÔ²»ĞèÒªÁíÍâÉú³É¶ÔÏó
+//        myCopyReluplex->_finalOutputFile = _finalOutputFile; // æ˜¯æŒ‡é’ˆï¼Œä½†è¿™ä¸ªå€¼åœ¨è¿è¡Œè¿‡ç¨‹ä¸­ä¸ä¼šæ”¹å˜ï¼Œæ‰€ä»¥ä¸éœ€è¦å¦å¤–ç”Ÿæˆå¯¹è±¡
 //        myCopyReluplex->_finalStatus = _finalStatus;
 //        myCopyReluplex->_wasInitialized = _wasInitialized;
 //        _tableau.backupIntoMatrix( &myCopyReluplex->_tableau );
@@ -338,7 +338,7 @@ public:
 ////        }
 //
 //        /**
-//         * _smtCore ¶ÔÏó¸´ÖÆ
+//         * _smtCore å¯¹è±¡å¤åˆ¶
 //         */
 //        // //_smtCore( this, _numVariables )
 //        myCopyReluplex->_smtCore = _smtCore;
@@ -592,18 +592,18 @@ public:
 
     void initialize()
     {
-		// ¼ì²éËùÓĞ±äÁ¿µÄÉÏÏÂ½çÊÇ·ñÊÇºÏÀíÖµ£¨ÉÏ½ç´óÓÚÏÂ½ç£©
-		// ÒÔ¼°·Ç»ù±äÁ¿non-basicÊÇ·ñÔÚÉÏÏÂ½çÖ®ÄÚ
+		// æ£€æŸ¥æ‰€æœ‰å˜é‡çš„ä¸Šä¸‹ç•Œæ˜¯å¦æ˜¯åˆç†å€¼ï¼ˆä¸Šç•Œå¤§äºä¸‹ç•Œï¼‰
+		// ä»¥åŠéåŸºå˜é‡non-basicæ˜¯å¦åœ¨ä¸Šä¸‹ç•Œä¹‹å†…
 
-		//£¨´ËÊ±µÄnon-basicÊÇËùÓĞ¾ßÓĞÕæÊµÒâÒåµÄÖµ£¬ÒòÎª´ËÊ±Ã»ÓĞ¾­¹ıpivot£¬ËùÓĞÈË¹¤±äÁ¿¶¼ÊÇbasic£©
-		// Èç¹ûnon-baiscÓĞÔ½½çÖµ£¬Òª¸üĞÂÖµÊ¹·Ç»ù±äÁ¿non-basicÔÚÉÏÏÂ½çÄÚ£¬£¨¼´Ê¹Ê¹basicÔ½½çÒ²ÎŞËùÎ½
-		// Èç¹û±»updateµÄÖµÊÇreluÖĞµÄÒ»¸ö£¬ÒªÁ¢¼´¿¼ÂÇÊÇ·ñĞèÒªfix£¬Èç¹ûĞèÒª£¬Á¢¼´ÔÚupdateÖĞÓÃupdateB»òupdateFÀ´½øĞĞfix
+		//ï¼ˆæ­¤æ—¶çš„non-basicæ˜¯æ‰€æœ‰å…·æœ‰çœŸå®æ„ä¹‰çš„å€¼ï¼Œå› ä¸ºæ­¤æ—¶æ²¡æœ‰ç»è¿‡pivotï¼Œæ‰€æœ‰äººå·¥å˜é‡éƒ½æ˜¯basicï¼‰
+		// å¦‚æœnon-baiscæœ‰è¶Šç•Œå€¼ï¼Œè¦æ›´æ–°å€¼ä½¿éåŸºå˜é‡non-basicåœ¨ä¸Šä¸‹ç•Œå†…ï¼Œï¼ˆå³ä½¿ä½¿basicè¶Šç•Œä¹Ÿæ— æ‰€è°“
+		// å¦‚æœè¢«updateçš„å€¼æ˜¯reluä¸­çš„ä¸€ä¸ªï¼Œè¦ç«‹å³è€ƒè™‘æ˜¯å¦éœ€è¦fixï¼Œå¦‚æœéœ€è¦ï¼Œç«‹å³åœ¨updateä¸­ç”¨updateBæˆ–updateFæ¥è¿›è¡Œfix
 
         /*** make all non-baisc in their bounds ***/
-        // ½«ÏÖ½×¶ÎËùÓĞµÄnon-basic¶¼updateµ½ÉÏÏÂ½çÖ®ÄÚ£¬Ã»ÓĞÖ´ĞĞ¹ıPivot
+        // å°†ç°é˜¶æ®µæ‰€æœ‰çš„non-basicéƒ½updateåˆ°ä¸Šä¸‹ç•Œä¹‹å†…ï¼Œæ²¡æœ‰æ‰§è¡Œè¿‡Pivot
         initialUpdate();
 
-		// ´¦ÀíÎŞÇî´ó±äÁ¿£¬ÒÔ¼°non-basicµÄÉÏÏÂ½çtighter
+		// å¤„ç†æ— ç©·å¤§å˜é‡ï¼Œä»¥åŠnon-basicçš„ä¸Šä¸‹ç•Œtighter
         makeAllBoundsFinite();
 
         _wasInitialized = true;
@@ -613,7 +613,7 @@ public:
         return Reluplex::SAT;
     }
 
-    FinalStatus solrve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
+    FinalStatus solve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
     {
         timeval start = Time::sampleMicro();
         timeval end;
@@ -621,14 +621,14 @@ public:
         try
         {
             /*** first step*****/
-            // ´¦Àínon-basic±äÁ¿µÄÔ½½çÎÊÌâ£¬ÒÔ¼°¶ÔÎŞÇî½çÏŞ½øĞĞËõĞ¡
+            // å¤„ç†non-basicå˜é‡çš„è¶Šç•Œé—®é¢˜ï¼Œä»¥åŠå¯¹æ— ç©·ç•Œé™è¿›è¡Œç¼©å°
             if ( !_wasInitialized )
                 initialize();
 
             countVarsWithInfiniteBounds();
 
             /*** second step*****/
-            // Ïû³ıËùÓĞÁíÍâÒıÈëµÄ¸¨Öú±äÁ¿,¼´ËùÓĞbasic±äÁ¿£¬¼´Ê¹Ö»ÓĞÒ»¸öÎŞ·¨Ïû³ı£¬Ò²»áÊ¹Õû¸öÏîÄ¿failed
+            // æ¶ˆé™¤æ‰€æœ‰å¦å¤–å¼•å…¥çš„è¾…åŠ©å˜é‡,å³æ‰€æœ‰basicå˜é‡ï¼Œå³ä½¿åªæœ‰ä¸€ä¸ªæ— æ³•æ¶ˆé™¤ï¼Œä¹Ÿä¼šä½¿æ•´ä¸ªé¡¹ç›®failed
             if ( !eliminateAuxVariables() )
             {
                 _finalStatus = Reluplex::ERROR;
@@ -645,10 +645,10 @@ public:
 
 
             /** third step*****/
-            // ±£´æÒ»Ğ©ĞèÒªµÄÊı¾İ£¬ÈçinitializeºóµÄTableau¡¢
+            // ä¿å­˜ä¸€äº›éœ€è¦çš„æ•°æ®ï¼Œå¦‚initializeåçš„Tableauã€
             storePreprocessedMatrix();
 
-            // ´òÓ¡ĞÅÏ¢ºÍ´æÈëLog
+            // æ‰“å°ä¿¡æ¯å’Œå­˜å…¥Log
             printf( "Initialization steps over.\n" );
             printf("\n----- printStatistics():after initialize() ----\n");
             printStatistics();
@@ -661,7 +661,7 @@ public:
             {
                 computeVariableStatus();
                 /** fifth step*****/
-                // Èç¹ûÂú×ãÕâÁ½¸öÌõ¼ş£¬Ôò·µ»ØSAT
+                // å¦‚æœæ»¡è¶³è¿™ä¸¤ä¸ªæ¡ä»¶ï¼Œåˆ™è¿”å›SAT
                 if ( allVarsWithinBounds() && allRelusHold() )
                 {
                     log( "\nIt can be solved. current state is: \n" );
@@ -694,8 +694,8 @@ public:
                     num_AE ++;
 
                     printf("printCurrentAE in solve()'s main loop:\n");
-//                    for (unsigned j = 0; j < num_AE; ++j) {   // Êä³öAEÊı×éÀïµÄÈ«²¿ÄÚÈİ
-                    for (unsigned j = num_AE - 1; j < num_AE; ++j) {     //¼ò±ãÊä³ö£¬Ö»Êä³ö×î½üÕÒµ½µÄÒ»¸ö
+//                    for (unsigned j = 0; j < num_AE; ++j) {   // è¾“å‡ºAEæ•°ç»„é‡Œçš„å…¨éƒ¨å†…å®¹
+                    for (unsigned j = num_AE - 1; j < num_AE; ++j) {     //ç®€ä¾¿è¾“å‡ºï¼Œåªè¾“å‡ºæœ€è¿‘æ‰¾åˆ°çš„ä¸€ä¸ª
                         printf("This is a adversial example: %u \n", num_AE);
                         for (unsigned k = 0; k < num_Node; ++k) {
                             if( k < inputLayerSize){
@@ -708,7 +708,7 @@ public:
 
                     if (num_AE < num_Expected_AE){
                         _smtCore.pop();
-                        printf("\nWe find a AE, but will run continuely£º%u \n",num_AE);
+                        printf("\nWe find a AE, but will run continuelyï¼š%u \n",num_AE);
                         printf("After pop(), current assignment is : \n");
                         for (unsigned c = 0; c < num_Node; c++) {
                             if(c < inputLayerSize){  //
@@ -755,26 +755,26 @@ public:
 //                    return _finalStatus;
                 }
 
-                // violatingLevelInStackÄ¬ÈÏ³õÊ¼»¯Îª0£¬±íÊ¾µ¼ÖÂviolation½øĞĞÁË¶àÉÙ´Îsplit,¶øsmtCoreĞèÒª¸ù¾İÕâ¸öÖµÖØ×ö¶àÉÙ´Îdecisions
+                // violatingLevelInStacké»˜è®¤åˆå§‹åŒ–ä¸º0ï¼Œè¡¨ç¤ºå¯¼è‡´violationè¿›è¡Œäº†å¤šå°‘æ¬¡split,è€ŒsmtCoreéœ€è¦æ ¹æ®è¿™ä¸ªå€¼é‡åšå¤šå°‘æ¬¡decisions
                 unsigned violatingLevelInStack;
 
-                // ·ñÔò£¬»¹ÓĞÔ½½çµÄbasic±äÁ¿£¬»òÕßbrokenµÄrelu£¬¾Íµ÷ÓÃprocess¼ÌĞø´¦Àí
-                // Èç¹û´¦Àí³É¹¦£¬±íÃ÷½øĞĞÁËÒ»´ÎÖµµÄ¸üĞÂ£¬·µ»Øtrue,½øĞĞÏÂÒ»´ÎÑ­»·
+                // å¦åˆ™ï¼Œè¿˜æœ‰è¶Šç•Œçš„basicå˜é‡ï¼Œæˆ–è€…brokençš„reluï¼Œå°±è°ƒç”¨processç»§ç»­å¤„ç†
+                // å¦‚æœå¤„ç†æˆåŠŸï¼Œè¡¨æ˜è¿›è¡Œäº†ä¸€æ¬¡å€¼çš„æ›´æ–°ï¼Œè¿”å›true,è¿›è¡Œä¸‹ä¸€æ¬¡å¾ªç¯
 
-                // Èç¹û´¦Àí²»³É¹¦£¬·µ»Øfalse
-                // ¿ÉÄÜµ¼ÖÂ·µ»ØfalseµÄÇé¿ö£º1¡¢GLPKÃ»ÓĞÕÒµ½½â¾ö·½°¸NO_SOLUTION_EXISTS
-                // 2¡¢³öÏÖÒì³£
-                // 3¡¢fixÔ½½ç±äÁ¿Ê±Ã»ÓĞÕÒµ½¿ÉÒÔPivotµÄºòÑ¡Õß
+                // å¦‚æœå¤„ç†ä¸æˆåŠŸï¼Œè¿”å›false
+                // å¯èƒ½å¯¼è‡´è¿”å›falseçš„æƒ…å†µï¼š1ã€GLPKæ²¡æœ‰æ‰¾åˆ°è§£å†³æ–¹æ¡ˆNO_SOLUTION_EXISTS
+                // 2ã€å‡ºç°å¼‚å¸¸
+                // 3ã€fixè¶Šç•Œå˜é‡æ—¶æ²¡æœ‰æ‰¾åˆ°å¯ä»¥Pivotçš„å€™é€‰è€…
 
-                // ´ËÊ±µ÷ÓÃsmtScore£¬¸ù¾İ_useConflictAnalysis£¬¶ÔÕ»½øĞĞpopÒ»´Î»òÕß¶à´Î£¬popÖ®ºóÖ®Ç°µÄ×´Ì¬Ö±½Ó¾Í»¹Ô­½øÈëÁË_reluplex¶ÔÏó
-                // ½øÈëÏÂÒ»´ÎÑ­»·£¬¼ÌĞø´¦Àí
+                // æ­¤æ—¶è°ƒç”¨smtScoreï¼Œæ ¹æ®_useConflictAnalysisï¼Œå¯¹æ ˆè¿›è¡Œpopä¸€æ¬¡æˆ–è€…å¤šæ¬¡ï¼Œpopä¹‹åä¹‹å‰çš„çŠ¶æ€ç›´æ¥å°±è¿˜åŸè¿›å…¥äº†_reluplexå¯¹è±¡
+                // è¿›å…¥ä¸‹ä¸€æ¬¡å¾ªç¯ï¼Œç»§ç»­å¤„ç†
 
-                //// Ã¿´Îprogress¿ÉÄÜÊÇÓÃGLPK½øĞĞÒ»´ÎfixÔ½½ç±äÁ¿£¬»òÕßÊÇÓÃupdate-b-f¸üĞÂÓĞÎÊÌâµÄpair£¬»òÕßÊÇÓÃsmtCore½øĞĞsplit,²¢¼ÇÂ¼×´Ì¬ÔÚstackÖĞ
+                //// æ¯æ¬¡progresså¯èƒ½æ˜¯ç”¨GLPKè¿›è¡Œä¸€æ¬¡fixè¶Šç•Œå˜é‡ï¼Œæˆ–è€…æ˜¯ç”¨update-b-fæ›´æ–°æœ‰é—®é¢˜çš„pairï¼Œæˆ–è€…æ˜¯ç”¨smtCoreè¿›è¡Œsplit,å¹¶è®°å½•çŠ¶æ€åœ¨stackä¸­
 
                 if ( !progress( violatingLevelInStack ) )
                 {
-                    // Èç¹ûĞèÒª½øĞĞ³åÍ»´¦Àí£¬Ôòµ÷ÓÃ_smtCore, default value is true
-                    // violatingLevelInStackµÄÖµÊÇ¸Õ½øÈëprogressÊ±µÄ_currentStackDepth£¬
+                    // å¦‚æœéœ€è¦è¿›è¡Œå†²çªå¤„ç†ï¼Œåˆ™è°ƒç”¨_smtCore, default value is true
+                    // violatingLevelInStackçš„å€¼æ˜¯åˆšè¿›å…¥progressæ—¶çš„_currentStackDepthï¼Œ
 
                     if ( _useConflictAnalysis )
                         _smtCore.pop( violatingLevelInStack );  // if has conflict Analysis, it will go back several steps
@@ -784,8 +784,8 @@ public:
                     setMinStackSecondPhase( _currentStackDepth );
                 }
 
-                // Èç¹ûprogress´¦Àí³É¹¦£¬·µ»Øtrue,¿ÉÄÜÊÇSOLVER_FAILED£¬Ò²¿ÉÄÜÊÇSOLVER_FOUND£¬
-                // ½øÈëÏÂ¸öÑ­»·
+                // å¦‚æœprogresså¤„ç†æˆåŠŸï¼Œè¿”å›true,å¯èƒ½æ˜¯SOLVER_FAILEDï¼Œä¹Ÿå¯èƒ½æ˜¯SOLVER_FOUNDï¼Œ
+                // è¿›å…¥ä¸‹ä¸ªå¾ªç¯
 
             }
         }
@@ -858,11 +858,11 @@ public:
     bool progress( unsigned &violatingLevelInStack )
     {
         /**
-         * progress()ÓĞÁ½¸ö³ö¿Ú·µ»Øtrue
-         * 1. basic±äÁ¿ÖĞÃ»ÓĞÔ½½ç±äÁ¿£¬µ«ÕûÌåÓĞbroken relu Pairs£¬³É¹¦ĞŞ¸´ºó£¬·µ»Øtrue
-         * 2. basic±äÁ¿ÖĞÓĞÔ½½ç±äÁ¿£¬µ÷ÓÃGlpk½øĞĞÇó½â£¬µÃµ½SOLVER_FAILEDµÄ½á¹û¡£·µ»Øtrue
-         * 3. basic±äÁ¿ÖĞÓĞÔ½½ç±äÁ¿£¬µ÷ÓÃGlpk½øĞĞÇó½â£¬µÃµ½SOLUTION_FOUND½á¹û£¬ÇÒ´ËÊ±Ã»ÓĞbrokenµÄrelu Pair,·µ»Øtrue.
-         * Èç¹ûÓĞrelu pairÎÊÌâ£¬ÒªÏÈfix,È»ºó²Å·µ»Øtrue
+         * progress()æœ‰ä¸¤ä¸ªå‡ºå£è¿”å›true
+         * 1. basicå˜é‡ä¸­æ²¡æœ‰è¶Šç•Œå˜é‡ï¼Œä½†æ•´ä½“æœ‰broken relu Pairsï¼ŒæˆåŠŸä¿®å¤åï¼Œè¿”å›true
+         * 2. basicå˜é‡ä¸­æœ‰è¶Šç•Œå˜é‡ï¼Œè°ƒç”¨Glpkè¿›è¡Œæ±‚è§£ï¼Œå¾—åˆ°SOLVER_FAILEDçš„ç»“æœã€‚è¿”å›true
+         * 3. basicå˜é‡ä¸­æœ‰è¶Šç•Œå˜é‡ï¼Œè°ƒç”¨Glpkè¿›è¡Œæ±‚è§£ï¼Œå¾—åˆ°SOLUTION_FOUNDç»“æœï¼Œä¸”æ­¤æ—¶æ²¡æœ‰brokençš„relu Pair,è¿”å›true.
+         * å¦‚æœæœ‰relu pairé—®é¢˜ï¼Œè¦å…ˆfix,ç„¶åæ‰è¿”å›true
          */
 
 //        copy_reluplex( myCopyReluplex );
@@ -875,9 +875,9 @@ public:
             ++_numCallsToProgress;
 
             // The default
-            violatingLevelInStack = _currentStackDepth;	//¶ÑÕ»Éî¶È£¬½øĞĞÁË¶àÉÙ´Îsplit
+            violatingLevelInStack = _currentStackDepth;	//å †æ ˆæ·±åº¦ï¼Œè¿›è¡Œäº†å¤šå°‘æ¬¡split
 
-			// _useDegradationChecking²»ÖªµÀÊ²Ã´¹í£¬Ä¬ÈÏÎªfalse,ÏÈ²»¹Ü
+			// _useDegradationCheckingä¸çŸ¥é“ä»€ä¹ˆé¬¼ï¼Œé»˜è®¤ä¸ºfalse,å…ˆä¸ç®¡
             if ( _useDegradationChecking && ( _numCallsToProgress % 50 == 0 ) )
             {
                 double currentMaxDegradation = checkDegradation();
@@ -888,21 +888,21 @@ public:
                 }
             }
 
-			// Ã¿µ÷ÓÃ500´Î½øĞĞÒ»´ÎÊı¾İ´òÓ¡
+			// æ¯è°ƒç”¨500æ¬¡è¿›è¡Œä¸€æ¬¡æ•°æ®æ‰“å°
             if ( _numCallsToProgress % PRINT_STATISTICS == 0 ){
                 printf("\n----- printStatistics():500 ----\n");
                 printStatistics();
             }
-			// Ã¿500´Î´òÓ¡¸³Öµ
+			// æ¯500æ¬¡æ‰“å°èµ‹å€¼
             if ( _printAssignment && _numCallsToProgress % PRINT_ASSIGNMENT == 0 )
                 printAssignment();
 
             dump();
 
-			/********ÒÔÏÂ¿ªÊ¼papaerÖĞËùĞ´**********/
+			/********ä»¥ä¸‹å¼€å§‹papaerä¸­æ‰€å†™**********/
 
             List<unsigned> outOfBoundVariables;
-            findOutOfBounds( outOfBoundVariables );	//ÔÚbasicÖĞÕÒµ½Ô½½ç±äÁ¿£¬´æÈëListÖĞ
+            findOutOfBounds( outOfBoundVariables );	//åœ¨basicä¸­æ‰¾åˆ°è¶Šç•Œå˜é‡ï¼Œå­˜å…¥Listä¸­
 
             // If we have out-of-bounds variables, we deal with them first
             if ( !outOfBoundVariables.empty() )
@@ -911,26 +911,26 @@ public:
 
                 GlpkWrapper::GlpkAnswer answer = fixOutOfBounds();
 
-				// _consecutiveGlpkFailureCountÓÃÓÚ¼ÇÂ¼GLPK FailuresµÄ´ÎÊı=10£¬Èç¹û´óÓÚ£¬Ôò±¨´í
+				// _consecutiveGlpkFailureCountç”¨äºè®°å½•GLPK Failuresçš„æ¬¡æ•°=10ï¼Œå¦‚æœå¤§äºï¼Œåˆ™æŠ¥é”™
                 if ( _consecutiveGlpkFailureCount > MAX_GLPK_FAILURES_BEFORE_RESOTRATION )
                 {
                     printf( "Error: %u Consecutive GLPK failures\n", MAX_GLPK_FAILURES_BEFORE_RESOTRATION );
                     throw Error( Error::CONSECUTIVE_GLPK_FAILURES );
                 }
 
-				// Èç¹û·µ»Ø NO_SOLUTION_EXISTS£¬±íÊ¾Ã»ÓĞÕÒµ½½â¾ö·½°¸
+				// å¦‚æœè¿”å› NO_SOLUTION_EXISTSï¼Œè¡¨ç¤ºæ²¡æœ‰æ‰¾åˆ°è§£å†³æ–¹æ¡ˆ
                 if ( answer == GlpkWrapper::NO_SOLUTION_EXISTS )
                     return false;
 
-				// Èç¹û·µ»Ø SOLVER_FAILED£¬±íÊ¾±¾´Î½â¾öÊ§°Ü£¬»ØËİµ½Ö®Ç°µÄ²½ÖèÔÙ½â¾ö
+				// å¦‚æœè¿”å› SOLVER_FAILEDï¼Œè¡¨ç¤ºæœ¬æ¬¡è§£å†³å¤±è´¥ï¼Œå›æº¯åˆ°ä¹‹å‰çš„æ­¥éª¤å†è§£å†³
                 if ( answer == GlpkWrapper::SOLVER_FAILED )
                 {
                     // In this case, we restored from the original tableau; nothing left to do here.
                     return true;
                 }
 
-				//// Èç¹û·µ»ØÖµ·ÇÒÔÉÏÁ½ÖÖ£¬ÔòÖ»¿ÉÄÜÊÇ SOLUTION_FOUND£¬±íÊ¾ÕÒµ½ÁË½â¾ö·½°¸
-				// ´ËÊ±Èç¹ûÃ»ÓĞbrokenµÄReluPair£¬ÔòÖ±½Ó·µ»Øtrue
+				//// å¦‚æœè¿”å›å€¼éä»¥ä¸Šä¸¤ç§ï¼Œåˆ™åªå¯èƒ½æ˜¯ SOLUTION_FOUNDï¼Œè¡¨ç¤ºæ‰¾åˆ°äº†è§£å†³æ–¹æ¡ˆ
+				// æ­¤æ—¶å¦‚æœæ²¡æœ‰brokençš„ReluPairï¼Œåˆ™ç›´æ¥è¿”å›true
                 if ( allRelusHold() )
                     return true;
 
@@ -967,7 +967,7 @@ public:
                 return true;
             }
 
-            //// Ã»ÓĞÔ½½ç±äÁ¿£¬¾ÍÒª²é¿´ÊÇ·ñÓĞbrokenµÄpair
+            //// æ²¡æœ‰è¶Šç•Œå˜é‡ï¼Œå°±è¦æŸ¥çœ‹æ˜¯å¦æœ‰brokençš„pair
 
             // Reset the GLPK failure measures
             _consecutiveGlpkFailureCount = 0;
@@ -978,19 +978,19 @@ public:
             // If we got here, either there are no OOB variables, or they were fixed without changing the tableau
             // and we still have broken relus. Split on one of them.
             List<unsigned> brokenRelus;
-            findBrokenRelues( brokenRelus );    // ÕÒµ½brokenµÄReLU Pair£¬´æ´¢ÔÚbroeknRelusÁĞ±íÖĞ
+            findBrokenRelues( brokenRelus );    // æ‰¾åˆ°brokençš„ReLU Pairï¼Œå­˜å‚¨åœ¨broeknRelusåˆ—è¡¨ä¸­
             _totalNumBrokenRelues += brokenRelus.size();
 
             unsigned brokenReluVar = *brokenRelus.begin();
-            // ÕÒµ½brokenµÄReluPairÖĞµÄforward±äÁ¿
+            // æ‰¾åˆ°brokençš„ReluPairä¸­çš„forwardå˜é‡
             unsigned f = _reluPairs.isF( brokenReluVar ) ? brokenReluVar : _reluPairs.toPartner( brokenReluVar );
 
-            //// notifyBrokenRelu()Èç¹û·µ»Øtrue,±íÊ¾update-f»òupdate-bÒÑ¾­³¬¹ıãĞÖµ£¬ÔÚnotifyBrokenReluÖĞ½øĞĞÁËsplit£¬²¢½«×´Ì¬´æÈëÕ»ÖĞ
+            //// notifyBrokenRelu()å¦‚æœè¿”å›true,è¡¨ç¤ºupdate-fæˆ–update-bå·²ç»è¶…è¿‡é˜ˆå€¼ï¼Œåœ¨notifyBrokenReluä¸­è¿›è¡Œäº†splitï¼Œå¹¶å°†çŠ¶æ€å­˜å…¥æ ˆä¸­
             if ( _smtCore.notifyBrokenRelu( f ) )
-                return true; // Splitting/Merging is a form of progress£¬ÒÑ½øĞĞ¹ısplit£¬Ö±½Ó·µ»Øtrue£¬ÒÔ±ã½øÈëÏÂÒ»´ÎprogressÑ­»·
+                return true; // Splitting/Merging is a form of progressï¼Œå·²è¿›è¡Œè¿‡splitï¼Œç›´æ¥è¿”å›trueï¼Œä»¥ä¾¿è¿›å…¥ä¸‹ä¸€æ¬¡progresså¾ªç¯
 
-            //// ·ñÔò£¬ÈôÊÇnotifyBrokenRelu·µ»Øfalse£¬±íÊ¾´ËÊ±»¹²»ĞèÒª½øĞĞsplit£¬¿ÉÒÔ¼ÌĞøÓÃupdate-f-bÀ´½øĞĞĞŞ¸´pair
-            return fixBrokenRelu( f );  // fixÍê³ÉÒ»´Î£¬·µ»Øtrue
+            //// å¦åˆ™ï¼Œè‹¥æ˜¯notifyBrokenReluè¿”å›falseï¼Œè¡¨ç¤ºæ­¤æ—¶è¿˜ä¸éœ€è¦è¿›è¡Œsplitï¼Œå¯ä»¥ç»§ç»­ç”¨update-f-bæ¥è¿›è¡Œä¿®å¤pair
+            return fixBrokenRelu( f );  // fixå®Œæˆä¸€æ¬¡ï¼Œè¿”å›true
         }
 
         catch ( const InvariantViolationError &e )
@@ -1038,7 +1038,7 @@ public:
     {
         // Only basic variables can be out-of-bounds
 
-		// ÔÚÔËËã¹ı³ÌÖĞËùÓĞµÄnon-basic¶¼ÊÇÔÚ½çÏŞ·¶Î§ÄÚµÄ£¬ËùÒÔÏÖÔÚÖ»ĞèÒª¼ì²ébasic£¬Èç¹û¶¼ÔÚ½çÏŞ·¶Î§ÄÚ£¬ÄÇÃ´¾ÍÒâÎ¶×ÅËùÓĞ±äÁ¿¶¼ÔÚ·¶Î§ÄÚÁË
+		// åœ¨è¿ç®—è¿‡ç¨‹ä¸­æ‰€æœ‰çš„non-basicéƒ½æ˜¯åœ¨ç•Œé™èŒƒå›´å†…çš„ï¼Œæ‰€ä»¥ç°åœ¨åªéœ€è¦æ£€æŸ¥basicï¼Œå¦‚æœéƒ½åœ¨ç•Œé™èŒƒå›´å†…ï¼Œé‚£ä¹ˆå°±æ„å‘³ç€æ‰€æœ‰å˜é‡éƒ½åœ¨èŒƒå›´å†…äº†
 
         for ( auto i : _basicVariables )
             if ( outOfBounds( i ) )
@@ -1079,8 +1079,8 @@ public:
         double bVal = _assignment[b];
         double fVal = _assignment[f];
 
-		// µ±forward±äÁ¿ÊÇ0,µ«backward±äÁ¿ÊÇÕıÊıÊ±£¬·µ»Øtrue±íÊ¾broken
-		// µ±forward±äÁ¿ÊÇÕıÊı£¬µ«Óëbackward±äÁ¿²»ÏàµÈÊ±£¬·µ»Øtrue±íÊ¾broken
+		// å½“forwardå˜é‡æ˜¯0,ä½†backwardå˜é‡æ˜¯æ­£æ•°æ—¶ï¼Œè¿”å›trueè¡¨ç¤ºbroken
+		// å½“forwardå˜é‡æ˜¯æ­£æ•°ï¼Œä½†ä¸backwardå˜é‡ä¸ç›¸ç­‰æ—¶ï¼Œè¿”å›trueè¡¨ç¤ºbroken
 
         return
             ( FloatUtils::isZero( fVal ) && FloatUtils::isPositive( bVal ) ) ||
@@ -2072,20 +2072,20 @@ public:
 
     bool boundInvariantHolds( unsigned variable, unsigned &violatingStackLevel )
     {
-		//ÅĞ¶ÏÒÑÉè¶¨µÄÉÏÏÂ½çÖµÊÇ·ñÊÇºÏÀíµÄ£¬¼´lowerBoundsÒªĞ¡ÓÚµÈÓÚupperBounds£¬
-		//Èç¹ûÆäÖĞÒ»±ßÎªÎŞÇî´ó£¬ÓÉÓÚÎŞÇî´óÊÇÎŞ·¨±È½ÏµÄ£¬ÔòÄ¬ÈÏ¶¼Îªtrue
+		//åˆ¤æ–­å·²è®¾å®šçš„ä¸Šä¸‹ç•Œå€¼æ˜¯å¦æ˜¯åˆç†çš„ï¼Œå³lowerBoundsè¦å°äºç­‰äºupperBoundsï¼Œ
+		//å¦‚æœå…¶ä¸­ä¸€è¾¹ä¸ºæ— ç©·å¤§ï¼Œç”±äºæ— ç©·å¤§æ˜¯æ— æ³•æ¯”è¾ƒçš„ï¼Œåˆ™é»˜è®¤éƒ½ä¸ºtrue
 
         if ( !_upperBounds[variable].finite() || !_lowerBounds[variable].finite() )
             return true;
 
-		// Èç¹û²»ÊÇ£¬²¢·µ»Øfalse£¬ÓÉµ÷ÓÃº¯ÊıÅ×³öÒì³£
+		// å¦‚æœä¸æ˜¯ï¼Œå¹¶è¿”å›falseï¼Œç”±è°ƒç”¨å‡½æ•°æŠ›å‡ºå¼‚å¸¸
         if ( !FloatUtils::lte( _lowerBounds[variable].getBound(), _upperBounds[variable].getBound() ) )
         {
             violatingStackLevel = std::max( _lowerBounds[variable].getLevel(), _upperBounds[variable].getLevel() );
             return false;
         }
 
-		// ÆäËûËùÓĞÇé¿ö¶¼·µ»Øtrue
+		// å…¶ä»–æ‰€æœ‰æƒ…å†µéƒ½è¿”å›true
         return true;
     }
 
@@ -2102,7 +2102,7 @@ public:
     {
         unsigned partner = 0, b = 0, f = 0;
 
-		// Èç¹ûÊÇrelu±äÁ¿£¬ÔòÈ¡³öËüÒÔ¼°Ïà¹ØµÄb»òf
+		// å¦‚æœæ˜¯reluå˜é‡ï¼Œåˆ™å–å‡ºå®ƒä»¥åŠç›¸å…³çš„bæˆ–f
         if ( _reluPairs.isRelu( variable ) )
         {
             // The variable is relu.
@@ -2111,17 +2111,17 @@ public:
             b = _reluPairs.isB( variable ) ? variable : partner;
         }
 
-		// Èç¹û²»ÊÇrelu±äÁ¿£¬»òÕßrelu±äÁ¿µÄfÒÑ¾­±»Ïû³ı
+		// å¦‚æœä¸æ˜¯reluå˜é‡ï¼Œæˆ–è€…reluå˜é‡çš„få·²ç»è¢«æ¶ˆé™¤
         if ( !_reluPairs.isRelu( variable ) || _dissolvedReluVariables.exists( f ) )
         {
             // For non-relus, we can just update the bound.
-			// Ö±½Ó¸üĞÂÉÏ½çÎª´«ÈëµÄboundÖµ
+			// ç›´æ¥æ›´æ–°ä¸Šç•Œä¸ºä¼ å…¥çš„boundå€¼
             _upperBounds[variable].setBound( bound );
             _upperBounds[variable].setLevel( level );
 
             unsigned violatingStackLevel;
 
-			// ÅĞ¶ÏÉÏÏÂ½çÊÇ·ñÊÇ·ûºÏ³£ÀíµÄ
+			// åˆ¤æ–­ä¸Šä¸‹ç•Œæ˜¯å¦æ˜¯ç¬¦åˆå¸¸ç†çš„
             if ( !boundInvariantHolds( variable, violatingStackLevel ) )
                 throw InvariantViolationError( violatingStackLevel );
 
@@ -2129,7 +2129,7 @@ public:
 
             // If the variable is basic, it's okay if it's out of bounds.
             // If non-basic and out of bounds, need to update.
-			// Èç¹û¸üĞÂÁË½çÏŞ·¶Î§µÄÊÇÒ»¸önon-basic£¬ÇÒÔ½½çÁË£¬ÄÇÃ´¾ÍÒª½«ÆäÖµĞŞÕıÎªÕâ¸ö½çÏŞÖµ£¨ÓÉÓÚupdate¿ÉÒÔ½ÓÊÜµÄdelta¿ÉÎªÕı¸ºÊı£¬ÔòÕâÀï¿ÉÒÔÖ±½ÓÓÃbound - _assignment[variable]
+			// å¦‚æœæ›´æ–°äº†ç•Œé™èŒƒå›´çš„æ˜¯ä¸€ä¸ªnon-basicï¼Œä¸”è¶Šç•Œäº†ï¼Œé‚£ä¹ˆå°±è¦å°†å…¶å€¼ä¿®æ­£ä¸ºè¿™ä¸ªç•Œé™å€¼ï¼ˆç”±äºupdateå¯ä»¥æ¥å—çš„deltaå¯ä¸ºæ­£è´Ÿæ•°ï¼Œåˆ™è¿™é‡Œå¯ä»¥ç›´æ¥ç”¨bound - _assignment[variable]
             if ( !_basicVariables.exists( variable ) && outOfBounds( variable ) )
                 update( variable, bound - _assignment[variable] );
 
@@ -2449,14 +2449,14 @@ public:
 
     void initialUpdate()
     {
-		// ¼ÆËãµ±Ç°±äÁ¿ÖµÊÇ·ñÔ½½çµÄ×´Ì¬,write in _varToStatus, so we can judge their bounds more convenient
+		// è®¡ç®—å½“å‰å˜é‡å€¼æ˜¯å¦è¶Šç•Œçš„çŠ¶æ€,write in _varToStatus, so we can judge their bounds more convenient
         computeVariableStatus();
 
         for ( unsigned i = 0; i < _numVariables; ++i )
         {
             unsigned violatingStackLevel;
 
-			// ÅĞ¶ÏËùÓĞÖµµÄÉÏÏÂ½çÊÇ·ñÊÇ·ûºÏ³£ÀíµÄ(That is : lower bound is less than upper bound)£¬Èç¹û²»£¬ÒªÅ×³öÒì³£
+			// åˆ¤æ–­æ‰€æœ‰å€¼çš„ä¸Šä¸‹ç•Œæ˜¯å¦æ˜¯ç¬¦åˆå¸¸ç†çš„(That is : lower bound is less than upper bound)ï¼Œå¦‚æœä¸ï¼Œè¦æŠ›å‡ºå¼‚å¸¸
             if ( !boundInvariantHolds( i, violatingStackLevel ) )
             {
                 printf( "Bound invariant violation on variable: %s\n", toName( i ).ascii() );
@@ -2465,28 +2465,28 @@ public:
                 throw InvariantViolationError( violatingStackLevel );
             }
 
-			// Èç¹ûnon-basic±äÁ¿³¬³öÉÏ»òÏÂ½ç£¨OutOfBounds»áÍ¬Ê±¼ì²éÉÏÏÂ½ç£¬ÈÎºÎÒ»·½Ô½½ç¶¼»á·µ»Øtrue£©£¬ÄÇÃ´Òª½øĞĞ¸üĞÂ£¬
-			// ³¬Ô½ÏÂ½ç¾Í¸üĞÂÎªÏÂ½çÖµ£¬·ñÔò¸üĞÂÎªÉÏ½çÖµ¡£
+			// å¦‚æœnon-basicå˜é‡è¶…å‡ºä¸Šæˆ–ä¸‹ç•Œï¼ˆOutOfBoundsä¼šåŒæ—¶æ£€æŸ¥ä¸Šä¸‹ç•Œï¼Œä»»ä½•ä¸€æ–¹è¶Šç•Œéƒ½ä¼šè¿”å›trueï¼‰ï¼Œé‚£ä¹ˆè¦è¿›è¡Œæ›´æ–°ï¼Œ
+			// è¶…è¶Šä¸‹ç•Œå°±æ›´æ–°ä¸ºä¸‹ç•Œå€¼ï¼Œå¦åˆ™æ›´æ–°ä¸ºä¸Šç•Œå€¼ã€‚
 
-			// ´Ë´¦ÊÇ paperµÚÒ»²½£¬v31Ô½½ç£¬ÔÚ´Ë´¦±»¸üĞÂÎªÏÂ½çÖµ
+			// æ­¤å¤„æ˜¯ paperç¬¬ä¸€æ­¥ï¼Œv31è¶Šç•Œï¼Œåœ¨æ­¤å¤„è¢«æ›´æ–°ä¸ºä¸‹ç•Œå€¼
 
             if ( !_basicVariables.exists( i ) && outOfBounds( i ) )
             {
-				// Èç¹ûÊÇÔ½ÏÂ½ç£¨ÑÏ¸ñĞ¡ÓÚ£©£¬ÄÇ¾Í½«¸³Öµ¼ÓÉÏ²îÖµ£¬Ê¹¸³ÖµÎªÏÂ½çÖµ
+				// å¦‚æœæ˜¯è¶Šä¸‹ç•Œï¼ˆä¸¥æ ¼å°äºï¼‰ï¼Œé‚£å°±å°†èµ‹å€¼åŠ ä¸Šå·®å€¼ï¼Œä½¿èµ‹å€¼ä¸ºä¸‹ç•Œå€¼
                 if ( tooLow( i ) )
                     update( i, _lowerBounds[i].getBound() - _assignment[i] );
-				// Èç¹ûÊÇ²»Ô½ÏÂ½ç£¬Ôò¸³ÖµÎªÉÏ½çÖµ
+				// å¦‚æœæ˜¯ä¸è¶Šä¸‹ç•Œï¼Œåˆ™èµ‹å€¼ä¸ºä¸Šç•Œå€¼
                 else
                     update( i, _upperBounds[i].getBound() - _assignment[i] );
             }
         }
 
         log( "Checking invariants after initial update\n" );
-		// check TableauµÄÖµÊÇ·ñÓĞÒì³£¡¢non-basicÊÇ·ñÔÚÉÏÏÂ½ç·¶Î§ÄÚ¡¢reluÊÇ·ñÕı³£
+		// check Tableauçš„å€¼æ˜¯å¦æœ‰å¼‚å¸¸ã€non-basicæ˜¯å¦åœ¨ä¸Šä¸‹ç•ŒèŒƒå›´å†…ã€reluæ˜¯å¦æ­£å¸¸
         checkInvariants();  //if has error, it will exit(1) immediately
     }
 
-    // ÏÈÉèÖÃºÃfixÊ±²»Í¬variableĞèÒªµÄ²ÎÊı£¬È»ºó½øĞĞfix£¬ÓÅÏÈfix bÓëfÒ»ÖÂ£¬Æä´ÎÔÙ¿¼ÂÇÉèÖÃfÓëbÒ»ÖÂ
+    // å…ˆè®¾ç½®å¥½fixæ—¶ä¸åŒvariableéœ€è¦çš„å‚æ•°ï¼Œç„¶åè¿›è¡Œfixï¼Œä¼˜å…ˆfix bä¸fä¸€è‡´ï¼Œå…¶æ¬¡å†è€ƒè™‘è®¾ç½®fä¸bä¸€è‡´
     bool fixBrokenRelu( unsigned toFix )
     {
         bool isF = _reluPairs.isF( toFix );
@@ -2503,17 +2503,17 @@ public:
         double fDelta;
         double bDelta;
 
-        // Èç¹ûforward±äÁ¿ÎªÕı£¬ÇÒbackward±äÁ¿Îª·ÇÕı£¬ÔòÈôÒª¾ÀÕıf,Ôò
+        // å¦‚æœforwardå˜é‡ä¸ºæ­£ï¼Œä¸”backwardå˜é‡ä¸ºéæ­£ï¼Œåˆ™è‹¥è¦çº æ­£f,åˆ™
         if ( FloatUtils::isPositive( fVal ) && !FloatUtils::isPositive( bVal ) )
         {
             fDelta = -fVal;
             bDelta = fVal - bVal;
-        }// Èç¹ûfÎªÕı£¬ÇÒbÎªÕı£¬Ôò¸÷×ÔdeltaÎªÁ½ÕßµÄ²îÖµ
+        }// å¦‚æœfä¸ºæ­£ï¼Œä¸”bä¸ºæ­£ï¼Œåˆ™å„è‡ªdeltaä¸ºä¸¤è€…çš„å·®å€¼
         else if ( FloatUtils::isPositive( fVal ) && FloatUtils::isPositive( bVal ) )
         {
             fDelta = bVal - fVal;
             bDelta = fVal - bVal;
-        }// Èç¹ûfÎª0£¬bÎªÕıÊı£¬Ôò¾ÀÕıfÊ±½«fÖÃÎªb£¬¾ÀÕıbÊ±½«bÖÃÎª¸ºÊı
+        }// å¦‚æœfä¸º0ï¼Œbä¸ºæ­£æ•°ï¼Œåˆ™çº æ­£fæ—¶å°†fç½®ä¸ºbï¼Œçº æ­£bæ—¶å°†bç½®ä¸ºè´Ÿæ•°
         else if ( FloatUtils::isZero( fVal ) && FloatUtils::isPositive( bVal ) )
         {
             fDelta = bVal;
@@ -2538,7 +2538,7 @@ public:
         log( Stringf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta ) );
         //printf( "fixBrokenReluVariable Starting: var = %s, delta = %lf\n", toName( var ).ascii(), delta );
 
-        // ÈôÎªnon-basic±äÁ¿
+        // è‹¥ä¸ºnon-basicå˜é‡
         if ( !_basicVariables.exists( var ) )
         {
             DEBUG(
@@ -2564,7 +2564,7 @@ public:
             log( Stringf( "Var %s isn't basic; no pivot needed, simply updating\n", toName( var ).ascii() ) );
             update( var, delta, true );
             return true;
-        }// ÈôÎª basic ±äÁ¿£¬ĞèÒªÏÈpivot()£¬È»ºóÔÙupdate
+        }// è‹¥ä¸º basic å˜é‡ï¼Œéœ€è¦å…ˆpivot()ï¼Œç„¶åå†update
         else
         {
             ++_brokenReluStat;
@@ -2601,14 +2601,14 @@ public:
 
     void update( unsigned variable, double delta, bool ignoreRelu = false )
     {
-		// delta¿ÉÄÜÊÇÕıÊı£¬Ò²¿ÉÄÜÊÇ¸ºÊı£¬
+		// deltaå¯èƒ½æ˜¯æ­£æ•°ï¼Œä¹Ÿå¯èƒ½æ˜¯è´Ÿæ•°ï¼Œ
 
         if ( FloatUtils::isZero( delta ) )
             return;
 
         log( Stringf( "\t\tUpdate: %s += %.2lf\n", toName( variable ).ascii(), delta ) );
 		
-		// ¸üĞÂÖµ²Ù×÷
+		// æ›´æ–°å€¼æ“ä½œ
         _assignment[variable] += delta;
         turnAlmostZeroToZero( _assignment[variable] );
         computeVariableStatus( variable );
@@ -2616,8 +2616,8 @@ public:
         const Tableau::Entry *columnEntry = _tableau.getColumn( variable );	// variable is i
         const Tableau::Entry *current;
 
-		// ¸üĞÂÁËnon-basic±äÁ¿Ö®ºó£¬Òª¸ù¾İTableauÀïµÄÏµÊı£¬½«·²ÊÇÓĞÕâ¸önon-basic³öÏÖµÄÊ½×ÓµÄbasicµÄÖµÒ»Æğ¸üĞÂ£¬
-		// Ã¿´Î¸³ÖµÖ®ºó£¬¶¼Òª¶Ô½Ó½ü0µÄ±äÁ¿½øĞĞÖÃ0²Ù×÷£¬²¢¸ù¾İµ±Ç°assignmentÖØĞÂ¼ÆËãµ±Ç°µÄ±äÁ¿µÄ×´Ì¬
+		// æ›´æ–°äº†non-basicå˜é‡ä¹‹åï¼Œè¦æ ¹æ®Tableaué‡Œçš„ç³»æ•°ï¼Œå°†å‡¡æ˜¯æœ‰è¿™ä¸ªnon-basicå‡ºç°çš„å¼å­çš„basicçš„å€¼ä¸€èµ·æ›´æ–°ï¼Œ
+		// æ¯æ¬¡èµ‹å€¼ä¹‹åï¼Œéƒ½è¦å¯¹æ¥è¿‘0çš„å˜é‡è¿›è¡Œç½®0æ“ä½œï¼Œå¹¶æ ¹æ®å½“å‰assignmenté‡æ–°è®¡ç®—å½“å‰çš„å˜é‡çš„çŠ¶æ€
         while ( columnEntry != NULL )
         {
             current = columnEntry;      // current is the non-basic in this time to update
@@ -2633,8 +2633,8 @@ public:
         }
 
         // If the updated variable was Relu, we might need to fix the relu invariant
-		// Èç¹û±»¸üĞÂµÄÊÇrelu±äÁ¿£¬ÄÇÃ´»¹Òª¿¼ÂÇÊÇ·ñĞèÒªfix
-		// ignoreRelu¾ö¶¨ÁËÊÇ·ñĞèÒªºöÂÔrelu¹ØÏµ£¬Ä¬ÈÏÎªfalse,ÔòĞèÒª¿¼ÂÇ£¨initialUpdateÖĞÃ»ÓĞ´«Öµ£¬Ê¹ÓÃµÄÊÇÄ¬ÈÏÖµ£¬ËùÒÔ»¹ÊÇĞèÒª¿¼ÂÇ
+		// å¦‚æœè¢«æ›´æ–°çš„æ˜¯reluå˜é‡ï¼Œé‚£ä¹ˆè¿˜è¦è€ƒè™‘æ˜¯å¦éœ€è¦fix
+		// ignoreReluå†³å®šäº†æ˜¯å¦éœ€è¦å¿½ç•¥reluå…³ç³»ï¼Œé»˜è®¤ä¸ºfalse,åˆ™éœ€è¦è€ƒè™‘ï¼ˆinitialUpdateä¸­æ²¡æœ‰ä¼ å€¼ï¼Œä½¿ç”¨çš„æ˜¯é»˜è®¤å€¼ï¼Œæ‰€ä»¥è¿˜æ˜¯éœ€è¦è€ƒè™‘
         if ( _reluPairs.isRelu( variable ) && !ignoreRelu )
         {
             unsigned partner = _reluPairs.toPartner( variable );
@@ -2645,7 +2645,7 @@ public:
             log( Stringf( "Update was on relu. Parnter = %u\n", partner ) );
 
             // If the partner is basic, it's okay for the pair to be broken
-			// ÏÖÔÚvariable¿Ï¶¨²»ÊÇbasic, ËùÒÔÈç¹ûËüµÄpartnerÊÇbasic , ¿ÉÒÔÔÊĞíÔİÊ±broken,
+			// ç°åœ¨variableè‚¯å®šä¸æ˜¯basic, æ‰€ä»¥å¦‚æœå®ƒçš„partneræ˜¯basic , å¯ä»¥å…è®¸æš‚æ—¶broken,
             // because the rules made by algorithm need this, if it is basic , it might be changed by another non-basic
             // only if all the relu pair's two variable are non-baisc , we need to fix them
 
@@ -2658,45 +2658,45 @@ public:
             // The partner is NOT basic. If the connection is broken,
             // we can fix the partner, if needed.
 
-			// µ«Èç¹ûpartnerÊÇnon-basic, ÄÇÃ´ÏÂÒ»²½¾ÍĞèÒªfixÕâ¸öpartner
+			// ä½†å¦‚æœpartneræ˜¯non-basic, é‚£ä¹ˆä¸‹ä¸€æ­¥å°±éœ€è¦fixè¿™ä¸ªpartner
 
             log( "Parnter is NOT basic. Checking if more work is needed...\n" );
 
             log( Stringf( "b = %u, f = %u, bVal = %lf, fVal = %lf\n", b, f, _assignment[b], _assignment[f] ) );
 
-			// _dissolvedReluVariablesÊÇMapÀàĞÍ£¬±íÊ¾ÒÑ¾­±»eliminateµÄReluPair
+			// _dissolvedReluVariablesæ˜¯Mapç±»å‹ï¼Œè¡¨ç¤ºå·²ç»è¢«eliminateçš„ReluPair
 
-			// Èç¹ûf´æÔÚÓÚ_dissolvedReluVariables£¬ÄÇ¾Í²»ĞèÒª×öÈÎºÎ²Ù×÷£¬Ö±½Ó·µ»Ø
+			// å¦‚æœfå­˜åœ¨äº_dissolvedReluVariablesï¼Œé‚£å°±ä¸éœ€è¦åšä»»ä½•æ“ä½œï¼Œç›´æ¥è¿”å›
             if ( _dissolvedReluVariables.exists( f ) )
             {
                 log( "Pair has been disolved, don't care about a violation\n" );
                 return;
             }
 
-			// Èç¹ûÃ»ÓĞbroken£¬ÄÇ¾Í²»ĞèÒªÈÎºÎ²Ù×÷£¬Ö±½Ó·µ»Ø
+			// å¦‚æœæ²¡æœ‰brokenï¼Œé‚£å°±ä¸éœ€è¦ä»»ä½•æ“ä½œï¼Œç›´æ¥è¿”å›
             if ( !reluPairIsBroken( b, f ) )
             {
                 log( "relu pair is NOT broken\n" );
                 return;
             }
 
-			// ÅÅ³ıÁË£º1¡¢Ä¿Ç°ÒÑ¾­¸³ÖµµÄvariableµÄpartnerÊÇ»ù±äÁ¿
-			//		2¡¢forward±äÁ¿ÒÑ±»eliminate
-			//		3¡¢reluPairsÃ»ÓĞbrokenµÄÇé¿ö£¬ÏÂÃæ¾Í¸Ã½øĞĞfix²Ù×÷
+			// æ’é™¤äº†ï¼š1ã€ç›®å‰å·²ç»èµ‹å€¼çš„variableçš„partneræ˜¯åŸºå˜é‡
+			//		2ã€forwardå˜é‡å·²è¢«eliminate
+			//		3ã€reluPairsæ²¡æœ‰brokençš„æƒ…å†µï¼Œä¸‹é¢å°±è¯¥è¿›è¡Œfixæ“ä½œ
 
-			// Ê×ÏÈÅĞ¶ÏÎÒÃÇÖ®Ç°assignmentµÄvariableÊÇF»¹ÊÇB£¬Èç¹ûÊÇF£¬ÔòpartnerÊÇB£¬ÎÒÃÇĞèÒªfixB,ÔËÓÃupdateB¹æÔò
-			// ·ñÔò£¬partner¾ÍÊÇF£¬ÔËÓÃupdateF¹æÔò
+			// é¦–å…ˆåˆ¤æ–­æˆ‘ä»¬ä¹‹å‰assignmentçš„variableæ˜¯Fè¿˜æ˜¯Bï¼Œå¦‚æœæ˜¯Fï¼Œåˆ™partneræ˜¯Bï¼Œæˆ‘ä»¬éœ€è¦fixB,è¿ç”¨updateBè§„åˆ™
+			// å¦åˆ™ï¼Œpartnerå°±æ˜¯Fï¼Œè¿ç”¨updateFè§„åˆ™
 
             if ( variableIsF )
             {
                 // We need to fix B. This means setting the value of B to that of F.
                 log( Stringf( "Cascading update: fixing non-basic relu partner b = %u\n", b ) );
 
-				// fix backward ±äÁ¿£¬
+				// fix backward å˜é‡ï¼Œ
 
-				//ÓÉÓÚ forward±äÁ¿µÄ·¶Î§ÊÇ0~ÕıÊı£¬¶¼ÔÚbackward¿ÉÈ¡µÄ·¶Î§ÄÚ£¬ËùÒÔ¿ÉÒÔÖ±½Ó¸³Öµ
-				// ÈçpaperÖĞupdateB¹æÔò£ºÁîB¼ÓÉÏÆäÓëFµÄ²îÖµ£¨Õâ¸ö²îÖµ¿ÉÄÜÎªÕı£¬¿ÉÄÜÎª¸º
-				// µ÷ÓÃupdateº¯ÊıÊ±£¬µÚ3¸ö²ÎÊı´«Èëtrue,±íÊ¾ÕâÒÑ¾­ÊÇ¶Ôrelu±äÁ¿½øĞĞ²Ù×÷£¬²»ĞèÒªÔÙ½øÈëÅĞ¶ÏÁ÷³Ì
+				//ç”±äº forwardå˜é‡çš„èŒƒå›´æ˜¯0~æ­£æ•°ï¼Œéƒ½åœ¨backwardå¯å–çš„èŒƒå›´å†…ï¼Œæ‰€ä»¥å¯ä»¥ç›´æ¥èµ‹å€¼
+				// å¦‚paperä¸­updateBè§„åˆ™ï¼šä»¤BåŠ ä¸Šå…¶ä¸Fçš„å·®å€¼ï¼ˆè¿™ä¸ªå·®å€¼å¯èƒ½ä¸ºæ­£ï¼Œå¯èƒ½ä¸ºè´Ÿ
+				// è°ƒç”¨updateå‡½æ•°æ—¶ï¼Œç¬¬3ä¸ªå‚æ•°ä¼ å…¥true,è¡¨ç¤ºè¿™å·²ç»æ˜¯å¯¹reluå˜é‡è¿›è¡Œæ“ä½œï¼Œä¸éœ€è¦å†è¿›å…¥åˆ¤æ–­æµç¨‹
 
                 update( b, _assignment[f] - _assignment[b], true );
 
@@ -2712,9 +2712,9 @@ public:
                 // and otherwise just setting it to B.
                 log( Stringf( "Cascading update: fixing non-basic relu partner f = %u\n", f ) );
 
-				// fix forward±äÁ¿£¬
+				// fix forwardå˜é‡ï¼Œ
 
-				//²»ÄÜÖ±½Ó¸³Öµ£¬ĞèÒª¸ù¾İbackwardÊÇ·ñ´óÓÚ0£¬À´¾ö¶¨ÊÇÖ±½Ó¸³Öµ£¬»¹ÊÇÖÃ0
+				//ä¸èƒ½ç›´æ¥èµ‹å€¼ï¼Œéœ€è¦æ ¹æ®backwardæ˜¯å¦å¤§äº0ï¼Œæ¥å†³å®šæ˜¯ç›´æ¥èµ‹å€¼ï¼Œè¿˜æ˜¯ç½®0
 
                 if ( FloatUtils::isNegative( _assignment[b] ) )
                     update( f, -_assignment[f], true );
@@ -2737,7 +2737,7 @@ public:
         log( Stringf( "\t\tPivot: %s <--> %s\n", toName( basic ).ascii(), toName( nonBasic ).ascii() ) );
 
         // Sanity checks:
-		//¼ì²é´«ÈëµÄnon-basicºÍbasicÊÇ·ñÊÇÕıÈ·µÄ
+		//æ£€æŸ¥ä¼ å…¥çš„non-basicå’Œbasicæ˜¯å¦æ˜¯æ­£ç¡®çš„
         if ( _basicVariables.exists( nonBasic ) )
             throw Error( Error::ILLEGAL_PIVOT_OP,
                          Stringf( "Non-basic variable %s is basic", toName( nonBasic ).ascii() ).ascii() );
@@ -2745,14 +2745,14 @@ public:
         if ( !_basicVariables.exists( basic ) )
             throw Error( Error::ILLEGAL_PIVOT_OP, "Basic variable isn't basic" );
 
-		// 1¡¢¸ü¸Ä_basicVariablesÀï´æ´¢µÄÖµ
+		// 1ã€æ›´æ”¹_basicVariablesé‡Œå­˜å‚¨çš„å€¼
         _basicVariables.erase( basic );
         _basicVariables.insert( nonBasic );
 
         timeval start = Time::sampleMicro();
         unsigned numCalcs = 0;
 
-		// È¡µÃtableauÖĞ¶ÔÓ¦±íÊ¾Á½¸ö±äÁ¿µÄ¹ØÏµµÄÏµÊı£¬Èç¹ûÃ»ÓĞ£¬Ôò·µ»Ø0.0
+		// å–å¾—tableauä¸­å¯¹åº”è¡¨ç¤ºä¸¤ä¸ªå˜é‡çš„å…³ç³»çš„ç³»æ•°ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™è¿”å›0.0
         double cell = _tableau.getCell( basic, nonBasic );
         double absWeight = FloatUtils::abs( cell );
 
@@ -2761,7 +2761,7 @@ public:
             printf( "--- Numerical Instability Warning!! Weight = %.15lf ---\n", absWeight );
         }
 
-		// ½«ĞÂbasicĞ´ÈëTableau
+		// å°†æ–°basicå†™å…¥Tableau
         _tableau.addScaledRow( basic,
                                ( -1.0 ) / cell,
                                nonBasic,
@@ -2770,13 +2770,13 @@ public:
                                //
                                &numCalcs
                                );
-		// ½«Ô­basic´ÓTableauÖĞÉ¾³ı£¬Ö÷ÒªÊÇĞŞÕı¸ÃEntry³öÏÖÔÚµÄÁĞÁ´±í£¬É¾³ıEnrty,×îºóÉ¾³ı_rowsÊı×éÖĞ´æ´¢µÄ¶ÔÓ¦±íÍ·£¬¼´É¾³ı¸ÃË«ÏòÁ´±í
+		// å°†åŸbasicä»Tableauä¸­åˆ é™¤ï¼Œä¸»è¦æ˜¯ä¿®æ­£è¯¥Entryå‡ºç°åœ¨çš„åˆ—é“¾è¡¨ï¼Œåˆ é™¤Enrty,æœ€ååˆ é™¤_rowsæ•°ç»„ä¸­å­˜å‚¨çš„å¯¹åº”è¡¨å¤´ï¼Œå³åˆ é™¤è¯¥åŒå‘é“¾è¡¨
         _tableau.eraseRow( basic );
 
         log( Stringf( "\t\t\tPivot--clearing %u column entries--starting\n",
                       _tableau.getColumnSize( nonBasic ) ) );
 
-		// Íê³Éµ±Ç°µÈÊ½µÄpivotÖ®ºó£¬»¹Òª½«ĞÂBasic³öÏÖ¹ıµÄÆäËûbasicµÈÊ½Ò²Ò»Æğ×ö¸ü¸Ä
+		// å®Œæˆå½“å‰ç­‰å¼çš„pivotä¹‹åï¼Œè¿˜è¦å°†æ–°Basicå‡ºç°è¿‡çš„å…¶ä»–basicç­‰å¼ä¹Ÿä¸€èµ·åšæ›´æ”¹
         const Tableau::Entry *columnEntry = _tableau.getColumn( nonBasic );
         const Tableau::Entry *current;
 
@@ -2785,8 +2785,8 @@ public:
             current = columnEntry;
             columnEntry = columnEntry->nextInColumn();
 
-			// Èç¹ûÔÚÉ¾³ıÁËÔ­basicĞĞÖ®ºó£¬ĞÂbasicËùÔÚµÄÁĞ»¹ÓĞÆäËûÖµ£¬Ò²¾ÍÊÇËü»¹³öÏÖÔÚÁËÆäËûµÈÊ½µÄÓÒ±ß£¬´ËÊ±±ØĞëÒª½øĞĞÏà¹Ø´¦Àí£¬½«ËüËùÔÚÁĞµÄÆäËûĞĞÖÃ0£¬
-			// Í¬Ê±´¦ÀíÖÃ0ËùÔÚĞĞµÄÆäËûÏµÊı (Í¨¹ıaddScaledRowÒ»²¢Íê³É£©
+			// å¦‚æœåœ¨åˆ é™¤äº†åŸbasicè¡Œä¹‹åï¼Œæ–°basicæ‰€åœ¨çš„åˆ—è¿˜æœ‰å…¶ä»–å€¼ï¼Œä¹Ÿå°±æ˜¯å®ƒè¿˜å‡ºç°åœ¨äº†å…¶ä»–ç­‰å¼çš„å³è¾¹ï¼Œæ­¤æ—¶å¿…é¡»è¦è¿›è¡Œç›¸å…³å¤„ç†ï¼Œå°†å®ƒæ‰€åœ¨åˆ—çš„å…¶ä»–è¡Œç½®0ï¼Œ
+			// åŒæ—¶å¤„ç†ç½®0æ‰€åœ¨è¡Œçš„å…¶ä»–ç³»æ•° (é€šè¿‡addScaledRowä¸€å¹¶å®Œæˆï¼‰
             if ( current->getRow() != nonBasic )
             {
                 _tableau.addScaledRow( nonBasic,
@@ -2968,15 +2968,15 @@ public:
     bool eliminateAuxVariables()
     {
         log( "eliminateAuxVariables starting\n" );
-        computeVariableStatus();    // ÉèÖÃ_varToStatus
+        computeVariableStatus();    // è®¾ç½®_varToStatus
 
         Set<unsigned> initialAuxVariables = _basicVariables;
 
         for ( const auto &aux : initialAuxVariables )
         {
-			// eliminateIfPossibleÖ»ÓĞÔÚÃ»ÕÒµ½¿É¹©pivotµÄºòÑ¡ÕßÊ±²Å»á·µ»Øfalse,
-			// ·ñÔòÖ»ÒªÓĞ¹ıpivot,²»ÂÛÊÇ·ñeliminate£¬¶¼»á·µ»Øtrue
-			// Ö»ÒªÓĞÆäÖĞÒ»¸ö¸¨Öú±äÁ¿Ã»·¨ÔÙpivot,¾Í·µ»Øfalse
+			// eliminateIfPossibleåªæœ‰åœ¨æ²¡æ‰¾åˆ°å¯ä¾›pivotçš„å€™é€‰è€…æ—¶æ‰ä¼šè¿”å›false,
+			// å¦åˆ™åªè¦æœ‰è¿‡pivot,ä¸è®ºæ˜¯å¦eliminateï¼Œéƒ½ä¼šè¿”å›true
+			// åªè¦æœ‰å…¶ä¸­ä¸€ä¸ªè¾…åŠ©å˜é‡æ²¡æ³•å†pivot,å°±è¿”å›false
             if ( !eliminateIfPossible( aux ) )
             {
                 log( "eliminateAuxVariables finished UNsuccessfully\n" );
@@ -2990,23 +2990,23 @@ public:
 
     bool eliminateIfPossible( unsigned var )
     {
-		//³õÊ¼Ê±£¬basic¶¼ÊÇÁíÍâÒıÈëµÄ¸¨Öú±äÁ¿£¬ËùÒÔÕâÀïÖ»¿ÉÄÜÊÇ¸¨Öú±äÁ¿£¬²»¿ÉÄÜÊÇrelu£¬
-		// Èç¹û´Ëº¯ÊıÖ»ÔÚ³õÊ¼Ê±µ÷ÓÃ£¬ÔòÃ»ÎÊÌâ£¬Èç¹ûºóĞøÔËĞĞÖĞ¼ÌĞøµ÷ÓÃ£¬¿ÉÄÜ»áÓĞÎÊÌâ
+		//åˆå§‹æ—¶ï¼Œbasicéƒ½æ˜¯å¦å¤–å¼•å…¥çš„è¾…åŠ©å˜é‡ï¼Œæ‰€ä»¥è¿™é‡Œåªå¯èƒ½æ˜¯è¾…åŠ©å˜é‡ï¼Œä¸å¯èƒ½æ˜¯reluï¼Œ
+		// å¦‚æœæ­¤å‡½æ•°åªåœ¨åˆå§‹æ—¶è°ƒç”¨ï¼Œåˆ™æ²¡é—®é¢˜ï¼Œå¦‚æœåç»­è¿è¡Œä¸­ç»§ç»­è°ƒç”¨ï¼Œå¯èƒ½ä¼šæœ‰é—®é¢˜
         if ( _reluPairs.isRelu( var ) )
         {
             printf( "Attempted to eliminate a relu variable. They shouldn't be marked as aux\n" );
             exit( 1 );
         }
-		// ÅĞ¶ÏÊÇ·ñ³¬Ô½ÏÂ½ç,ÕâÀïµÄvarÖ»»áÊÇ×î³õµ÷ÓÃÊ±µÄ¸¨Öú±äÁ¿£¬ËùÒÔÒ»¶¨Ê±ºòbasic
+		// åˆ¤æ–­æ˜¯å¦è¶…è¶Šä¸‹ç•Œ,è¿™é‡Œçš„varåªä¼šæ˜¯æœ€åˆè°ƒç”¨æ—¶çš„è¾…åŠ©å˜é‡ï¼Œæ‰€ä»¥ä¸€å®šæ—¶å€™basic
         bool increase = tooLow( var );
 
-		// ¸ù¾İÔ½½çÇé¿ö£¬È¡deltaÎªÉÏ»òÏÂ½çÓëvalueµÄ²îÖµ
+		// æ ¹æ®è¶Šç•Œæƒ…å†µï¼Œå–deltaä¸ºä¸Šæˆ–ä¸‹ç•Œä¸valueçš„å·®å€¼
         double delta = increase?
             ( _lowerBounds[var].getBound() - _assignment[var] ) :
             ( _upperBounds[var].getBound() - _assignment[var] );
 
-		// ²éÕÒ¿É¹©½øĞĞpivotµÄºòÑ¡Õß
-		// Ã»ÓĞÕÒµ½£¬·µ»Øfalse£¬ÍË³öº¯Êı
+		// æŸ¥æ‰¾å¯ä¾›è¿›è¡Œpivotçš„å€™é€‰è€…
+		// æ²¡æœ‰æ‰¾åˆ°ï¼Œè¿”å›falseï¼Œé€€å‡ºå‡½æ•°
         unsigned pivotCandidate;
         if ( !findPivotCandidate( var, increase, pivotCandidate, false ) )
             return false;
@@ -3016,9 +3016,9 @@ public:
                       delta,
                       toName( pivotCandidate ).ascii() ) );
 
-		// ½øĞĞpivot²Ù×÷
+		// è¿›è¡Œpivotæ“ä½œ
         pivot( pivotCandidate, var );
-		// ¸üĞÂ,Èç¹ûdeltaÎª0£¬Ôò×Ô¶¯·µ»Ø
+		// æ›´æ–°,å¦‚æœdeltaä¸º0ï¼Œåˆ™è‡ªåŠ¨è¿”å›
         update( var, delta );
 
         if ( !fixedAtZero( var ) )
@@ -3063,23 +3063,23 @@ public:
             const double coefficient = current->getValue();
             bool positive = FloatUtils::isPositive( coefficient );
 
-            // increase±íÊ¾ÊÇ·ñÔ½ÏÂ½ç£¬ÈôÊÇÔòÎªtrue ,ĞèÒªÔö¼Ó , basic±äÁ¿BELOW_LB
-            // !increase±íÊ¾²»Ô½ÏÂ½ç£¬ÄÇÃ´¾ÍÊÇ AT_LB,BETWEEN£¬AT_UB,ABOVE_UB
-            // canIncrease()±íÊ¾Ò»¶¨ÊÇĞ¡ÓÚÉÏ½çµÄ£¬²»»á´óÓÚÒ²²»»áµÈÓÚ£¬¸ù¾İ±äÁ¿´ËÊ±µÄ×´Ì¬ÅĞ¶ÏÊÇ·ñ¿ÉÒÔÔÙ¼ÌĞøÔö´óÖµ£¬Èç¹ûÊÇÔ½ÏÂ½çBELOW_LB¡¢µÈÓÚÏÂ½çAT_LB¡¢ÉÏÏÂ½çÖ®¼äBETWEEN£¬Ôò·µ»Øture
-            // canDecrease()±íÊ¾Ò»¶¨ÊÇ´óÓÚÏÂ½çµÄ£¬²»»á´óÓÚÒ²²»»áµÈÓÚ£¬ÓëÉÏÏà·´£¬Èç¹ûÊÇÔ½ÉÏ½çABOVE_UB£¬µÈÓÚÉÏ½çAT_UB¡¢ÉÏÏÂ½çÖ®¼äBETWEEN£¬Ôò·µ»Øtrue
+            // increaseè¡¨ç¤ºæ˜¯å¦è¶Šä¸‹ç•Œï¼Œè‹¥æ˜¯åˆ™ä¸ºtrue ,éœ€è¦å¢åŠ  , basicå˜é‡BELOW_LB
+            // !increaseè¡¨ç¤ºä¸è¶Šä¸‹ç•Œï¼Œé‚£ä¹ˆå°±æ˜¯ AT_LB,BETWEENï¼ŒAT_UB,ABOVE_UB
+            // canIncrease()è¡¨ç¤ºä¸€å®šæ˜¯å°äºä¸Šç•Œçš„ï¼Œä¸ä¼šå¤§äºä¹Ÿä¸ä¼šç­‰äºï¼Œæ ¹æ®å˜é‡æ­¤æ—¶çš„çŠ¶æ€åˆ¤æ–­æ˜¯å¦å¯ä»¥å†ç»§ç»­å¢å¤§å€¼ï¼Œå¦‚æœæ˜¯è¶Šä¸‹ç•ŒBELOW_LBã€ç­‰äºä¸‹ç•ŒAT_LBã€ä¸Šä¸‹ç•Œä¹‹é—´BETWEENï¼Œåˆ™è¿”å›ture
+            // canDecrease()è¡¨ç¤ºä¸€å®šæ˜¯å¤§äºä¸‹ç•Œçš„ï¼Œä¸ä¼šå¤§äºä¹Ÿä¸ä¼šç­‰äºï¼Œä¸ä¸Šç›¸åï¼Œå¦‚æœæ˜¯è¶Šä¸Šç•ŒABOVE_UBï¼Œç­‰äºä¸Šç•ŒAT_UBã€ä¸Šä¸‹ç•Œä¹‹é—´BETWEENï¼Œåˆ™è¿”å›true
 
-            // ×Ü½á£º1¡¢Ô­basicÔ½ÏÂ½ç<¡¢ÏµÊıÎªÕı¡¢ÇÒÕâ¸ö±äÁ¿µÄvalue¿ÉÒÔ±»Ôö¼Ó
-            // 2¡¢Ô­basicÔ½ÏÂ½ç<¡¢ÏµÊıÎª¸º£¬ÇÒÕâ¸ö±äÁ¿µÄvalue¿ÉÒÔ±»¼õÉÙ
-            // 3¡¢Ô­basic·ÇÔ½ÏÂ½ç>=£¨´óÓÚµÈÓÚÏÂ½ç¶¼¿ÉÒÔ£¬¿ÉÄÜÔ½ÉÏ½ç£¬Ò²¿ÉÄÜ²»Ô½£©¡¢ÏµÊıÎªÕı¡¢value¿ÉÒÔ±»¼õÉÙ
-            // 4¡¢Ô­basic·ÇÔ½ÏÂ½ç>=¡¢ÏµÊıÎª¸º£¬value¿ÉÒÔ±»Ôö¼Ó
-            // ÓĞÒÔÉÏ4ÖÖÇé¿öµÄ±äÁ¿£¬¿ÉÒÔ½øÈëÏÂÒ»²½£¬·ñÔò¾ÍÒâÎ¶×Åµ±Ç°±äÁ¿²»Âú×ãpaperÖĞslackµÄÒªÇó£¬ÍË³ö´Ë´ÎÑ­»·²éÕÒÏÂÒ»¸ö
+            // æ€»ç»“ï¼š1ã€åŸbasicè¶Šä¸‹ç•Œ<ã€ç³»æ•°ä¸ºæ­£ã€ä¸”è¿™ä¸ªå˜é‡çš„valueå¯ä»¥è¢«å¢åŠ 
+            // 2ã€åŸbasicè¶Šä¸‹ç•Œ<ã€ç³»æ•°ä¸ºè´Ÿï¼Œä¸”è¿™ä¸ªå˜é‡çš„valueå¯ä»¥è¢«å‡å°‘
+            // 3ã€åŸbasicéè¶Šä¸‹ç•Œ>=ï¼ˆå¤§äºç­‰äºä¸‹ç•Œéƒ½å¯ä»¥ï¼Œå¯èƒ½è¶Šä¸Šç•Œï¼Œä¹Ÿå¯èƒ½ä¸è¶Šï¼‰ã€ç³»æ•°ä¸ºæ­£ã€valueå¯ä»¥è¢«å‡å°‘
+            // 4ã€åŸbasicéè¶Šä¸‹ç•Œ>=ã€ç³»æ•°ä¸ºè´Ÿï¼Œvalueå¯ä»¥è¢«å¢åŠ 
+            // æœ‰ä»¥ä¸Š4ç§æƒ…å†µçš„å˜é‡ï¼Œå¯ä»¥è¿›å…¥ä¸‹ä¸€æ­¥ï¼Œå¦åˆ™å°±æ„å‘³ç€å½“å‰å˜é‡ä¸æ»¡è¶³paperä¸­slackçš„è¦æ±‚ï¼Œé€€å‡ºæ­¤æ¬¡å¾ªç¯æŸ¥æ‰¾ä¸‹ä¸€ä¸ª
 
-            // ÕâÀïÆäÊµÖ»Òª´óÖÂ·½Ïò¶Ô¾ÍOK£¬¼´ÒÔÏÂ½çÎª·Ö¸îµã£¬Ö»ÒªĞ¡ÓÚÏÂ½ç£¬ÄÇÃ´¾ÍÖ»ÄÜ½øĞĞ¼ÓÕıºÍ¼õ¸º²Ù×÷
-            // Ö»Òª´óÓÚµÈÓÚÏÂ½ç£¬ÄÇÃ´¾Í¿ÉÒÔ½øĞĞ¼õÕıºÍ¼Ó¸º²Ù×÷£¬
-            // ÎÒÃÇ²¢²»±£Ö¤²Ù×÷ºóµÄnon-basic(¼´½«±ä³ÉĞÂbasic)Ò»¶¨ÔÚ·¶Î§ÄÚ£¬
-            // Èç¹ûĞ¡ÓÚÏÂ½ç£¬¿ÉÄÜ¼ÓÕı¡¢¼õ¸ºÖ®ºó»¹ÊÇĞ¡ÓÚÏÂ½ç£¬Èç¹û´óÓÚµÈÓÚÏÂ½ç£¬¿ÉÄÜ¼õÕı¡¢¼Ó¸ºÖ®ºó»áĞ¡ÓÚÏÂ½ç»òÈÔÈ»´óÓÚÉÏ½ç£¬
-            // µ«´ËÊ±²¢²»¿¼ÂÇÕâĞ©£¬Ö»¿¼ÂÇÔËËãµÄÑİ½ø·½ÏòÊÇ¶ÔµÄ
-            // ËùÒÔÈç¹û³õÊ¼»¯Ê±£¬Ò»¸ö¸¨Öú±äÁ¿ÔÚ×ó±ßµÄµÈÊ½£¬Èç¹ûÕÒ²»µ½¿ÉÒÔ±ä»»µÄÖµ£¬ÄÇÃ´µ¥´¿ĞÎ·¨¾ÍÒª±¨´í£¬ÒòÎª×îÖÕ¸¨Öú±äÁ¿¶¼ÊÇÒª±ä»»µ½ÓÒ±ßÉèÖµÎª0µÄ
+            // è¿™é‡Œå…¶å®åªè¦å¤§è‡´æ–¹å‘å¯¹å°±OKï¼Œå³ä»¥ä¸‹ç•Œä¸ºåˆ†å‰²ç‚¹ï¼Œåªè¦å°äºä¸‹ç•Œï¼Œé‚£ä¹ˆå°±åªèƒ½è¿›è¡ŒåŠ æ­£å’Œå‡è´Ÿæ“ä½œ
+            // åªè¦å¤§äºç­‰äºä¸‹ç•Œï¼Œé‚£ä¹ˆå°±å¯ä»¥è¿›è¡Œå‡æ­£å’ŒåŠ è´Ÿæ“ä½œï¼Œ
+            // æˆ‘ä»¬å¹¶ä¸ä¿è¯æ“ä½œåçš„non-basic(å³å°†å˜æˆæ–°basic)ä¸€å®šåœ¨èŒƒå›´å†…ï¼Œ
+            // å¦‚æœå°äºä¸‹ç•Œï¼Œå¯èƒ½åŠ æ­£ã€å‡è´Ÿä¹‹åè¿˜æ˜¯å°äºä¸‹ç•Œï¼Œå¦‚æœå¤§äºç­‰äºä¸‹ç•Œï¼Œå¯èƒ½å‡æ­£ã€åŠ è´Ÿä¹‹åä¼šå°äºä¸‹ç•Œæˆ–ä»ç„¶å¤§äºä¸Šç•Œï¼Œ
+            // ä½†æ­¤æ—¶å¹¶ä¸è€ƒè™‘è¿™äº›ï¼Œåªè€ƒè™‘è¿ç®—çš„æ¼”è¿›æ–¹å‘æ˜¯å¯¹çš„
+            // æ‰€ä»¥å¦‚æœåˆå§‹åŒ–æ—¶ï¼Œä¸€ä¸ªè¾…åŠ©å˜é‡åœ¨å·¦è¾¹çš„ç­‰å¼ï¼Œå¦‚æœæ‰¾ä¸åˆ°å¯ä»¥å˜æ¢çš„å€¼ï¼Œé‚£ä¹ˆå•çº¯å½¢æ³•å°±è¦æŠ¥é”™ï¼Œå› ä¸ºæœ€ç»ˆè¾…åŠ©å˜é‡éƒ½æ˜¯è¦å˜æ¢åˆ°å³è¾¹è®¾å€¼ä¸º0çš„
 
             if ( !( ( increase && ( positive ) && canIncrease( column ) ) ||
                     ( increase && ( !positive ) && canDecrease( column ) ) ||
@@ -3092,9 +3092,9 @@ public:
 
             double weight = FloatUtils::abs( coefficient );
 
-            // Ä¬ÈÏÖµÎªtrue,µ«ÊÇ´«ÈëÖµÎªfalse,Ò»¶¨»á½øÈëif,·µ»Øtrue
-            // ensureNumericalStabilityÊÇÖ¸ÊÇ·ñĞèÒª±£Ö¤Êı×ÖµÄÎÈ¶¨ĞÔ£¬ÒòÎªµ±Êı×ÖÌ«Ğ¡Ê±£¬ÓÉÓÚ¼ÆËã»ú¹ÌÓĞÎó²î£¬»á½üËÆµÈÓÚ0
-            // ¶ø´ËÊ±¸Õ¸Õ¿ªÊ¼½øĞĞ¼ÆËã£¬´«Èëfalse,¿ÉÒÔºöÂÔÕâÒ»ÒªÇó£¬±£Ö¤ÔÚÂú×ãslackÌõ¼şµÄÇé¿öÏÂÒ»¶¨ÄÜÕÒµ½pivotºòÑ¡Õß
+            // é»˜è®¤å€¼ä¸ºtrue,ä½†æ˜¯ä¼ å…¥å€¼ä¸ºfalse,ä¸€å®šä¼šè¿›å…¥if,è¿”å›true
+            // ensureNumericalStabilityæ˜¯æŒ‡æ˜¯å¦éœ€è¦ä¿è¯æ•°å­—çš„ç¨³å®šæ€§ï¼Œå› ä¸ºå½“æ•°å­—å¤ªå°æ—¶ï¼Œç”±äºè®¡ç®—æœºå›ºæœ‰è¯¯å·®ï¼Œä¼šè¿‘ä¼¼ç­‰äº0
+            // è€Œæ­¤æ—¶åˆšåˆšå¼€å§‹è¿›è¡Œè®¡ç®—ï¼Œä¼ å…¥false,å¯ä»¥å¿½ç•¥è¿™ä¸€è¦æ±‚ï¼Œä¿è¯åœ¨æ»¡è¶³slackæ¡ä»¶çš„æƒ…å†µä¸‹ä¸€å®šèƒ½æ‰¾åˆ°pivotå€™é€‰è€…
             if ( !ensureNumericalStability || FloatUtils::gte( weight, NUMBERICAL_INSTABILITY_CONSTANT ) )
             {
                 pivotCandidate = column;
@@ -3102,7 +3102,7 @@ public:
             }
 
             // Have a candidate with a small pivot coefficient
-            // Èç¹ûÕÒµ½ÁËÒ»¸öºòÑ¡Õß£¬µ«ÊÇËüµÄÖµ·Ç³£Ğ¡£¬ÏÈ½«µÚÒ»¸ö¼ÇÂ¼ÏÂÀ´£¬ÔÙ½øĞĞºóĞø±È½Ï£¬Èç¹ûºóĞø»¹·¢ÏÖÁË·ûºÏÌõ¼ş£¬¶øÈ¨ÖØÖµ¸ü´óµÄpivotºòÑ¡Õß£¬¾Í¸üĞÂleast¼ÇÂ¼
+            // å¦‚æœæ‰¾åˆ°äº†ä¸€ä¸ªå€™é€‰è€…ï¼Œä½†æ˜¯å®ƒçš„å€¼éå¸¸å°ï¼Œå…ˆå°†ç¬¬ä¸€ä¸ªè®°å½•ä¸‹æ¥ï¼Œå†è¿›è¡Œåç»­æ¯”è¾ƒï¼Œå¦‚æœåç»­è¿˜å‘ç°äº†ç¬¦åˆæ¡ä»¶ï¼Œè€Œæƒé‡å€¼æ›´å¤§çš„pivotå€™é€‰è€…ï¼Œå°±æ›´æ–°leastè®°å½•
             found = true;
             if ( FloatUtils::gt( weight, leastEvilWeight ) )
             {
@@ -3110,7 +3110,7 @@ public:
                 leastEvilNonBasic = column;
             }
         }
-        // ÔÚ±éÀúÍêËùÓĞ±äÁ¿Ö®ºó£¬leastÖĞ¼ÇÂ¼µÄÊÇÈ¨ÖØÖµ×î´óµÄºòÑ¡Õß£¬½«Æä·µ»Ø
+        // åœ¨éå†å®Œæ‰€æœ‰å˜é‡ä¹‹åï¼Œleastä¸­è®°å½•çš„æ˜¯æƒé‡å€¼æœ€å¤§çš„å€™é€‰è€…ï¼Œå°†å…¶è¿”å›
         if ( found )
         {
             log( Stringf( "findPivotCandidate: forced to pick a bad candidate! Weight = %lf\n", leastEvilWeight ) );
@@ -3118,7 +3118,7 @@ public:
             return true;
         }
 
-        // Ã»ÕÒµ½pivotºòÑ¡Õß
+        // æ²¡æ‰¾åˆ°pivotå€™é€‰è€…
         return false;
     }
 
@@ -3227,13 +3227,13 @@ public:
 
     void makeAllBoundsFinite()
     {
-		// ¼ÆËãÉÏ»òÏÂ½çÖĞÓĞÎŞÇî´óÖµµÄ±äÁ¿µÄ¸öÊı
+		// è®¡ç®—ä¸Šæˆ–ä¸‹ç•Œä¸­æœ‰æ— ç©·å¤§å€¼çš„å˜é‡çš„ä¸ªæ•°
         countVarsWithInfiniteBounds();
         log( Stringf( "makeAllBoundsFinite -- Starting (%u vars with infinite bounds)\n", _varsWithInfiniteBounds ) );
 //        printf("\n----- printStatistics() ----\n");
 //        printStatistics();
 
-		// ²»¶®
+		// ä¸æ‡‚
         for ( const auto &basic : _basicVariables )
             makeAllBoundsFiniteOnRow( basic );
 
@@ -3248,12 +3248,12 @@ public:
 
     void makeAllBoundsFiniteOnRow( unsigned basic )
     {
-		// È¡µÃµ±Ç°basic±äÁ¿µÄrowÈë¿Ú
+		// å–å¾—å½“å‰basicå˜é‡çš„rowå…¥å£
         const Tableau::Entry *row = _tableau.getRow( basic );
         const Tableau::Entry *tighteningVar = NULL;
 
-		// ±éÀú²éÕÒ¾ßÓĞÎŞÇî´ó½çÏŞµÄÄÇ¸ö±äÁ¿£¬µØÖ·´æ´¢ÔÚtighteningVarÖĞ£¬
-		// Èç¹ûÓĞ¶à¸ö£¬±¨´í
+		// éå†æŸ¥æ‰¾å…·æœ‰æ— ç©·å¤§ç•Œé™çš„é‚£ä¸ªå˜é‡ï¼Œåœ°å€å­˜å‚¨åœ¨tighteningVarä¸­ï¼Œ
+		// å¦‚æœæœ‰å¤šä¸ªï¼ŒæŠ¥é”™
         while ( row != NULL )
         {
 
@@ -3275,7 +3275,7 @@ public:
 
         unsigned tighteningVarIndex = tighteningVar->getColumn();
 
-		// Èç¹ûÕÒµ½ÁËÎŞÇî´ó½çÏŞµÄ±äÁ¿£¬ÉèÖÃËõ·ÅÁ¿Îª -1.0 / 888£¬
+		// å¦‚æœæ‰¾åˆ°äº†æ— ç©·å¤§ç•Œé™çš„å˜é‡ï¼Œè®¾ç½®ç¼©æ”¾é‡ä¸º -1.0 / 888ï¼Œ
 		double scale = -1.0 / tighteningVar->getValue();
 
         row = _tableau.getRow( basic );
@@ -3284,7 +3284,7 @@ public:
         double max = 0.0;
         double min = 0.0;
 
-		// Í¬ÉÏ·½·¨ÔÙ´Î±éÀú£¬
+		// åŒä¸Šæ–¹æ³•å†æ¬¡éå†ï¼Œ
         while ( row != NULL )
         {
             current = row;
@@ -3306,12 +3306,12 @@ public:
             }
         }
 
-		// Èç¹ûÊÇÉÏ½çÎŞÇî´ó£¬»òÕß¼ÆËã³öµÄmaxĞ¡ÓÚÉÏ½ç£¬¼´¿ÉÒÔËõĞ¡½çÏŞµÄÉÏ½ç·¶Î§£¬Ôò¸üĞÂÉÏ½ç
+		// å¦‚æœæ˜¯ä¸Šç•Œæ— ç©·å¤§ï¼Œæˆ–è€…è®¡ç®—å‡ºçš„maxå°äºä¸Šç•Œï¼Œå³å¯ä»¥ç¼©å°ç•Œé™çš„ä¸Šç•ŒèŒƒå›´ï¼Œåˆ™æ›´æ–°ä¸Šç•Œ
         if ( !_upperBounds[tighteningVarIndex].finite() ||
              FloatUtils::lt( max, _upperBounds[tighteningVarIndex].getBound() ) )
             updateUpperBound( tighteningVarIndex, max, 0 );
 
-		//  Èç¹ûÊÇÏÂ½çÎŞÇî´ó£¬»òÕß¼ÆËã³öµÄmin´óÓÚÏÂ½ç£¬¼´¿ÉÒÔËõĞ¡ÏÂ½çµÄ·¶Î§¡£
+		//  å¦‚æœæ˜¯ä¸‹ç•Œæ— ç©·å¤§ï¼Œæˆ–è€…è®¡ç®—å‡ºçš„minå¤§äºä¸‹ç•Œï¼Œå³å¯ä»¥ç¼©å°ä¸‹ç•Œçš„èŒƒå›´ã€‚
         if ( !_lowerBounds[tighteningVarIndex].finite() ||
              FloatUtils::gt( min, _lowerBounds[tighteningVarIndex].getBound() ) )
             updateLowerBound( tighteningVarIndex, min, 0 );
@@ -3484,22 +3484,22 @@ public:
     {
         checkInvariants();
 
-		// ½«µ±Ç°³õÊ¼±ä»»ºóµÄTableau´æÈë_preprocessedTableau
-		// Tableau //Reluplex¹¹Ôì·½·¨ÖĞ³õÊ¼»¯£¬initializeCellÖĞÌí¼Ó£¬pivotÖĞĞŞ¸Ä
+		// å°†å½“å‰åˆå§‹å˜æ¢åçš„Tableauå­˜å…¥_preprocessedTableau
+		// Tableau //Reluplexæ„é€ æ–¹æ³•ä¸­åˆå§‹åŒ–ï¼ŒinitializeCellä¸­æ·»åŠ ï¼Œpivotä¸­ä¿®æ”¹
         _tableau.backupIntoMatrix( &_preprocessedTableau );
 
-		// ³õÊ¼»¯Ê±ÔİÊ±²»Éæ¼°
+		// åˆå§‹åŒ–æ—¶æš‚æ—¶ä¸æ¶‰åŠ
         _preprocessedDissolvedRelus = _dissolvedReluVariables;
 
 		
-		// _basicVariables;	//markBasicÖĞ³õÊ¼»¯£¬pivotÖĞĞŞ¸Ä
+		// _basicVariables;	//markBasicä¸­åˆå§‹åŒ–ï¼Œpivotä¸­ä¿®æ”¹
         _preprocessedBasicVariables = _basicVariables;
 
-		// ´æ´¢µ±Ç°µÄ¸³Öµµ½ _preprocessedAssignment
-		// _assignment	// Reluplex¹¹Ôì·½·¨ÖĞÄ¬ÈÏ³õÊ¼»¯Îª0£¬updateÖĞĞŞ¸Ä
+		// å­˜å‚¨å½“å‰çš„èµ‹å€¼åˆ° _preprocessedAssignment
+		// _assignment	// Reluplexæ„é€ æ–¹æ³•ä¸­é»˜è®¤åˆå§‹åŒ–ä¸º0ï¼Œupdateä¸­ä¿®æ”¹
         memcpy( _preprocessedAssignment, _assignment, sizeof(double) * _numVariables );
 
-		// // setUpperBoundÖĞ³õÊ¼»¯£¬makeAllBoundsFiniteOnRow > updateUpperBoundÖĞĞŞ¸Ä
+		// // setUpperBoundä¸­åˆå§‹åŒ–ï¼ŒmakeAllBoundsFiniteOnRow > updateUpperBoundä¸­ä¿®æ”¹
         for ( unsigned i = 0; i < _numVariables; ++i )
         {
             // It is assumed that these bounds are all at level 0.
@@ -4021,11 +4021,11 @@ private:
     bool _wasInitialized;
     Tableau _tableau;
     Tableau _preprocessedTableau;
-    VariableBound *_upperBounds;	//Êı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÏàÓ¦Öµ
-    VariableBound *_lowerBounds;	//Êı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÏàÓ¦Öµ
-    VariableBound *_preprocessedUpperBounds;	//Êı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÏàÓ¦Öµ
-    VariableBound *_preprocessedLowerBounds;	//Êı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÏàÓ¦Öµ
-    double *_preprocessedAssignment;	//Êı×é£¬´æ´¢ËùÓĞ±äÁ¿µÄÏàÓ¦Öµ
+    VariableBound *_upperBounds;	//æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ç›¸åº”å€¼
+    VariableBound *_lowerBounds;	//æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ç›¸åº”å€¼
+    VariableBound *_preprocessedUpperBounds;	//æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ç›¸åº”å€¼
+    VariableBound *_preprocessedLowerBounds;	//æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ç›¸åº”å€¼
+    double *_preprocessedAssignment;	//æ•°ç»„ï¼Œå­˜å‚¨æ‰€æœ‰å˜é‡çš„ç›¸åº”å€¼
     Set<unsigned> _basicVariables;	// Set
     Set<unsigned> _preprocessedBasicVariables;
     Map<unsigned, String> _variableNames;
@@ -4040,7 +4040,7 @@ private:
     bool _logging;
     bool _dumpStates;
 
-    unsigned _numCallsToProgress;	//³õÊ¼»¯Îª0£¬±íÊ¾µ÷ÓÃprocessµÄ´ÎÊı
+    unsigned _numCallsToProgress;	//åˆå§‹åŒ–ä¸º0ï¼Œè¡¨ç¤ºè°ƒç”¨processçš„æ¬¡æ•°
     unsigned _numPivots;
     unsigned long long _totalPivotTimeMilli;
     unsigned long long _totalDegradationCheckingTimeMilli;
@@ -4078,7 +4078,7 @@ private:
     Map<unsigned, ReluDissolutionType> _preprocessedDissolvedRelus;
 
     bool _printAssignment;
-    Set<unsigned> _eliminatedVars;  // ´æ´¢±»Ïû³ıµÄ¸¨Öú±äÁ¿£¬
+    Set<unsigned> _eliminatedVars;  // å­˜å‚¨è¢«æ¶ˆé™¤çš„è¾…åŠ©å˜é‡ï¼Œ
 
     unsigned _numOutOfBoundFixes;
     unsigned _numOutOfBoundFixesViaBland;
@@ -4164,17 +4164,17 @@ public:
 
         // Table is in tableau form
 
-		/*********check TableauÖĞÊÇ·ñÓĞ·Ç·¨Öµ£¬ÀıÈç£º
-			1¡¢basicÖµÔÚTableauÖĞ_columnÊı×éÖĞ¶ÔÓ¦Î»ÖÃÒ»¶¨²»Îªnull 
-			2¡¢³õÊ¼»¯CellÊ±×îºóÒ»ĞĞÊÇ·ñÂú×ãinitializeCell( 6, 6, -1.0 )µÄĞÎÊ½
-			3¡¢basicÊÇ·ñ³öÏÖÔÚÆäËûbasicµÄµÈÊ½ÓÒ±ß
+		/*********check Tableauä¸­æ˜¯å¦æœ‰éæ³•å€¼ï¼Œä¾‹å¦‚ï¼š
+			1ã€basicå€¼åœ¨Tableauä¸­_columnæ•°ç»„ä¸­å¯¹åº”ä½ç½®ä¸€å®šä¸ä¸ºnull 
+			2ã€åˆå§‹åŒ–Cellæ—¶æœ€åä¸€è¡Œæ˜¯å¦æ»¡è¶³initializeCell( 6, 6, -1.0 )çš„å½¢å¼
+			3ã€basicæ˜¯å¦å‡ºç°åœ¨å…¶ä»–basicçš„ç­‰å¼å³è¾¹
 		***************/
 
-		// _basicVariables ÊÇ Set<unsigned>ÀàĞÍ£¬&basicÊÇÃ¿Ò»¸öbasic±äÁ¿µÄµØÖ·
+		// _basicVariables æ˜¯ Set<unsigned>ç±»å‹ï¼Œ&basicæ˜¯æ¯ä¸€ä¸ªbasicå˜é‡çš„åœ°å€
         for ( const auto &basic : _basicVariables )
         {
-			// ÅĞ¶ÏTableauÖĞbasic¶ÔÓ¦µÄÎ»ÖÃÊÇ·ñÓĞÖ¸Ïò£¬Èç¹ûÓĞ£¬Ôò±íÊ¾¼¤»î×´Ì¬£¬Èç¹ûÎªNull£¬Ôò±íÊ¾Ã»ÓĞ¼¤»î
-			// Èç¹ûÃ»ÓĞ¼¤»î£¬ÔòÍË³ö
+			// åˆ¤æ–­Tableauä¸­basicå¯¹åº”çš„ä½ç½®æ˜¯å¦æœ‰æŒ‡å‘ï¼Œå¦‚æœæœ‰ï¼Œåˆ™è¡¨ç¤ºæ¿€æ´»çŠ¶æ€ï¼Œå¦‚æœä¸ºNullï¼Œåˆ™è¡¨ç¤ºæ²¡æœ‰æ¿€æ´»
+			// å¦‚æœæ²¡æœ‰æ¿€æ´»ï¼Œåˆ™é€€å‡º
             if ( !_tableau.activeColumn( basic ) )
             {
                 printf( "Error: basic variable's column should be active! (var: %s)\n",
@@ -4182,14 +4182,14 @@ public:
                 exit( 1 );
             }
 
-			// ÉèÖÃÔÚTableauµÄ·½ÕóÖĞ´ÓbasicÖ¸ÏòµÄÄÇÒ»ÁĞÎªÈë¿Ú£¬¼´Ë«ÏòÁ´±íµÄHead,
-			// importent:ÕâÀï¾ÍÒªÇóÔÚintialCellÖĞ¹¹ÔìµÄÊ±ºò£¬×îºóÒ»ĞĞ±ØĞëÊÇ_reluplex->initializeCell( 6, 6, -1.0 )¡¢_reluplex->initializeCell( 7, 7, -1.0 );µÄĞÎÊ½
+			// è®¾ç½®åœ¨Tableauçš„æ–¹é˜µä¸­ä»basicæŒ‡å‘çš„é‚£ä¸€åˆ—ä¸ºå…¥å£ï¼Œå³åŒå‘é“¾è¡¨çš„Head,
+			// importent:è¿™é‡Œå°±è¦æ±‚åœ¨intialCellä¸­æ„é€ çš„æ—¶å€™ï¼Œæœ€åä¸€è¡Œå¿…é¡»æ˜¯_reluplex->initializeCell( 6, 6, -1.0 )ã€_reluplex->initializeCell( 7, 7, -1.0 );çš„å½¢å¼
             const Tableau::Entry *columnEntry = _tableau.getColumn( basic );
 
-			// ¶ÔÓÚbasic±äÁ¿£¬ËüÖ»ÄÜ³öÏÖÔÚµÈÊ½µÄ×ó±ß£¬²»ÄÜ³öÏÖÔÚÓÒ±ß£¬£¨ÒòÎªµ«·²³öÏÖÔÚÓÒ±ßµÄ¶¼»á±»´ú»»µô
-			// ËùÒÔ£¬basicµÄÁĞsize±ØĞëÎª1£¬ÇÒhead Entry¶ÔÓ¦µÄvalue±ØĞëÊÇ -1.0 (¹¹ÔìÊ±µÄÉèÖÃ±ØĞëÓëÕâÀïÒ»ÖÂ)
-			// ÁíÓÖÓÉÓÚ¹¹ÔìÒªÇó£¬ËùÒÔÕâ¸öhead EntryµÄrow ºÍ column¶¼ÊÇÍ¬Ò»¸öÖµ£¬ËùÒÔÒªÇócolumnEntry->getRow() == basic
-			// Èç¹û²»µÈÓÚ£¬ÄÇÃ´Ò²Òª±¨´íÍË³ö
+			// å¯¹äºbasicå˜é‡ï¼Œå®ƒåªèƒ½å‡ºç°åœ¨ç­‰å¼çš„å·¦è¾¹ï¼Œä¸èƒ½å‡ºç°åœ¨å³è¾¹ï¼Œï¼ˆå› ä¸ºä½†å‡¡å‡ºç°åœ¨å³è¾¹çš„éƒ½ä¼šè¢«ä»£æ¢æ‰
+			// æ‰€ä»¥ï¼Œbasicçš„åˆ—sizeå¿…é¡»ä¸º1ï¼Œä¸”head Entryå¯¹åº”çš„valueå¿…é¡»æ˜¯ -1.0 (æ„é€ æ—¶çš„è®¾ç½®å¿…é¡»ä¸è¿™é‡Œä¸€è‡´)
+			// å¦åˆç”±äºæ„é€ è¦æ±‚ï¼Œæ‰€ä»¥è¿™ä¸ªhead Entryçš„row å’Œ columnéƒ½æ˜¯åŒä¸€ä¸ªå€¼ï¼Œæ‰€ä»¥è¦æ±‚columnEntry->getRow() == basic
+			// å¦‚æœä¸ç­‰äºï¼Œé‚£ä¹ˆä¹Ÿè¦æŠ¥é”™é€€å‡º
             if ( ( _tableau.getColumnSize( basic ) != 1 ) ||
                  ( columnEntry->getRow() != basic ) ||
                  ( FloatUtils::areDisequal( columnEntry->getValue(), -1.0 ) ) )
@@ -4212,8 +4212,8 @@ public:
                 if ( current->getColumn() == basic )
                     continue;
 				
-				// ÅĞ¶Ïµ±Ç°basicµÄTableauµÄrowË«ÏòÁ´±íÖĞ£¬±éÀúÃ¿Ò»ĞĞ´æÔÚµÄEntry£¬È¡µÃËûÃÇµÄcolumn£¬Ò²¾ÍÊÇµÈÊ½ÓÒ±ß´æÔÚµÄvariable,
-				// Èç¹û·¢ÏÖÒ²´æÔÚÓÚbasicÖĞ£¬±¨´íÍË³ö
+				// åˆ¤æ–­å½“å‰basicçš„Tableauçš„rowåŒå‘é“¾è¡¨ä¸­ï¼Œéå†æ¯ä¸€è¡Œå­˜åœ¨çš„Entryï¼Œå–å¾—ä»–ä»¬çš„columnï¼Œä¹Ÿå°±æ˜¯ç­‰å¼å³è¾¹å­˜åœ¨çš„variable,
+				// å¦‚æœå‘ç°ä¹Ÿå­˜åœ¨äºbasicä¸­ï¼ŒæŠ¥é”™é€€å‡º
                 if ( _basicVariables.exists( current->getColumn() ) )
                 {
                     printf( "Error: a basic variable appears in another basic variable's row\n" );
@@ -4222,14 +4222,14 @@ public:
             }
         }
 
-		/***** ¼ì²é non-basic ÒªÔÚÉÏÏÂ½çÖ®ÄÚ*****/
+		/***** æ£€æŸ¥ non-basic è¦åœ¨ä¸Šä¸‹ç•Œä¹‹å†…*****/
         // All non-basic are within bounds
         for ( unsigned i = 0; i < _numVariables; ++i )
         {
             if ( _varToStatus.get( i ) == ABOVE_UB || _varToStatus.get( i ) == BELOW_LB )
             {
                 // Only basic variables can be out-of-bounds
-				// Èç¹ûÊÇnon-basic£¬µ«ÓĞÔ½½çĞĞÎª£¬Ôò´òÓ¡´íÎó²¢ÍË³ö
+				// å¦‚æœæ˜¯non-basicï¼Œä½†æœ‰è¶Šç•Œè¡Œä¸ºï¼Œåˆ™æ‰“å°é”™è¯¯å¹¶é€€å‡º
                 if ( !_basicVariables.exists( i ) )
                 {
                     printf( "Error: variable is out-of-bounds but is not basic! "
