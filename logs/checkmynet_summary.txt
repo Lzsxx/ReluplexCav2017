@@ -1,0 +1,14 @@
+Point_0_Delta_0.03300_runnerUp_1, UNSAT, 0, 00:00:00, 0, 0
+Point_0_Delta_0.03300_runnerUp_2, UNSAT, 0, 00:00:00, 0, 0
+Point_0_Delta_0.03300_runnerUp_1, UNSAT, 12, 00:00:00, 0, 0
+Point_0_Delta_0.03300_runnerUp_2, UNSAT, 0, 00:00:00, 0, 0
+Point_0_Delta_0.10000_runnerUp_0, UNSAT, 0, 00:00:00, 0, 0
+Point_0_Delta_0.10000_runnerUp_2, UNSAT, 0, 00:00:00, 0, 0
+Point_0_Delta_0.10000_runnerUp_0, UNSAT, 2004, 00:00:02, 0, 0
+Point_0_Delta_0.10000_runnerUp_2, UNSAT, 3501, 00:00:03, 0, 0
+Point_0_Delta_0.50000_runnerUp_0, UNSAT, 32858, 00:00:32, 8, 24
+Point_0_Delta_0.50000_runnerUp_2, UNSAT, 36603, 00:00:36, 14, 64
+Point_0_Delta_2.00000_runnerUp_0, SAT, 40798, 00:00:40, 28, 48
+Point_0_Delta_2.00000_runnerUp_0, SAT, 40109, 00:00:40, 28, 48
+Point_0_Delta_2.00000_runnerUp_0, SAT, 40642, 00:00:40, 28, 48
+Point_0_Delta_2.00000_runnerUp_2, UNSAT, 2200080, 00:36:40, 55, 8378

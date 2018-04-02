@@ -1,0 +1,787 @@
+Float Utils: default epsilon = 0.000000000100000
+Almost-broken nuking marging: 0.001000000000000
+Setting name: x1 --> 0
+Setting name: x2b --> 1
+Setting name: x2f --> 2
+Setting name: x3b --> 3
+Setting name: x3f --> 4
+Setting name: x4b --> 5
+Setting name: x4f --> 6
+Setting name: x5b --> 7
+Setting name: x5f --> 8
+Setting name: x6b --> 9
+Setting name: x6f --> 10
+Setting name: x7b --> 11
+Setting name: x7f --> 12
+Setting name: x8 --> 13
+Setting name: a1 --> 14
+Setting name: a2 --> 15
+Setting name: a3 --> 16
+Setting name: a4 --> 17
+Setting name: a5 --> 18
+Setting name: a6 --> 19
+Setting name: a7 --> 20
+num_AE: 0 
+		Update: x1 += 0.50
+Checking invariants after initial update
+makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
+
+----- printStatistics() ----
+makeAllBoundsFinite -- Done (0 vars with infinite bounds)
+
+----- printStatistics() ----
+eliminateAuxVariables starting
+
+PivotAndUpdate: <a1,  0.50, x2b>
+		Pivot: a1 <--> x2b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
+		Update: a1 += 0.50
+
+Variable a1 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a2, -0.50, x3b>
+		Pivot: a2 <--> x3b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
+		Update: a2 += -0.50
+
+Variable a2 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a3,  0.50, x4b>
+		Pivot: a3 <--> x4b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
+		Update: a3 += 0.50
+
+Variable a3 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a4,  0.00, x5b>
+		Pivot: a4 <--> x5b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a4 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a5,  0.00, x6b>
+		Pivot: a5 <--> x6b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a5 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a6,  0.00, x7b>
+		Pivot: a6 <--> x7b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a6 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a7,  0.00, x7f>
+		Pivot: a7 <--> x7f
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a7 fixed at zero. Eliminating...
+eliminateAuxVariables finished successfully
+Initialization steps over.
+
+----- printStatistics() ----
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.50 <=  0.50   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.50 * <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.50   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.50 * <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  0.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  0.00   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  0.00   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+Starting the main loop
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.50 <=  0.50   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.50 * <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.50   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.50 * <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  0.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  0.00   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  0.00   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+No OOB variables to fix, looking at broken relus
+
+Attempting broken-relu fix on var: x2f
+fixBrokenReluVariable Starting: var = x2b, delta = -0.500000
+fixBrokenReluVariable Starting: var = x2b, delta = -0.500000
+fixBrokenReluVariable Starting: var = x2f, delta = 0.500000
+fixBrokenReluVariable Starting: var = x2f, delta = 0.500000
+Var x2f isn't basic; no pivot needed, simply updating
+		Update: x2f += 0.50
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.50 <=  0.50   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.50   <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.50   <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.50   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.50 * <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  0.50 * <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  1.00 * <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  0.50 * <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00 * <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+No OOB variables to fix, looking at broken relus
+
+Attempting broken-relu fix on var: x4f
+fixBrokenReluVariable Starting: var = x4b, delta = -0.500000
+fixBrokenReluVariable Starting: var = x4b, delta = -0.500000
+fixBrokenReluVariable Starting: var = x4f, delta = 0.500000
+fixBrokenReluVariable Starting: var = x4f, delta = 0.500000
+Var x4f isn't basic; no pivot needed, simply updating
+		Update: x4f += 0.50
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.50 <=  0.50   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.50   <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.50   <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.50   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.50   <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.50   <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  2.00 * <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  1.50 * <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  1.50 * <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00 * <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+No OOB variables to fix, looking at broken relus
+
+Attempting broken-relu fix on var: x5f
+fixBrokenReluVariable Starting: var = x5b, delta = -2.000000
+fixBrokenReluVariable Starting: var = x5b, delta = -2.000000
+
+PivotAndUpdate: <x5b, -2.00, x2f>
+		Pivot: x5b <--> x2f
+			Pivot--clearing 3 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 18 calcs)
+		Update: x5b += -2.00
+Variable 2 out of bounds: value = -1.5000000000, range = [0.0000000000, 9999.0000000000]
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.50 <=  0.50   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.50   <= 9999.00
+ B  x2f|              -1.00       -2.00       -3.00  1.00                                                                               |  0.00 <= -1.50 * <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.50   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.50   <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.50   <= 9999.00
+    x5b|                                                                                                                                | -9999.00 <=  0.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x6b|                          -3.00       -5.00  2.00       -1.00                                                                   | -9999.00 <= -2.50   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x7b|                                      -1.00  1.00                   -1.00                                                       | -9999.00 <= -0.50   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+Progress: have OOB vars
+GLPK: number of iterations = 10
+LP solver solved the problem. Updating tableau and assignment
+
+It can be solved. current state is: 
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.50 <=  0.50   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.50   <= 9999.00
+ B  x2f|              -1.00       -2.00       -3.00  1.00                                                                               |  0.00 <=  0.50   <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.50   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.50   <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.50   <= 9999.00
+    x5b|                                                                                                                                | -9999.00 <=  2.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  2.00   <= 9999.00
+ B  x6b|                          -3.00       -5.00  2.00       -1.00                                                                   | -9999.00 <=  1.50   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  1.50   <= 9999.00
+ B  x7b|                                      -1.00  1.00                   -1.00                                                       | -9999.00 <=  1.50   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  1.50   <= 9999.00
+     x8|                                                                                                                                |  0.00 <= 10.50   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+
+23:12:18 Statistics update:
+	Calls to 'progress': 4. Total time: 0 milli. Average: 0 milli
+	Pivot operations: 8. Total pivot time: 0 milli.
+	Average pivot time: 0 milli
+	Average time per calcuation in pivot: 0.00000 milli
+	Average number of calculations in pivot: 5
+	Average number of broken relues per 'progress': 4
+	Broken Relus Fixed: 3 (Fs: 2, Bs: 3, fix-by-pivot: 3, fix-by-update: 2)
+	Relu-to-OOB step ratio: 3 / 1 = 3.000000%. Avg oob steps per relu: 0.33.
+	Almost broken relus encountered: 0. Nuked: 0
+	Time in TightenAllBounds: 0 milli. Bounds tightened: 0
+	Relu pairs dissolved: 0. Num splits: 0. Num merges: 0 (remaining: 6 / 6)
+	Num LP solver invocations: 1. Found solution: 1. No Solution: 0. Failed: 0. Incorrect assignments: 0.
+		Total time in LP solver: 0 milli. Max: 0 milli. Avg per invocation: 0 milli
+		Number of pivots in LP solver: 10. Average time per LP pivot operation: 0 milli
+		Total time extracting tableaus after LP solved: 0 milli. Average: 0 milli.
+		Total time evaulating GLPK rows: 0
+		Glpk bound reports: 20. On slacks: 7 (= 35%). Ignored due to small coefficients: 0. Used: 100.00%
+		Number of GLPK-derived bounds: 12. On slacks: 0 (= 0.00%). Time: 0 milli. Relus consequently dissolved: 0
+		Fix-relu-invariant hook invocations: 0. Actual repairs: 0 (= 0%). Ignore to prevent cycles: 0
+	Average number of broken relu pairs after glpk invocation: 0.000000. Max: 0. Broken and non-basic pairs: 0
+	Vars with infinite bounds: 0 / 21
+	Eliminated vars: 7
+	Stack: Current depth is: 0 (maximal = 0, min second phase = 0).
+	       So far: 0 splits, 0 merges, 0 pops. Total visited states: 0
+		Pops caused by conflict analysis: 0
+		Total time in smtCore: 0 milli
+	Current degradation: 0.0000000000. Time spent checking: 0 milli. Max measured: 0.0000000000.
+	Number of restorations: 0. Total time: 0 milli. Average: 0.000000
+
+
+	Summary: Total: 0 milli
+		1. GLPK: 0 milli (0%) 
+		2. Extraction + Postprocessing: 0 milli (0%)
+		3. Tightening bounds: 0 milli (0%)
+		4. Stack operations: 0 milli (0%)
+		5. Tableau restoration operations: 0 milli (0%)
+		6. Unaccounted for: 0 milli (0%)
+
+printCurrentAE in RunReluplex:
+This is a adversial example:
+Variable 0 : value = 0.5000000000 
+Variable 1 : value = 0.5000000000 
+Variable 2 : value = 0.5000000000 
+Variable 3 : value = -0.5000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.5000000000 
+Variable 7 : value = 2.0000000000 
+Variable 8 : value = 2.0000000000 
+Variable 9 : value = 1.5000000000 
+Variable 10 : value = 1.5000000000 
+Variable 11 : value = 1.5000000000 
+Variable 12 : value = 1.5000000000 
+Variable 13 : value = 10.5000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
+
+*** Solved! ***
+Float Utils: default epsilon = 0.000000000100000
+Almost-broken nuking marging: 0.001000000000000
+Setting name: x1 --> 0
+Setting name: x2b --> 1
+Setting name: x2f --> 2
+Setting name: x3b --> 3
+Setting name: x3f --> 4
+Setting name: x4b --> 5
+Setting name: x4f --> 6
+Setting name: x5b --> 7
+Setting name: x5f --> 8
+Setting name: x6b --> 9
+Setting name: x6f --> 10
+Setting name: x7b --> 11
+Setting name: x7f --> 12
+Setting name: x8 --> 13
+Setting name: a1 --> 14
+Setting name: a2 --> 15
+Setting name: a3 --> 16
+Setting name: a4 --> 17
+Setting name: a5 --> 18
+Setting name: a6 --> 19
+Setting name: a7 --> 20
+num_AE: 1 
+		Update: x1 += 0.40
+Checking invariants after initial update
+makeAllBoundsFinite -- Starting (0 vars with infinite bounds)
+
+----- printStatistics() ----
+makeAllBoundsFinite -- Done (0 vars with infinite bounds)
+
+----- printStatistics() ----
+eliminateAuxVariables starting
+
+PivotAndUpdate: <a1,  0.40, x2b>
+		Pivot: a1 <--> x2b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
+		Update: a1 += 0.40
+
+Variable a1 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a2, -0.40, x3b>
+		Pivot: a2 <--> x3b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
+		Update: a2 += -0.40
+
+Variable a2 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a3,  0.40, x4b>
+		Pivot: a3 <--> x4b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 3 calcs)
+		Update: a3 += 0.40
+
+Variable a3 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a4,  0.00, x5b>
+		Pivot: a4 <--> x5b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a4 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a5,  0.00, x6b>
+		Pivot: a5 <--> x6b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a5 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a6,  0.00, x7b>
+		Pivot: a6 <--> x7b
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a6 fixed at zero. Eliminating...
+
+PivotAndUpdate: <a7,  0.00, x7f>
+		Pivot: a7 <--> x7f
+			Pivot--clearing 1 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 5 calcs)
+
+Variable a7 fixed at zero. Eliminating...
+eliminateAuxVariables finished successfully
+Initialization steps over.
+
+----- printStatistics() ----
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.40 <=  0.40   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.40 * <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.40   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.40 * <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  0.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  0.00   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  0.00   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+Starting the main loop
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.40 <=  0.40   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.40 * <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.40   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.40 * <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  0.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  0.00   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  0.00   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+No OOB variables to fix, looking at broken relus
+
+Attempting broken-relu fix on var: x2f
+fixBrokenReluVariable Starting: var = x2b, delta = -0.400000
+fixBrokenReluVariable Starting: var = x2b, delta = -0.400000
+fixBrokenReluVariable Starting: var = x2f, delta = 0.400000
+fixBrokenReluVariable Starting: var = x2f, delta = 0.400000
+Var x2f isn't basic; no pivot needed, simply updating
+		Update: x2f += 0.40
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.40 <=  0.40   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.40   <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.40   <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.40   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.40 * <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  0.40 * <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  0.80 * <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  0.40 * <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00 * <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+No OOB variables to fix, looking at broken relus
+
+Attempting broken-relu fix on var: x4f
+fixBrokenReluVariable Starting: var = x4b, delta = -0.400000
+fixBrokenReluVariable Starting: var = x4b, delta = -0.400000
+fixBrokenReluVariable Starting: var = x4f, delta = 0.400000
+fixBrokenReluVariable Starting: var = x4f, delta = 0.400000
+Var x4f isn't basic; no pivot needed, simply updating
+		Update: x4f += 0.40
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.40 <=  0.40   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.40   <= 9999.00
+    x2f|                                                                                                                                |  0.00 <=  0.40   <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.40   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.40   <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.40   <= 9999.00
+ B  x5b|               1.00        2.00        3.00 -1.00                                                                               | -9999.00 <=  1.60 * <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x6b|               2.00        1.00        1.00             -1.00                                                                   | -9999.00 <=  1.20 * <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00 * <= 9999.00
+ B  x7b|               1.00        2.00        2.00                         -1.00                                                       | -9999.00 <=  1.20 * <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00 * <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+No OOB variables to fix, looking at broken relus
+
+Attempting broken-relu fix on var: x5f
+fixBrokenReluVariable Starting: var = x5b, delta = -1.600000
+fixBrokenReluVariable Starting: var = x5b, delta = -1.600000
+
+PivotAndUpdate: <x5b, -1.60, x2f>
+		Pivot: x5b <--> x2f
+			Pivot--clearing 3 column entries--starting
+			Pivot--clearing column entries--done (Pivot: 0 milli, 18 calcs)
+		Update: x5b += -1.60
+Variable 2 out of bounds: value = -1.2000000000, range = [0.0000000000, 9999.0000000000]
+
+Progress starting
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.40 <=  0.40   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.40   <= 9999.00
+ B  x2f|              -1.00       -2.00       -3.00  1.00                                                                               |  0.00 <= -1.20 * <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.40   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.40   <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.40   <= 9999.00
+    x5b|                                                                                                                                | -9999.00 <=  0.00   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x6b|                          -3.00       -5.00  2.00       -1.00                                                                   | -9999.00 <= -2.00   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x7b|                                      -1.00  1.00                   -1.00                                                       | -9999.00 <= -0.40   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  0.00   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  0.00   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+Progress: have OOB vars
+GLPK: number of iterations = 10
+LP solver solved the problem. Updating tableau and assignment
+
+It can be solved. current state is: 
+
+Visiting state:
+
+       |     x1   x2b   x2f   x3b   x3f   x4b   x4f   x5b   x5f   x6b   x6f   x7b   x7f    x8    a1    a2    a3    a4    a5    a6    a7 | Assignment               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     x1|                                                                                                                                |  0.40 <=  0.40   <=  1.00
+ B  x2b|   1.00 -1.00                                                                                                                   | -9999.00 <=  0.40   <= 9999.00
+ B  x2f|              -1.00       -2.00       -3.00  1.00                                                                               |  0.00 <=  0.40   <= 9999.00
+ B  x3b|  -1.00             -1.00                                                                                                       | -9999.00 <= -0.40   <= 9999.00
+    x3f|                                                                                                                                |  0.00 <=  0.00   <= 9999.00
+ B  x4b|   1.00                         -1.00                                                                                           | -9999.00 <=  0.40   <= 9999.00
+    x4f|                                                                                                                                |  0.00 <=  0.40   <= 9999.00
+    x5b|                                                                                                                                | -9999.00 <=  1.60   <= 9999.00
+    x5f|                                                                                                                                |  0.00 <=  1.60   <= 9999.00
+ B  x6b|                          -3.00       -5.00  2.00       -1.00                                                                   | -9999.00 <=  1.20   <= 9999.00
+    x6f|                                                                                                                                |  0.00 <=  1.20   <= 9999.00
+ B  x7b|                                      -1.00  1.00                   -1.00                                                       | -9999.00 <=  1.20   <= 9999.00
+ B  x7f|                                                  -3.00       -2.00       -1.00  1.00                                           |  0.00 <=  1.20   <= 9999.00
+     x8|                                                                                                                                |  0.00 <=  8.40   <= 100.00
+     a1|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a2|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a3|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a4|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a5|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a6|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+     a7|                                                                                                                                |  0.00 <=  0.00   <=  0.00
+
+
+23:12:18 Statistics update:
+	Calls to 'progress': 4. Total time: 0 milli. Average: 0 milli
+	Pivot operations: 8. Total pivot time: 0 milli.
+	Average pivot time: 0 milli
+	Average time per calcuation in pivot: 0.00000 milli
+	Average number of calculations in pivot: 5
+	Average number of broken relues per 'progress': 4
+	Broken Relus Fixed: 3 (Fs: 2, Bs: 3, fix-by-pivot: 3, fix-by-update: 2)
+	Relu-to-OOB step ratio: 3 / 1 = 3.000000%. Avg oob steps per relu: 0.33.
+	Almost broken relus encountered: 0. Nuked: 0
+	Time in TightenAllBounds: 0 milli. Bounds tightened: 0
+	Relu pairs dissolved: 0. Num splits: 0. Num merges: 0 (remaining: 6 / 6)
+	Num LP solver invocations: 1. Found solution: 1. No Solution: 0. Failed: 0. Incorrect assignments: 0.
+		Total time in LP solver: 0 milli. Max: 0 milli. Avg per invocation: 0 milli
+		Number of pivots in LP solver: 10. Average time per LP pivot operation: 0 milli
+		Total time extracting tableaus after LP solved: 6 milli. Average: 6 milli.
+		Total time evaulating GLPK rows: 0
+		Glpk bound reports: 20. On slacks: 7 (= 35%). Ignored due to small coefficients: 0. Used: 100.00%
+		Number of GLPK-derived bounds: 12. On slacks: 0 (= 0.00%). Time: 0 milli. Relus consequently dissolved: 0
+		Fix-relu-invariant hook invocations: 0. Actual repairs: 0 (= 0%). Ignore to prevent cycles: 0
+	Average number of broken relu pairs after glpk invocation: 0.000000. Max: 0. Broken and non-basic pairs: 0
+	Vars with infinite bounds: 0 / 21
+	Eliminated vars: 7
+	Stack: Current depth is: 0 (maximal = 0, min second phase = 0).
+	       So far: 0 splits, 0 merges, 0 pops. Total visited states: 0
+		Pops caused by conflict analysis: 0
+		Total time in smtCore: 0 milli
+	Current degradation: 0.0000000000. Time spent checking: 0 milli. Max measured: 0.0000000000.
+	Number of restorations: 0. Total time: 0 milli. Average: 0.000000
+
+
+	Summary: Total: 0 milli
+		1. GLPK: 0 milli (0%) 
+		2. Extraction + Postprocessing: 6 milli (0%)
+		3. Tightening bounds: 0 milli (0%)
+		4. Stack operations: 0 milli (0%)
+		5. Tableau restoration operations: 0 milli (0%)
+		6. Unaccounted for: 18446744073709551610 milli (0%)
+
+printCurrentAE in RunReluplex:
+This is a adversial example:
+Variable 0 : value = 0.5000000000 
+Variable 1 : value = 0.5000000000 
+Variable 2 : value = 0.5000000000 
+Variable 3 : value = -0.5000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.5000000000 
+Variable 7 : value = 2.0000000000 
+Variable 8 : value = 2.0000000000 
+Variable 9 : value = 1.5000000000 
+Variable 10 : value = 1.5000000000 
+Variable 11 : value = 1.5000000000 
+Variable 12 : value = 1.5000000000 
+Variable 13 : value = 10.5000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
+This is a adversial example:
+Variable 0 : value = 0.4000000000 
+Variable 1 : value = 0.4000000000 
+Variable 2 : value = 0.4000000000 
+Variable 3 : value = -0.4000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.4000000000 
+Variable 6 : value = 0.4000000000 
+Variable 7 : value = 1.6000000000 
+Variable 8 : value = 1.6000000000 
+Variable 9 : value = 1.2000000000 
+Variable 10 : value = 1.2000000000 
+Variable 11 : value = 1.2000000000 
+Variable 12 : value = 1.2000000000 
+Variable 13 : value = 8.4000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
+
+*** Solved! ***
+printCurrentAE in RunReluplex:
+This is a adversial example:
+Variable 0 : value = 0.5000000000 
+Variable 1 : value = 0.5000000000 
+Variable 2 : value = 0.5000000000 
+Variable 3 : value = -0.5000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.5000000000 
+Variable 6 : value = 0.5000000000 
+Variable 7 : value = 2.0000000000 
+Variable 8 : value = 2.0000000000 
+Variable 9 : value = 1.5000000000 
+Variable 10 : value = 1.5000000000 
+Variable 11 : value = 1.5000000000 
+Variable 12 : value = 1.5000000000 
+Variable 13 : value = 10.5000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 
+This is a adversial example:
+Variable 0 : value = 0.4000000000 
+Variable 1 : value = 0.4000000000 
+Variable 2 : value = 0.4000000000 
+Variable 3 : value = -0.4000000000 
+Variable 4 : value = 0.0000000000 
+Variable 5 : value = 0.4000000000 
+Variable 6 : value = 0.4000000000 
+Variable 7 : value = 1.6000000000 
+Variable 8 : value = 1.6000000000 
+Variable 9 : value = 1.2000000000 
+Variable 10 : value = 1.2000000000 
+Variable 11 : value = 1.2000000000 
+Variable 12 : value = 1.2000000000 
+Variable 13 : value = 8.4000000000 
+Variable 14 : value = 0.0000000000 
+Variable 15 : value = 0.0000000000 
+Variable 16 : value = 0.0000000000 
+Variable 17 : value = 0.0000000000 
+Variable 18 : value = 0.0000000000 
+Variable 19 : value = 0.0000000000 
+Variable 20 : value = 0.0000000000 

@@ -1,0 +1,2 @@
+CMakeLists.txt not found in E:\Code\ReluplexCav2017-change3.0
+Environment (MinGW/Cygwin) is not selected Configure
