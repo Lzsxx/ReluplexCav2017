@@ -688,14 +688,15 @@ public:
 //                    indexToVar[8] = 908;
 //                    indexToVar[9] = 909;
 /***************************** use when check my net***********************************/
+                    /******** change! **********/
                     unsigned inputLayerSize = 4;
                     indexToVar[0] = 0;
                     indexToVar[1] = 1;
                     indexToVar[2] = 2;
                     indexToVar[3] = 3;
-                    indexToVar[4] = 634;
-                    indexToVar[5] = 635;
-                    indexToVar[6] = 636;
+                    indexToVar[4] = 52;    //
+                    indexToVar[5] = 53;
+                    indexToVar[6] = 54;
 
                     for (unsigned c = 0; c < num_Node; c++) {
                         currentAdversaryE[num_AE][c] = _assignment[ indexToVar[c] ];

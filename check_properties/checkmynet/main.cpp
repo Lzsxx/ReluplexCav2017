@@ -19,8 +19,10 @@
 #include "String.h"
 
 //const char *FULL_NET_PATH = "./nnet/ACASXU_run2a_1_1_batch_2000.nnet";
+
+/******** change! **********/
 const char *FULL_NET_PATH = "./nnet/iris.nnet";
-Vector<double> inputsTemp = { 5.84, 3.0, 3.75, 1.2 };   // 分类为1，（从0开始，0,1,2
+//Vector<double> inputsTemp = { 5.84, 3.0, 3.75, 1.2 };   // 分类为1，（从0开始，0,1,2
 
 struct Index
 {
@@ -94,7 +96,8 @@ void getFixedInputs( Vector<double> &fixedInputs, unsigned pointToUse )
 {
     switch ( pointToUse )
     {
-    case 0:
+        /******** change! **********/
+        case 0:
         fixedInputs = { 5.84, 3.0, 3.75, 1.2 }; // 分类为1，（从0开始，0,1,2
 //        fixedInputs = { 0, 0, 0, 0, 0 };
         break;
@@ -864,7 +867,7 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
     bool sat = false;
 
     //// add by lzs
-
+    /******** change! **********/
     double **currentAdversaryE ;
     unsigned num_Node = inputLayerSize + outputLayerSize; //【不可修改，但要修改Reluplex里的solve的indexToVar部分】  输入层元素个数+输出层元素个数
     unsigned num_AE = 0;    // 当前已取得的对抗样本数
@@ -888,6 +891,7 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
         for ( unsigned i = 0; i < inputLayerSize; ++i ) {
             printf("nodeToVars[Index(0, %u, true)] : %u \n", i, nodeToVars[Index(0, i, true)]);
         }
+        /***** 取得 输出层 变量 下标 的地方 ******/
         for ( unsigned i = 0; i < outputLayerSize; ++i )
         {
             printf("nodeToVars[Index(0, %u, true)] : %u \n", i, nodeToVars[Index(numLayersInUse - 1, i, false)]);
@@ -902,17 +906,20 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
             for ( unsigned i = 0; i < inputLayerSize; ++i )
             {
                 double assignment = reluplex.getAssignment( nodeToVars[Index(0, i, true)] );
-                printf( "input[%u] = %lf. Normalized: %lf.\n",
-                        i, unnormalizeInput( i, assignment, neuralNetwork ), assignment );
+//                printf( "input[%u] = %lf. Normalized: %lf.\n",
+//                        i, unnormalizeInput( i, assignment, neuralNetwork ), assignment );
+                printf( "input[%u] = %lf.\n", i, assignment );
                 inputs.append( assignment );
             }
 
             for ( unsigned i = 0; i < outputLayerSize; ++i )
             {
-                printf( "output[%u] = %.10lf. Normalized: %lf\n", i,
-                        reluplex.getAssignment( nodeToVars[Index(numLayersInUse - 1, i, false)] ),
-                        normalizeOutput( reluplex.getAssignment( nodeToVars[Index(numLayersInUse - 1, i, false)] ),
-                                         neuralNetwork ) );
+//                printf( "output[%u] = %.10lf. Normalized: %lf\n", i,
+//                        reluplex.getAssignment( nodeToVars[Index(numLayersInUse - 1, i, false)] ),
+//                        normalizeOutput( reluplex.getAssignment( nodeToVars[Index(numLayersInUse - 1, i, false)] ),
+//                                         neuralNetwork ) );
+                printf( "output[%u] = %.10lf. \n", i,
+                        reluplex.getAssignment( nodeToVars[Index(numLayersInUse - 1, i, false)] ));
             }
 
             printf( "\nOutput using nnet.cpp:\n" );
@@ -920,8 +927,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
             unsigned i = 0;
             for ( const auto &output : outputs )
             {
-                printf( "output[%u] = %.10lf. Normalized: %lf\n", i, output,
-                        normalizeOutput( output, neuralNetwork ) );
+//                printf( "output[%u] = %.10lf. Normalized: %lf\n", i, output,
+//                        normalizeOutput( output, neuralNetwork ) );
+                printf( "output[%u] = %.10lf. \n", i, output);
 
                 totalError +=
                         FloatUtils::abs( output -
@@ -946,11 +954,15 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                 for (unsigned k = 0; k < num_Node; ++k) {
                     double assignment = currentAdversaryE[j-1][k];
                     if( k < inputLayerSize){ //5
-                        printf( "input[%u] = %lf. Normalized: %lf.\n", k, unnormalizeInput( k, assignment, neuralNetwork ), assignment );
+//                        printf( "input[%u] = %lf. Normalized: %lf.\n", k, unnormalizeInput( k, assignment, neuralNetwork ), assignment );
+                        printf( "input[%u] = %lf. \n", k, assignment );
+
                         inputs.append( assignment );
 
                     } else{
-                        printf( "output[%u] = %.10lf. Normalized: %lf\n", k, assignment, normalizeOutput( assignment, neuralNetwork ) );
+//                        printf( "output[%u] = %.10lf. Normalized: %lf\n", k, assignment, normalizeOutput( assignment, neuralNetwork ) );
+                        printf( "output[%u] = %.10lf. \n", k, assignment );
+
                     }
                 }
                 printf( "\nOutput using nnet.cpp:\n" );
@@ -958,8 +970,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                 unsigned b = inputLayerSize;     // 5
                 for ( const auto &output : outputs )
                 {
-                    printf( "output[%u] = %.10lf. Normalized: %lf\n", b, output,
-                            normalizeOutput( output, neuralNetwork ) );
+//                    printf( "output[%u] = %.10lf. Normalized: %lf\n", b, output,
+//                            normalizeOutput( output, neuralNetwork ) );
+                    printf( "output[%u] = %.10lf. \n", b, output);
 
                     totalError += FloatUtils::abs( output - currentAdversaryE[j-1][b]);
 
@@ -1007,11 +1020,13 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                 for (unsigned k = 0; k < num_Node; ++k) {
                     double assignment = currentAdversaryE[j-1][k];
                     if( k < inputLayerSize){ //5
-                        printf( "input[%u] = %lf. Normalized: %lf.\n", k, unnormalizeInput( k, assignment, neuralNetwork ), assignment );
+//                        printf( "input[%u] = %lf. Normalized: %lf.\n", k, unnormalizeInput( k, assignment, neuralNetwork ), assignment );
+                        printf( "input[%u] = %lf. \n", k, assignment );
                         inputs.append( assignment );
 
                     } else{
-                        printf( "output[%u] = %.10lf. Normalized: %lf\n", k, assignment, normalizeOutput( assignment, neuralNetwork ) );
+//                        printf( "output[%u] = %.10lf. Normalized: %lf\n", k, assignment, normalizeOutput( assignment, neuralNetwork ) );
+                        printf( "output[%u] = %.10lf. \n", k, assignment );
                     }
                 }
                 printf( "\nOutput using nnet.cpp:\n" );
@@ -1019,8 +1034,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                 unsigned b = inputLayerSize;
                 for ( const auto &output : outputs )
                 {
-                    printf( "output[%u] = %.10lf. Normalized: %lf\n", b, output,
-                            normalizeOutput( output, neuralNetwork ) );
+//                    printf( "output[%u] = %.10lf. Normalized: %lf\n", b, output,
+//                            normalizeOutput( output, neuralNetwork ) );
+                    printf( "output[%u] = %.10lf. \n", b, output);
 
                     totalError += FloatUtils::abs( output - currentAdversaryE[j-1][b]);
 
@@ -1066,9 +1082,9 @@ int main( int argc, char **argv )
     sa.sa_handler = got_signal;
     sigfillset( &sa.sa_mask );
     sigaction( SIGQUIT, &sa, NULL );
-
-    List<unsigned> points = { 0 };
-    List<double> deltas = { 2 };
+    /******** change! **********/
+    List<unsigned> points = { 0 };  // 表示一组点
+    List<double> deltas = { 1 };    // 表示一组delta，而不是每个相同
 
     for ( const auto &point : points )
     {
@@ -1078,9 +1094,11 @@ int main( int argc, char **argv )
             unsigned i = 0;
 
             // 如果是UNSAT，则要一直找下去，已知中点的最小值在哪个下标上，剩下只需要测试另外4个output会不会是最小值
-            // 继续循环需要同时满足：1、返回UNSAT，2、轮次小于4，注：4根据input的个数修改，值为input-1
+            // 继续循环需要同时满足：1、返回UNSAT，2、轮次小于4，
 //            while ( ( !sat ) && ( i < 4 ) )
-            while ( i < 2 )     // modify by lzs
+
+            /******** change! **********/
+            while ( i < 2 )     // modify by lzs  // 注：4根据input的个数修改，值为input-1
             {
                 printf( "Performing test for point %u, delta = %.5lf, part %u\n", point, delta, i + 1 );
                 sat = advMain_maximal( argc, argv, point, delta, i );
