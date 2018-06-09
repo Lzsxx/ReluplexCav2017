@@ -1,4 +1,5 @@
-#### 3.1版本，基于relu激励函数，可以找到多个adversial example
+#### 3.1版本，主要运行代码在/check_properities/xxx/main.cpp，（不用管/reluplex/RunReluplex.h部分的代码）
+基于relu激励函数，可以找到多个adversial example
 adversial/ 是用来check其中一个论文提供的原始网络的，输入层为5个特征数据，输出层为5个分类，原始点是0, 0, 0, 0, 0，delte是0.033
 evaluate/ 是用来调用论文提纲的原始网络，直接输入input的5个点的数据，查看输出值，看adversial里的某些对应输出值是否正确，与验证无关，可以忽略。
 checkmynet/ 是用来check自己训练的iris网络的，输入层为4个特征数据，输出层为3个分类，原始点是5.84, 3.0, 3.75, 1.2，delta是1.0，均没有经过正则化.
