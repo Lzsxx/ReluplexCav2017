@@ -12,15 +12,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cc120bb8-230f-4985-a0dc-a11ec1de46ca" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/common/Error.h" afterPath="$PROJECT_DIR$/common/Error.h" />
-      <change beforePath="$PROJECT_DIR$/reluplex/Reluplex.h" afterPath="$PROJECT_DIR$/reluplex/Reluplex.h" />
-      <change beforePath="$PROJECT_DIR$/reluplex/RunReluplex.h" afterPath="$PROJECT_DIR$/reluplex/RunReluplex.h" />
-      <change beforePath="$PROJECT_DIR$/reluplex/SmtCore.h" afterPath="$PROJECT_DIR$/reluplex/SmtCore.h" />
-      <change beforePath="$PROJECT_DIR$/reluplex/Tableau.h" afterPath="$PROJECT_DIR$/reluplex/Tableau.h" />
-    </list>
+    <list default="true" id="cc120bb8-230f-4985-a0dc-a11ec1de46ca" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -52,7 +44,7 @@
         <entry file="file://$PROJECT_DIR$/reluplex/Reluplex.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="455">
-              <caret line="2472" column="19" lean-forward="true" selection-start-line="2472" selection-start-column="19" selection-end-line="2472" selection-end-column="19" />
+              <caret line="2472" column="19" lean-forward="false" selection-start-line="2472" selection-start-column="19" selection-end-line="2472" selection-end-column="19" />
               <folding>
                 <element signature="e#81#496#0" expanded="false" />
                 <element signature="e#1857#1978#0" expanded="false" />
@@ -246,8 +238,8 @@
       <file leaf-file-name="RunReluplex.h" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/reluplex/RunReluplex.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="419">
-              <caret line="314" column="39" lean-forward="true" selection-start-line="314" selection-start-column="39" selection-end-line="314" selection-end-column="39" />
+            <state relative-caret-position="491">
+              <caret line="316" column="39" lean-forward="true" selection-start-line="316" selection-start-column="39" selection-end-line="316" selection-end-column="39" />
               <folding>
                 <element signature="e#81#499#0" expanded="false" />
                 <element signature="e#721#928#0" expanded="false" />
@@ -374,7 +366,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ReluplexCav2017-master" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ReluplexCav2017-change3.1" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -411,12 +403,12 @@
       <workItem from="1524286413760" duration="7417000" />
       <workItem from="1527423672179" duration="2913000" />
       <workItem from="1527427524741" duration="48121000" />
-      <workItem from="1528025646307" duration="27828000" />
+      <workItem from="1528025646307" duration="28830000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="116830000" />
+    <option name="totallyTimeSpent" value="117832000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-10" y="0" width="1938" height="1030" extended-state="1" />
@@ -1460,7 +1452,7 @@
     <entry file="file://$PROJECT_DIR$/reluplex/Reluplex.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="455">
-          <caret line="2472" column="19" lean-forward="true" selection-start-line="2472" selection-start-column="19" selection-end-line="2472" selection-end-column="19" />
+          <caret line="2472" column="19" lean-forward="false" selection-start-line="2472" selection-start-column="19" selection-end-line="2472" selection-end-column="19" />
           <folding>
             <element signature="e#81#496#0" expanded="false" />
             <element signature="e#1857#1978#0" expanded="false" />
@@ -1622,8 +1614,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/reluplex/RunReluplex.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="419">
-          <caret line="314" column="39" lean-forward="true" selection-start-line="314" selection-start-column="39" selection-end-line="314" selection-end-column="39" />
+        <state relative-caret-position="491">
+          <caret line="316" column="39" lean-forward="true" selection-start-line="316" selection-start-column="39" selection-end-line="316" selection-end-column="39" />
           <folding>
             <element signature="e#81#499#0" expanded="false" />
             <element signature="e#721#928#0" expanded="false" />

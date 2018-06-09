@@ -1,3 +1,7 @@
+4.0版本，修改支持的激励函数为leakyRelu, 在Reluplex()构造完成以后，调用对象的setLeakyRelu来设置leakyRelu的值
+注：此时已经不支持relu函数，虽然这是一个子问题，但此时还没做好兼容
+
+
 *** Reluplex, May 2017 ***
 
 This repository contains the proof-of-concept implementation of the
