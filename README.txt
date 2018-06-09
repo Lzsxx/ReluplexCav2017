@@ -1,4 +1,5 @@
-4.0版本，修改支持的激励函数为leakyRelu, 在Reluplex()构造完成以后，调用对象的setLeakyRelu来设置leakyRelu的值
+4.0版本，主要运行代码在/reluplex/RunReluplex.h，（不用管/check_properities/xxx/main.cpp部分的代码）
+修改支持的激励函数为leakyRelu, 在Reluplex()构造完成以后，调用对象的setLeakyRelu来设置leakyRelu的值
 注：此时已经不支持relu函数，虽然这是一个子问题，但此时还没做好兼容
 
 
