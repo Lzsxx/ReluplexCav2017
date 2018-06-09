@@ -1,4 +1,4 @@
-#### 3.1版本，基于relu激励函数，可以找到多个adversial example
+
 
 
 *** Reluplex, May 2017 ***
