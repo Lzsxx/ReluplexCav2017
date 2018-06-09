@@ -21,7 +21,7 @@
 #include "VariableBound.h"
 
 // The number of times a ReLU pair can be corrected before a split occurs.
-static const unsigned NUM_RELU_OPERATIONS_BEFORE_SPLIT = 5;
+static const unsigned NUM_RELU_OPERATIONS_BEFORE_SPLIT = 3;
 
 class SmtCore
 {
@@ -116,8 +116,26 @@ public:
         _reluplex->computeVariableStatus();
     }
 
-    // 判断是否需要进行split，还是要进行Merge。如果F是正数，则B一定也是同样的值，此时是merge，如果F是0，则B是负值，此时为split
+    // 判断是否需要进行split，还是要进行Merge。如果F是正数或0，则B一定也是同样的值，此时是merge，如果F是负数，则B是负值，此时为split
     bool beginWithSplit( unsigned f )
+    {
+        // Return true for split, false for merge.
+        // Decide according to current assignment (this is the F variable).
+
+        double assignment = _reluplex->getAssignment()[f];
+
+        if ( FloatUtils::isPositive( assignment ) ||  FloatUtils::isZero( assignment ))
+        {
+            log( "Starting with merge\n" );
+            return false;
+        }
+
+        log( "Starting with split\n" );
+        // 如果是负数，就split，否则，都会merge
+        return true;
+    }
+    // 判断是否需要进行split，还是要进行Merge。如果F是正数，则B一定也是同样的值，此时是merge，如果F是0，则B是负值，此时为split
+    bool beginWithSplit_temp( unsigned f )
     {
         // Return true for split, false for merge.
         // Decide according to current assignment (this is the F variable).
@@ -136,8 +154,54 @@ public:
         return true;
     }
 
-    // 执行论文中 ReluSplit,并将当前状态存入栈中
+    // 执行论文中 ReluSplit,并将当前状态存入栈中，传入的variable一般是f
     void dissolveReluOnVar( unsigned variable )
+    {
+        printf( "Resolving relu on var: %s. (current depth = %u)\n",
+                         _reluplex->toName( variable ).ascii(), _stack.size() );
+
+        printf( "Column size of %s when dissolving: %u\n",
+                         _reluplex->toName( variable ).ascii(),
+                         _reluplex->getColumnSize( variable ) );
+
+        // Store the current state in splitInformation
+        SplitInformation *splitInformation = new SplitInformation( _numVariables );
+
+        storeCurrentState( splitInformation, variable );
+
+        // Set the type for the first attempt
+        splitInformation->_firstAttempt = true;
+
+        // 判断是否需要进行split，还是要进行Merge。如果F是正数或0，则B一定也是同样的值，此时是merge，如果F是负数，则B是负值，此时为split
+        if ( beginWithSplit( variable ) )   // 判断应该进行spilt(f是负数或0)，还是应该进行merge（f是正数）
+        {
+            // Do a split
+            printf("\nDo a split~~~~\n");
+            splitInformation->_type = SplitInformation::SPLITTING_RELU;
+            _reluplex->incNumSplits();
+            _stack.push( splitInformation );
+
+            // Adjust upper bounds
+            _reluplex->updateUpperBound( variable, 0.0, _stack.size() );
+        }
+        else
+        {
+            // Do a merge
+            printf("\nDo a merge~~~~\n");
+            splitInformation->_type = SmtCore::SplitInformation::MERGING_RELU;
+            _reluplex->incNumMerges();
+
+            _stack.push( splitInformation );
+
+            // Adjust lower bounds
+            _reluplex->updateLowerBound( variable, 0.0, _stack.size() );
+        }
+
+        _reluplex->incNumStackVisitedStates();
+        _reluplex->setCurrentStackDepth( _stack.size() );
+    }
+    // 执行论文中 ReluSplit,并将当前状态存入栈中
+    void dissolveReluOnVar_temp( unsigned variable )
     {
         log( Stringf( "Resolving relu on var: %s. (current depth = %u)\n",
                       _reluplex->toName( variable ).ascii(), _stack.size() ) );
@@ -285,6 +349,8 @@ public:
             _fToViolations[f] = 0;
 
         ++_fToViolations[f];
+
+        printf("\n^^^^^^ _fToViolations[f] : %u\n", _fToViolations[f]);
 
         // 对于broken relu pair 采用的策略是先update-f 或 update-b，只有当update次数超过一定阈值时，才进行split
         //// notifyBrokenRelu函数的作用就是判断是否update已经超出一定次数 NUM_RELU_OPERATIONS_BEFORE_SPLIT，

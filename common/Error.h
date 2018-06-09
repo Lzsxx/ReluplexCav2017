@@ -93,6 +93,7 @@ public:
         LOWER_BOUND_IS_INFINITE = 69,
         UPPER_BOUND_IS_INFINITE = 70,
         CONSECUTIVE_GLPK_FAILURES = 71,
+		DISSOLVED_SPLIT_ERROR = 72,
     };
 
 	Error( Code code ) : _code( code )

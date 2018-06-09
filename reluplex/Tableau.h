@@ -419,6 +419,48 @@ public:
         }
     }
 
+    void replaceNonBasicWithAnotherNonBasic(unsigned beReplaced, unsigned replace, double leakyValue){
+        if ( !activeColumn( beReplaced ) )  // 将要被代换的，如果不存在，那就没有操作的必要，但将要去取代的，可以不存在
+            return;
+
+        _denseMap.clear();
+
+        // 将 replace 出现过的行都记录下来，后面遍历beReplaced，取得出现过的行，如果两者有出现在同一行，就只是抹除beReplaced，
+        // 然后在replace上做系数的加减，否则就要先抹除beReplaced,然后添加replace的系数
+        Entry *replaceEntry = _columns[replace];
+        while ( replaceEntry != NULL )
+        {
+            _denseMap[replaceEntry->getRow()] = replaceEntry;
+            replaceEntry = replaceEntry->nextInColumn();
+        }
+
+        Entry *beReplacedEntry = _columns[beReplaced];
+        Entry *current;
+
+        unsigned row;
+        while ( beReplacedEntry != NULL )
+        {
+            current = beReplacedEntry;
+            beReplacedEntry = beReplacedEntry->nextInColumn();  // 记录列链表上下一个值，等待作为下一次while中判断条件
+
+            row = current->getRow();
+            Entry *entryInTarget = NULL;
+            if ( _denseMap.exists( row ) )  // 如果要代替和被代替的变量出现在同一行上，改变系数、抹除在column链上的被代替的值
+            {
+                entryInTarget = _denseMap[row];
+                printf("~~~~~ The entryInTarget: row:%u, column: %u, value: %.10f\n", entryInTarget->getRow(), entryInTarget->getColumn(), entryInTarget->getValue());
+                entryInTarget->setValue( entryInTarget->getValue() + leakyValue); // 系数相加
+                printf("~~~~~ replaced and replace appear in the same row, set new coefficient value of %u: %.10f\n",entryInTarget->getRow(), entryInTarget->getValue());
+            }
+            else
+            {
+                addEntry(row, replace, leakyValue);  //添加系数
+            }
+        }
+        eraseColumn( beReplaced );  // 抹除所有beReplaced出现过的列
+        _denseMap.clear();
+    }
+
     void addColumnEraseSource( unsigned source, unsigned target )
     {
         if ( !activeColumn( source ) )
