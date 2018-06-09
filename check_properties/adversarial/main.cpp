@@ -234,7 +234,7 @@ bool advMain( int argc, char **argv, unsigned inputPoint, double inputDelta, uns
         printf( "\toutput[%u] = %lf\n", i, fixedOutputs[i] );
     }
 
-    printf( "minimal: %u. runner up: %u\n", minimal, runnerUp );
+    printf( "\nminimal: %u. runner up: %u\n", minimal, runnerUp );
 
     // Total size of the tableau:
     //   1. Input vars appear once

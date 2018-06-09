@@ -1,4 +1,24 @@
 #### 3.1版本，基于relu激励函数，可以找到多个adversial example
+adversial/ 是用来check其中一个论文提供的原始网络的，输入层为5个特征数据，输出层为5个分类，原始点是0, 0, 0, 0, 0，delte是0.033
+evaluate/ 是用来调用论文提纲的原始网络，直接输入input的5个点的数据，查看输出值，看adversial里的某些对应输出值是否正确，与验证无关，可以忽略。
+checkmynet/ 是用来check自己训练的iris网络的，输入层为4个特征数据，输出层为3个分类，原始点是5.84, 3.0, 3.75, 1.2，delta是1.0，均没有经过正则化.
+
+#### 为了确保停止，需要设置想要找到的最大对抗样本数 num_Expected_AE，当在这个范围内，
+- 如果曾经找到，但是后来遇到问题失败了，会输出SAT_BUT_THEN_UNSAT，
+- 如果在这个范围内一直能找到，没有失败，会输出SAT，
+- 如果从来都找不到，会输出UNSAT
+例如checkmynet，当设置 num_Expected_AE为8时，可以找到两个将类型二分类为类型一的错误例子，而将类型二分类为类型三的例子很多，一直都有，且超过了8
+
+#### 更换case需要修改的代码：查找被 change! 注释的地方，存在于check_properities/xxx/main.cpp和/reluplex/reluplex.h文件中
+- reluplex.h需要修改input层的个数，并且找到input节点和output节点的下标，填入数组中
+- 2xxx/main.cpp中，首先是网络参数的地址
+- 预设input层的值
+- 申请给对抗样本的空间数、希望找到的对抗样本数
+- 选择代表input层的点，设置delta
+- 设置runner的轮数，一般是input层的node个数-1
+
+
+
 
 *** Reluplex, May 2017 ***
 
