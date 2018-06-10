@@ -449,12 +449,12 @@ public:
             {
                 entryInTarget = _denseMap[row];
                 printf("~~~~~ The entryInTarget: row:%u, column: %u, value: %.10f\n", entryInTarget->getRow(), entryInTarget->getColumn(), entryInTarget->getValue());
-                entryInTarget->setValue( entryInTarget->getValue() + leakyValue); // 系数相加
+                entryInTarget->setValue( entryInTarget->getValue() + leakyValue * current->getValue()); // 系数相加
                 printf("~~~~~ replaced and replace appear in the same row, set new coefficient value of %u: %.10f\n",entryInTarget->getRow(), entryInTarget->getValue());
             }
             else
             {
-                addEntry(row, replace, leakyValue);  //添加系数
+                addEntry(row, replace, leakyValue * current->getValue());  //添加系数，如果原来在x3f上的系数是1，这里要乘以0.5，表示换到x3b后是0.5，因为x3f=0.5x3b
             }
         }
         eraseColumn( beReplaced );  // 抹除所有beReplaced出现过的列
@@ -548,6 +548,8 @@ public:
     {
         return _columns[column];
     }
+
+
 
     void printRow( unsigned row )
     {
@@ -649,6 +651,8 @@ public:
 
         return result;
     }
+
+
 
 private:
     unsigned _size;

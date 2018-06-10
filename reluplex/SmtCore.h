@@ -176,7 +176,6 @@ public:
         if ( beginWithSplit( variable ) )   // 判断应该进行spilt(f是负数或0)，还是应该进行merge（f是正数）
         {
             // Do a split
-            printf("\nDo a split~~~~\n");
             splitInformation->_type = SplitInformation::SPLITTING_RELU;
             _reluplex->incNumSplits();
             _stack.push( splitInformation );
@@ -187,7 +186,6 @@ public:
         else
         {
             // Do a merge
-            printf("\nDo a merge~~~~\n");
             splitInformation->_type = SmtCore::SplitInformation::MERGING_RELU;
             _reluplex->incNumMerges();
 
@@ -260,7 +258,7 @@ public:
         }
     }
 
-    void pop()
+    void pop_temp()
     {
         timeval start = Time::sampleMicro();
 
@@ -328,8 +326,93 @@ public:
             }
 
             DEBUG(
-                  _currentlyInStack.erase( oldState->_variable );
-                  );
+                    _currentlyInStack.erase( oldState->_variable );
+            );
+
+            log( Stringf( "\t\tAfter popping a MERGE, depth = %u\n", _stack.size() ) );
+
+            delete oldState;
+            oldState = NULL;
+
+            _reluplex->incNumPops();
+            _reluplex->setCurrentStackDepth( _stack.size() );
+        }
+    }
+
+    void pop()
+    {
+        // 一次只会pop一层
+        printf("\n~~~~~~call a SmtCore.pop() once: \n");
+        timeval start = Time::sampleMicro();
+
+        while ( true ){
+            if ( _stack.empty() )
+            {
+                printf("~~~~~stack is empty and will throw error\n");
+                timeval end = Time::sampleMicro();
+                _totalSmtCoreTimeMilli += Time::timePassed( start, end );
+                throw Error( Error::STACK_IS_EMPTY, "Stack is empty" );
+            }
+
+            SmtCore::SplitInformation *oldState = _stack.top();
+            _stack.pop();
+
+            log( Stringf( "popping (variable = %s)\n", _reluplex->toName( oldState->_variable ).ascii() ) );
+
+            restorePreviousState( oldState );
+
+            printf("popping (variable = %s)\n", _reluplex->toName(oldState->_variable).ascii());
+            _reluplex->dump();
+
+            if ( oldState->_firstAttempt )
+            {
+                oldState->_firstAttempt = false;
+
+                if ( oldState->_type == SmtCore::SplitInformation::SPLITTING_RELU )
+                {
+                    // Earlier round was a split. Now comes the merge.
+
+                    log( "Popped a split, now doing a merge\n" );
+//                    printf( "Popped a split, now doing a merge\n" );
+                    log( Stringf( "Column size of %s when doing the merge: %u\n",
+                                  _reluplex->toName( oldState->_variable ).ascii(),
+                                  _reluplex->getColumnSize( oldState->_variable ) ) );
+
+                    oldState->_type = SmtCore::SplitInformation::MERGING_RELU;
+                    _stack.push( oldState );
+
+                    // Adjust lower bounds
+                    _reluplex->updateLowerBound( oldState->_variable, 0.0, _stack.size() );
+                    _reluplex->incNumMerges();
+                    _reluplex->computeVariableStatus();
+                }
+                else
+                {
+                    // Earlier round was a merge. Now comes the split.
+                    log( "Popped a merge, now doing a split\n" );
+//                    printf( "Popped a merge, now doing a split\n" );
+
+                    oldState->_type = SmtCore::SplitInformation::SPLITTING_RELU;
+                    _stack.push( oldState );
+
+                    // Adjust upper bounds
+                    _reluplex->updateUpperBound( oldState->_variable, 0.0, _stack.size() );
+                    _reluplex->incNumSplits();
+                    _reluplex->computeVariableStatus();
+                }
+
+                _reluplex->incNumStackVisitedStates();
+                _reluplex->setMinStackSecondPhase( _stack.size() );
+
+                timeval end = Time::sampleMicro();
+                _totalSmtCoreTimeMilli += Time::timePassed( start, end );
+
+                return;
+            }
+
+            DEBUG(
+                    _currentlyInStack.erase( oldState->_variable );
+            );
 
             log( Stringf( "\t\tAfter popping a MERGE, depth = %u\n", _stack.size() ) );
 

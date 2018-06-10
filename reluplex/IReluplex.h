@@ -141,6 +141,8 @@ public:
     virtual void setCurrentStackDepth( unsigned depth ) = 0;
     virtual void setMinStackSecondPhase( unsigned depth ) = 0;
 
+    virtual void dump() = 0;
+
     // Debug
     virtual void checkInvariants() const = 0;
 };

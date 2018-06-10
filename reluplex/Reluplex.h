@@ -753,8 +753,17 @@ public:
                 // 如果满足这两个条件，则返回SAT
                 if ( allVarsWithinBounds() && allRelusHold() )
                 {
+                    //// add by lzs : 在满足条件的时候进行一次判断，要求Basic里面没有只有本身为-1的情况，否则这样的情况就算满足条件，也一般不满足，所以要去除，回退上一步
+                    if (checkIfJustItself()) {
+                        _smtCore.pop();
+                        setMinStackSecondPhase( _currentStackDepth );   // 模仿原代码
+                        continue;   // 还原上一步之后，要跳过后面的代码，继续循环
+                    }
+                    //// add end
+
                     log( "\nIt can be solved. current state is: \n" );
                     dump();
+                    showDissolvedMergeReluPairs();
                     printf("\n----- printStatistics():find an SAT answer ----\n");
                     printStatistics();
                     _finalStatus = Reluplex::SAT;
@@ -764,33 +773,16 @@ public:
                     /*** add by lzs : adv ***/
                     alreadySAT = true;
                     Map<unsigned, unsigned> indexToVar;
-/****************************** use when check original adversarial**********************************/
-//                    unsigned inputLayerSize = 5;
-//                    indexToVar[0] = 0;
-//                    indexToVar[1] = 1;
-//                    indexToVar[2] = 2;
-//                    indexToVar[3] = 3;
-//                    indexToVar[4] = 4;
-//                    indexToVar[5] = 905;
-//                    indexToVar[6] = 906;
-//                    indexToVar[7] = 907;
-//                    indexToVar[8] = 908;
-//                    indexToVar[9] = 909;
-/***************************** use when check my net***********************************/
                     /******** change! **********/
-                    unsigned inputLayerSize = 4;
+                    unsigned inputLayerSize = 1;
                     indexToVar[0] = 0;
-                    indexToVar[1] = 1;
-                    indexToVar[2] = 2;
-                    indexToVar[3] = 3;
-                    indexToVar[4] = 52;    //
-                    indexToVar[5] = 53;
-                    indexToVar[6] = 54;
+                    indexToVar[1] = 5;
+                    /******* change end ******/
 
                     for (unsigned c = 0; c < num_Node; c++) {
                         currentAdversaryE[num_AE][c] = _assignment[ indexToVar[c] ];
                     }
-                    num_AE ++;
+                    num_AE ++;  //表示当前找到的个数，也表示下一个应该存储的下标值
 
                     printf("printCurrentAE in solve()'s main loop:\n");
 //                    for (unsigned j = 0; j < num_AE; ++j) {   // 输出AE数组里的全部内容
@@ -806,8 +798,9 @@ public:
                     }
 
                     if (num_AE < num_Expected_AE){
+                        printf("\nWe find a AE, but will run continuely: %u \n",num_AE);
                         _smtCore.pop();
-                        printf("\nWe find a AE, but will run continuely：%u \n",num_AE);
+                        setMinStackSecondPhase( _currentStackDepth );   // 模仿原代码
                         printf("After pop(), current assignment is : \n");
                         for (unsigned c = 0; c < num_Node; c++) {
                             if(c < inputLayerSize){  //
@@ -817,15 +810,11 @@ public:
                             }
                         }
                         printf("\n");
-
                         continue;
                     } else{
                         return _finalStatus;
                     }
-
                     /*** add end ***/
-
-//                    return _finalStatus;
                 }
                 // violatingLevelInStack默认初始化为0，表示导致violation进行了多少次split,而smtCore需要根据这个值重做多少次decisions
                 unsigned violatingLevelInStack;
@@ -870,6 +859,7 @@ public:
             {
                 _finalStatus = Reluplex::UNSAT;
                 //// add by lzs
+                printf("~~~~~Found error: Error::STACK_IS_EMPTY \n");
                 if( alreadySAT ) {
                     _finalStatus = Reluplex::SAT_BUT_THEN_UNSAT;
                 }
@@ -2427,6 +2417,8 @@ public:
         }
         else
         {
+            printf("\nDo a split~~~~\n");
+
             // 如果上界是0或负数，就可以假设已经求解了这个f，并设置
             // 此时如果越界，也是更新为上界（负数），那么就是要乘以ratio
             printf( "enter updateUpperBound---- upperBound is zero or negative\n" );
@@ -2467,6 +2459,7 @@ public:
             if (_tableau.activeColumn(b) && _tableau.activeColumn(f)) {
                 _tableau.eraseRow(f);
                 _tableau.replaceNonBasicWithAnotherNonBasic(f, b, getLeakyValue());
+//                deleteIfJustItself();  //上面一行有过tableau的合并，可能会导致某些var的行只有它自己，跟其他变量不再有关系，所以要检测，删除这样的行
                 _tableau.addEntry(f, b, getLeakyValue());
                 _tableau.addEntry(f, f, -1);
                 markBasic(f);
@@ -2478,6 +2471,7 @@ public:
             // 将b设置为与f匹配的值，如果越界，后面会处理
             update( b, ( 1 /getLeakyValue() ) * _assignment[f] - _assignment[b], true );
 
+            /***** 修复可能出现的错误值 ****/
             // 更新完之后，与b相关联的行的赋值，可能会出现错误，此时要以b为标准，进行值的修复
             for (unsigned row = 0; row < _tableau.getNumVars(); row++) {
                 // 如果系数不为0，则b在这一行有出现过，重新计算这一行的值
@@ -2501,7 +2495,7 @@ public:
 
             markReluVariableDissolved( f, TYPE_SPLIT );
 
-            printf( "_assignment[b]: %.10f, _assignment[f]: %.10f\n", _assignment[b], _assignment[f] );
+            printf( "~~~~~_assignment[b]: %.10f, _assignment[f]: %.10f\n", _assignment[b], _assignment[f] );
 
             /*** 其他设置 ****/
             unsigned violatingStackLevel;
@@ -2513,10 +2507,14 @@ public:
             computeVariableStatus( partner );
 
             // Violations are okay for basic, but need to update if non-basic
-            if ( !_basicVariables.exists( variable ) && outOfBounds( variable ) )
+            if ( !_basicVariables.exists( variable ) && outOfBounds( variable ) ){
+                printf("~~~~~After split, some variable is out of bound\n");
                 update( variable, bound - _assignment[variable], true );
-            if ( !_basicVariables.exists( partner ) && outOfBounds( partner ) )
+            }
+            if ( !_basicVariables.exists( partner ) && outOfBounds( partner ) ){
+                printf("~~~~~After split, some variable is out of bound\n");
                 update( partner, bound - _assignment[partner], true );
+            }
 
             // Violations are okay for basic, but need to update if non-basic
 //            if ( !_basicVariables.exists( b ) && outOfBounds( b ) )
@@ -2705,6 +2703,8 @@ public:
         {
             log( "Update lower bound: non-negative lower bound\n" );
 
+            printf("\nDo a merge~~~~\n");
+
             _lowerBounds[variable].setBound( bound );
             _lowerBounds[variable].setLevel( level );
             _lowerBounds[partner].setBound( bound );
@@ -2730,10 +2730,6 @@ public:
         else
         {
             // 下界为负数时，也还是同时更新两者的下界,此时即使越界，也是更新回下界（负数），所以要乘ratio
-//            _lowerBounds[variable].setBound( bound );
-//            _lowerBounds[variable].setLevel( level );
-//            _lowerBounds[partner].setBound( bound );
-//            _lowerBounds[partner].setLevel( level );
 
             if (_reluPairs.isF(variable)) {     // 如果要更新的界限是f的，那么b就是 （ 1 / leakyRatio）* bound
                 _upperBounds[variable].setBound( bound );
@@ -2761,13 +2757,6 @@ public:
                 update( variable, bound - _assignment[variable], true );
             if ( !_basicVariables.exists( partner ) && outOfBounds( partner ) )
                 update( partner, bound - _assignment[partner], true );
-
-//            double leakyRatio = 0.4;
-//            // Violations are okay for basic, but need to update if non-basic
-//            if ( !_basicVariables.exists( b ) && outOfBounds( b ) )
-//                update( b, bound - _assignment[b], true );
-//            if ( !_basicVariables.exists( f ) && outOfBounds( f ) )
-//                update( f, leakyRatio * bound - _assignment[f], true );
 
             // The tableau has not changed
             return false;
@@ -2918,12 +2907,64 @@ public:
 
         // 兼具向_dissolvedReluVariables中添加的功能，
         markReluVariableDissolved( f, TYPE_MERGE );
+//        deleteIfJustItself();  //上面一行有过tableau的合并，可能会导致某些var的行只有它自己，跟其他变量不再有关系，所以要检测，删除这样的行
 
         log( "Tableau after unification:\n" );
         dump();
 
         return true;
     }
+
+    bool checkIfJustItself(){
+        // 首先，只有basic会在对角线上有-1，所以其实只需要遍历basic所在的行
+        Set<unsigned> basicSet = getBasicVariables();
+        Set<unsigned>::const_iterator itr;
+        for(itr = basicSet.begin(); itr != basicSet.end(); itr++){
+            bool eraseFlag = true;
+            // 遍历basic的一行
+            for (unsigned col = 0; col < _tableau.getNumVars(); col++) {
+                if ((*itr != col) && (  !FloatUtils::isZero(_tableau.getCell(*itr, col)) ) ){   //如果除了对角线上的地方还有其他地方有元素，
+                    // 如果这行中，有除了对角线元素以外的其他系数，就说明是正常的，跳出检测下一行
+                    eraseFlag = false;
+                    break;
+                } else if ((*itr == col) && (_tableau.getCell(*itr, col) != -1) ){  // 如果对角线上不等于-1，出错
+                    throw Error( Error::VARIABLE_NOT_BASIC );
+                }
+            }
+            if (eraseFlag) {    // 刚刚检查的一行只有对角线上一个元素为-1，所以是有问题的
+                printf("~~~~~checkIfJustItself(): the row %u is abnormal %s:%u\n", *itr, toName(*itr).ascii(), *itr);
+                return true;
+            }
+        }
+        // 检测完全部，发现都是正常的，就返回false
+        return false;
+    }
+
+
+    // add by lzs
+    void deleteIfJustItself(){
+        printf("\n~~~~~call deleteIfJustItself()\n");
+        // 首先，只有basic会在对角线上有-1，所以其实只需要遍历basic所在的行
+        Set<unsigned> basicSet = getBasicVariables();
+        Set<unsigned>::const_iterator itr;
+        for(itr = basicSet.begin(); itr != basicSet.end(); itr++){
+            bool eraseFlag = true;
+            for (unsigned col = 0; col < _tableau.getNumVars(); col++) {
+                if ((*itr != col) && (  !FloatUtils::isZero(_tableau.getCell(*itr, col)) ) ){   //如果除了对角线上的地方还有其他地方有元素，
+                    eraseFlag = false;
+                    break;
+                } else if ((*itr == col) && (_tableau.getCell(*itr, col) != -1) ){  // 如果对角线上不等于-1，出错
+                    throw Error( Error::VARIABLE_NOT_BASIC );
+                }
+            }
+            if (eraseFlag) {    // 只有对角线上一个元素为-1，所以要删除
+                printf("~~~~~ delete %s:%u\n", toName(*itr).ascii(), *itr);
+                _tableau.eraseRow(*itr);
+                _basicVariables.erase(*itr);
+            }
+        }
+    }
+
     // Return true iff the tableau changes
     bool unifyReluPair_temp( unsigned f )
     {
@@ -4102,10 +4143,9 @@ public:
         printf("~~~~~When finished, the relu variable be merged are the following:\n");
         for (unsigned i = 0; i < _numVariables; i++) {
             if (isDissolvedBVariable(i)) {
-                printf("~~~~~ %s : %u ", toName( i ).ascii(), i);
+                printf("~~~~~ %s : %u\n ", toName( i ).ascii(), i);
             }
         }
-        printf("\n");
     }
     // 判断某个变量是否是已经被求解了的，
     bool isDissolvedBVariable( unsigned variable ) const

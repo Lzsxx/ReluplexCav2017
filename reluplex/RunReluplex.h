@@ -339,8 +339,8 @@ public:
         _reluplex->markBasic( 7 );
         _reluplex->markBasic( 8 );
 
-        _reluplex->setLowerBound( 0, 0.9 );
-        _reluplex->setUpperBound( 0, 1.0 );
+        _reluplex->setLowerBound( 0, -2.0 );
+        _reluplex->setUpperBound( 0, 2.0 );
         _reluplex->setLowerBound( 5, 0.4 );
         _reluplex->setUpperBound( 5, 1.0 );
         _reluplex->setLowerBound( 6, 0.0 );
@@ -372,6 +372,93 @@ public:
         _reluplex->setLogging( true );
         _reluplex->setDumpStates( true );
 
+        //// add by lzs
+        /******** change! **********/
+        double **currentAdversaryE ;
+        unsigned num_Node = 1 + 1; //【不可修改，但要修改Reluplex里的solve的indexToVar部分】  输入层元素个数+输出层元素个数
+        unsigned num_AE = 0;    // 当前已取得的对抗样本数
+        unsigned total = 5; //【可修改】申请出来存放对抗样本的空间，想要多少个就为多少，不得小于num_Expected_AE
+        unsigned num_Expected_AE = 5;   //【可修改】单轮runner期望找到的对抗样本数
+
+        currentAdversaryE = new double*[total];
+        for (unsigned i = 0; i < total; i++) {
+            currentAdversaryE[i] = new double[num_Node];
+        }
+        //// add end
+
+        try
+        {
+            Reluplex::FinalStatus result = _reluplex->solve(currentAdversaryE, num_AE, num_Node, num_Expected_AE);
+            if ( result == Reluplex::SAT ){
+                printf( "\n*** Solved! ***\n" );
+
+                //// add by lzs
+                printf("\n\n===========================\n");
+                printf("Summary!!! printCurrentAE in main:SAT \n");
+                for (unsigned j = num_AE; j > 0; --j) {  //倒序输出，为了方便与上面比较，同时unsigned >=0恒为true，所以这里只>0,后面每次使用j时-1即可
+                    printf("\nThis is a adversial example: %u \n", num_AE - j + 1);
+                    for (unsigned k = 0; k < num_Node; ++k) {
+                        double assignment = currentAdversaryE[j-1][k];
+                        /**** change! 1 means inputLayerSize****/
+                        if( k < 1){ // 2
+                            printf( "input[%u] = %lf.\n", k, assignment );
+                        } else{
+                            printf( "output[%u] = %.10lf.\n", k, assignment );
+                        }
+                    }
+                    printf("\n-------------------------\n");
+                }
+                //// add end
+            } else if ( result == Reluplex::UNSAT ){
+                printf( "\n*** Can't Solve ***\n" );
+            } else if ( result == Reluplex::ERROR ){
+                printf( "Reluplex error!\n" );
+            } else if ( result == Reluplex::NOT_DONE){
+                printf( "Reluplex not done (quit called?)\n" );
+            }
+                /*** add by lzs ***/
+            else{
+                printf("\n----- printStatistics():Reluplex SAT But Then ... ----\n");
+                _reluplex->printStatistics();
+                printf("\n==========================\n");
+                printf("Summary!!! printCurrentAE in main: other result \n");
+                for (unsigned j = num_AE; j > 0; --j) {  //倒序输出，为了方便与上面比较，同时unsigned >=0恒为true，所以这里只>0,后面每次使用j时-1即可
+                    printf("\nThis is a adversial example: %u \n", num_AE - j + 1);
+                    for (unsigned k = 0; k < num_Node; ++k) {
+                        double assignment = currentAdversaryE[j-1][k];
+                        /**** change! 1 means inputLayerSize****/
+                        if( k < 1){ // 2
+                            printf( "input[%u] = %lf.\n", k, assignment );
+                        } else{
+                            printf( "output[%u] = %.10lf.\n", k, assignment );
+                        }
+                    }
+                    printf("\n-------------------------\n");
+                }
+            }
+            /*** add end ***/
+        }
+        catch ( const Error &e )
+        {
+            if ( e.code() == Error::STACK_IS_EMPTY )
+                printf( "\n*** Can't Solve (STACK EMPTY) ***\n" );
+            else if ( e.code() == Error::UPPER_LOWER_INVARIANT_VIOLATED )
+                printf( "\n*** Can't Solve (UPPER_LOWER_INVARIANT_VIOLATED) ***\n" );
+            else
+            {
+                throw e;
+            }
+        }
+    }
+    void go_temp()
+    {
+        // Choose between the 2 available examples
+//        example1();
+        example1_leaky();
+
+        _reluplex->setLogging( true );
+        _reluplex->setDumpStates( true );
+
         try
         {
             Reluplex::FinalStatus result = _reluplex->solve();
@@ -395,6 +482,33 @@ public:
                 throw e;
             }
         }
+    }
+    void print_result(Reluplex::FinalStatus result){
+        switch ( result )
+        {
+            case Reluplex::SAT:
+                printf("Reluplex::SAT \n");
+                break;
+            case Reluplex::UNSAT:
+                printf("Reluplex::UNSAT \n");
+                break;
+            case Reluplex::ERROR:
+                printf("Reluplex::ERROR \n");
+                break;
+            case Reluplex::NOT_DONE:
+                printf("Reluplex::NOT_DONE \n");
+                break;
+            case Reluplex::SAT_BUT_THEN_UNSAT:
+                printf("Reluplex::SAT_BUT_THEN_UNSAT \n");
+                break;
+            case Reluplex::SAT_BUT_THEN_ERROR:
+                printf("Reluplex::SAT_BUT_THEN_ERROR \n");
+                break;
+            case Reluplex::SAT_BUT_THEN_NOT_DONE:
+                printf("Reluplex::SAT_BUT_THEN_NOT_DONE \n");
+                break;
+        }
+
     }
 
 private:
