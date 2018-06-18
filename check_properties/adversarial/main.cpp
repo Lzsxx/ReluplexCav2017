@@ -329,6 +329,8 @@ bool advMain( int argc, char **argv, unsigned inputPoint, double inputDelta, uns
 
     // Set bounds for the output slack var. It's minimal - runnerUp,
     // so we want it to be positive - i.e., runner up scored lower.
+    // outputSlackVar是添加大于、小于比较的辅助变量
+
     reluplex.setLowerBound( outputSlackVar, 0.0 );
     reluplex.markBasic( outputSlackVar );
 

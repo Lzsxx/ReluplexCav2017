@@ -2,14 +2,14 @@
 修改支持的激励函数为leakyRelu, 在Reluplex()构造完成以后，调用对象的setLeakyRelu来设置leakyRelu的值
 注：此时已经不支持relu函数，虽然这是一个子问题，但此时还没做好兼容
 
-#### 在4.0的基础上，增加了可以找到多个adversarial example
+#### 在4.0的基础上，增加了可以找到多个adversarial example，在/reluplex/RunReluplex.h可以运行简单的测试case，但是不能checkmynet
 
 
 
 *** Reluplex, May 2017 ***
 
 This repository contains the proof-of-concept implementation of the
-Reluplex algorithm, as described in the paper:
+Reluplex algorithm, as described in the paper:d
 
    G. Katz, C. Barrett, D. Dill, K. Julian and
    M. Kochenderfer. Reluplex: An Efficient SMT Solver for Verifying

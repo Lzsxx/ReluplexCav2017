@@ -702,10 +702,31 @@ public:
         return _finalStatus;
     }
 
+    void printBounds(){
+        printf("\n~~~~~printBounds()\n");
+        for (unsigned i = 0; i < _numVariables; i++) {
+            printf("the var : %u \t", i);
+            if ( _lowerBounds[i].finite() ){
+                printf("_lowerBounds : %5.2lf \t", _lowerBounds[i].getBound());
+            } else{
+                printf("infinite \t");
+            }
+
+            if ( _upperBounds[i].finite() ){
+                printf("_upperBounds : %5.2lf \t", _upperBounds[i].getBound());
+            }
+            else{
+                printf("infinite\t");
+            }
+            printf("\n");
+        }
+    }
     FinalStatus solve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
     {
         timeval start = Time::sampleMicro();
         timeval end;
+
+        printBounds();
 
         try
         {
@@ -3747,104 +3768,7 @@ public:
         return true;
     }
 
-
     bool findPivotCandidate( unsigned variable, bool increase, unsigned &pivotCandidate,
-                             bool ensureNumericalStability = true )
-    {
-        const Tableau::Entry *rowEntry = _tableau.getRow( variable );
-        const Tableau::Entry *current;
-
-        unsigned column;
-
-        bool found = false;
-        unsigned leastEvilNonBasic = 0;
-        double leastEvilWeight = 0.0;
-
-        while ( rowEntry != NULL )
-        {
-            current = rowEntry;
-            rowEntry = rowEntry->nextInRow();
-
-            column = current->getColumn();
-
-            // Ignore self
-            if ( column == variable )
-                continue;
-
-
-            const double coefficient = current->getValue();
-            bool positive = FloatUtils::isPositive( coefficient );
-
-            // increase表示是否越下界，若是则为true ,需要增加 , basic变量BELOW_LB
-            // !increase表示不越下界，那么就是 AT_LB,BETWEEN，AT_UB,ABOVE_UB
-            // canIncrease()表示一定是小于上界的，不会大于也不会等于，根据变量此时的状态判断是否可以再继续增大值，如果是越下界BELOW_LB、等于下界AT_LB、上下界之间BETWEEN，则返回ture
-            // canDecrease()表示一定是大于下界的，不会大于也不会等于，与上相反，如果是越上界ABOVE_UB，等于上界AT_UB、上下界之间BETWEEN，则返回true
-
-            // 总结：1、原basic越下界<、系数为正、且这个变量的value可以被增加
-            // 2、原basic越下界<、系数为负，且这个变量的value可以被减少
-            // 3、原basic非越下界>=（大于等于下界都可以，可能越上界，也可能不越）、系数为正、value可以被减少
-            // 4、原basic非越下界>=、系数为负，value可以被增加
-            // 有以上4种情况的变量，可以进入下一步，否则就意味着当前变量不满足paper中slack的要求，退出此次循环查找下一个
-
-            // 这里其实只要大致方向对就OK，即以下界为分割点，只要小于下界，那么就只能进行加正和减负操作
-            // 只要大于等于下界，那么就可以进行减正和加负操作，
-            // 我们并不保证操作后的non-basic(即将变成新basic)一定在范围内，
-            // 如果小于下界，可能加正、减负之后还是小于下界，如果大于等于下界，可能减正、加负之后会小于下界或仍然大于上界，
-            // 但此时并不考虑这些，只考虑运算的演进方向是对的
-            // 所以如果初始化时，一个辅助变量在左边的等式，如果找不到可以变换的值，那么单纯形法就要报错，因为最终辅助变量都是要变换到右边设值为0的
-
-            if ( !( ( increase && ( positive ) && canIncrease( column ) ) ||
-                    ( increase && ( !positive ) && canDecrease( column ) ) ||
-                    ( !increase && ( positive ) && canDecrease( column ) ) ||
-                    ( !increase && ( !positive ) && canIncrease( column ) ) ) )
-            {
-                // The variable does not fit the direction we need.
-                continue;
-            }
-
-//            if ( _reluPairs.isRelu( column ) )
-//            {
-//                // The variable is relu.
-//                unsigned partner = _reluPairs.toPartner( column );
-////                unsigned f = _reluPairs.isF( column ) ? column : partner;
-////                unsigned b = _reluPairs.isB( column ) ? column : partner;
-//                if (_dissolvedReluVariables.exists(column) || _dissolvedReluVariables.exists(partner)) {
-//                    continue;
-//                }
-//            }
-
-            double weight = FloatUtils::abs( coefficient );
-
-            // 默认值为true,但是传入值为false,一定会进入if,返回true
-            // ensureNumericalStability是指是否需要保证数字的稳定性，因为当数字太小时，由于计算机固有误差，会近似等于0
-            // 而此时刚刚开始进行计算，传入false,可以忽略这一要求，保证在满足slack条件的情况下一定能找到pivot候选者
-            if ( !ensureNumericalStability || FloatUtils::gte( weight, NUMBERICAL_INSTABILITY_CONSTANT ) )
-            {
-                pivotCandidate = column;
-                return true;
-            }
-
-            // Have a candidate with a small pivot coefficient
-            // 如果找到了一个候选者，但是它的值非常小，先将第一个记录下来，再进行后续比较，如果后续还发现了符合条件，而权重值更大的pivot候选者，就更新least记录
-            found = true;
-            if ( FloatUtils::gt( weight, leastEvilWeight ) )
-            {
-                leastEvilWeight = weight;
-                leastEvilNonBasic = column;
-            }
-        }
-        // 在遍历完所有变量之后，least中记录的是权重值最大的候选者，将其返回
-        if ( found )
-        {
-            log( Stringf( "findPivotCandidate: forced to pick a bad candidate! Weight = %lf\n", leastEvilWeight ) );
-            pivotCandidate = leastEvilNonBasic;
-            return true;
-        }
-
-        // 没找到pivot候选者
-        return false;
-    }
-    bool findPivotCandidate_temp( unsigned variable, bool increase, unsigned &pivotCandidate,
                              bool ensureNumericalStability = true )
     {
         const Tableau::Entry *rowEntry = _tableau.getRow( variable );
@@ -4041,11 +3965,14 @@ public:
 //        printStatistics();
 
 		// 不懂
+        dump();
         for ( const auto &basic : _basicVariables )
             makeAllBoundsFiniteOnRow( basic );
 
         countVarsWithInfiniteBounds();
         log( Stringf( "makeAllBoundsFinite -- Done (%u vars with infinite bounds)\n", _varsWithInfiniteBounds ) );
+        printBounds();
+
 //        printf("\n----- printStatistics() ----\n");
 //        printStatistics();
 
@@ -4055,6 +3982,7 @@ public:
 
     void makeAllBoundsFiniteOnRow( unsigned basic )
     {
+        printf("~~~~basic: %u\n", basic);
 		// 取得当前basic变量的row入口
         const Tableau::Entry *row = _tableau.getRow( basic );
         const Tableau::Entry *tighteningVar = NULL;
@@ -4063,6 +3991,7 @@ public:
 		// 如果有多个，报错
         while ( row != NULL )
         {
+            printf("~~~~row->getColumn(): %u\n", row->getColumn());
 
             if ( !_upperBounds[row->getColumn()].finite() || !_lowerBounds[row->getColumn()].finite() )
             {

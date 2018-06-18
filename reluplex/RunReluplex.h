@@ -339,10 +339,10 @@ public:
         _reluplex->markBasic( 7 );
         _reluplex->markBasic( 8 );
 
-        _reluplex->setLowerBound( 0, -2.0 );
-        _reluplex->setUpperBound( 0, 2.0 );
-        _reluplex->setLowerBound( 5, 0.4 );
-        _reluplex->setUpperBound( 5, 1.0 );
+        _reluplex->setLowerBound( 0, 0.6 );
+        _reluplex->setUpperBound( 0, 1.0 );
+        _reluplex->setLowerBound( 5, 0.2 );
+        _reluplex->setUpperBound( 5, 0.3 );
         _reluplex->setLowerBound( 6, 0.0 );
         _reluplex->setUpperBound( 6, 0.0 );
         _reluplex->setLowerBound( 7, 0.0 );
@@ -350,14 +350,14 @@ public:
         _reluplex->setLowerBound( 8, 0.0 );
         _reluplex->setUpperBound( 8, 0.0 );
 
-        _reluplex->setLowerBound( 1, -9.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
-        _reluplex->setUpperBound( 1, 9.0 );
-        _reluplex->setLowerBound( 2, -9.0 );
-        _reluplex->setUpperBound( 2, 9.0 );
-        _reluplex->setLowerBound( 3, -9.0 );
-        _reluplex->setUpperBound( 3, 9.0 );
-        _reluplex->setLowerBound( 4, -9.0 );
-        _reluplex->setUpperBound( 4, 9.0 );
+        _reluplex->setLowerBound( 1, -9999.0 );    // 为了例子简便，用-9表示负无穷，+9表示正无穷
+        _reluplex->setUpperBound( 1, 9999.0 );
+        _reluplex->setLowerBound( 2, -9999.0 );
+        _reluplex->setUpperBound( 2, 9999.0 );
+        _reluplex->setLowerBound( 3, -9999.0 );
+        _reluplex->setUpperBound( 3, 9999.0 );
+        _reluplex->setLowerBound( 4, -9999.0 );
+        _reluplex->setUpperBound( 4, 9999.0 );
 
         _reluplex->setReluPair( 1, 2 );
         _reluplex->setReluPair( 3, 4 );
