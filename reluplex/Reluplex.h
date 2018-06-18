@@ -613,10 +613,32 @@ public:
         return Reluplex::SAT;
     }
 
+    void printBounds(){
+        printf("\n~~~~~printBounds()\n");
+        for (unsigned i = 0; i < _numVariables; i++) {
+            printf("the var : %u \t", i);
+            if ( _lowerBounds[i].finite() ){
+                printf("_lowerBounds : %5.2lf \t", _lowerBounds[i].getBound());
+            } else{
+                printf("infinite \t");
+            }
+
+            if ( _upperBounds[i].finite() ){
+                printf("_upperBounds : %5.2lf \t", _upperBounds[i].getBound());
+            }
+            else{
+                printf("infinite\t");
+            }
+            printf("\n");
+        }
+    }
+
     FinalStatus solve(double **currentAdversaryE, unsigned &num_AE, unsigned &num_Node, unsigned &num_Expected_AE )
     {
         timeval start = Time::sampleMicro();
         timeval end;
+
+        printBounds();
 
         try
         {

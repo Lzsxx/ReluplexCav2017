@@ -780,8 +780,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
         reluplex.setUpperBound( nodeToVars[Index(0, i, true)], max );
     }
 
-    /****** 设置表示大于或者小于目标值的约束，通过设置下界为0，保证minimalVar-runnerUp > 0,可以找到比minimal更小的输出（如果存在的话） ********/
-    /***** 如果将下界改为设置上界为0，就可以找到比maximal大的例子*******/
+    /****** 设置表示大于或者小于目标值的约束，通过设置下界为0，保证minimalVar-runnerUp >= 0,可以找到比minimal更小的输出（如果存在的话） ********/
+    /***** 如果将下界改为设置上界为0，maximal - runnerUp <= 0 就可以找到比maximal大的例子，这里要配合后面的InitializeCell()设置runnerUp的系数为-1*******/
+    // outputSlackVar是添加大于、小于比较的辅助变量
     reluplex.setUpperBound( outputSlackVar, 0.0 );
     reluplex.markBasic( outputSlackVar );
 
@@ -835,6 +836,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                           neuralNetwork.getWeight( layer, source, target ) );
             }
 
+            // 网络的每一层在传递往下一层时，除了节点部分的计算，还要加上一个Bias，这里用一个值固定为1的constantVar来与每一行的变量做出联系，写入那个bias值
+            // 联系主要为从上一层的f到下一层的b,这样在计算时会一起加上这个bias
+            // 注意：这里的值是固定值1，而实际是用系数来表示bias
             // Add the bias via the constant var
             reluplex.initializeCell( auxVar,
                                      constantVar,
@@ -854,11 +858,11 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
     printf("\nrunnerUp Information: ");
     printf("\nmaximalIndex: %u, maximalVar: %u ",maximal, maximalVar);
     printf("\nrunnerUpIndex: %u, runnerUpVar: %u ",runnerUp, runnerUpVar);
-    printf("\noutputSlackVar: %u \n",outputSlackVar);
+    printf("\noutputSlackVar（the aux of the additional compare formula）: %u \n",outputSlackVar);
     reluplex.printTableauRow(outputSlackVar);
 
     reluplex.setLogging(false );
-    reluplex.setDumpStates(false );
+    reluplex.setDumpStates(true );
     reluplex.toggleAlmostBrokenReluEliminiation( false );
 
     timeval start = Time::sampleMicro();
@@ -878,7 +882,6 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
     for (unsigned i = 0; i < total; i++) {
         currentAdversaryE[i] = new double[num_Node];
     }
-
     //// add end
 
     try
@@ -896,7 +899,6 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
         {
             printf("nodeToVars[Index(0, %u, true)] : %u \n", i, nodeToVars[Index(numLayersInUse - 1, i, false)]);
         }
-
 
         Reluplex::FinalStatus result = reluplex.solve(currentAdversaryE, num_AE, num_Node, num_Expected_AE);
         if ( result == Reluplex::SAT )
