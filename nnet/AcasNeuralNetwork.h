@@ -115,6 +115,33 @@ public:
         }
     }
 
+    // add by lzs
+    void evaluate_leaky(double leakyValue, const Vector<double> &inputs, Vector<double> &outputs, unsigned outputSize ) const
+    {
+        double input[inputs.size()];
+        double output[outputSize];
+
+        memset( input, 0, num_inputs( _network ) );
+        memset( output, 0, num_outputs( _network ) );
+
+        for ( unsigned i = 0; i < inputs.size();  ++i )
+            input[i] = inputs.get( i );
+
+        bool normalizeInput = false;
+        bool normalizeOutput = false;
+
+        if ( evaluate_network_leaky(leakyValue, _network, input, output, normalizeInput, normalizeOutput ) != 1 )
+        {
+            std::cout << "Error! Network evaluation failed" << std::endl;
+            exit( 1 );
+        }
+
+        for ( unsigned i = 0; i < outputSize; ++i )
+        {
+            outputs.append( output[i] );
+        }
+    }
+
     NNet *_network;
 };
 

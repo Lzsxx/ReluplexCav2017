@@ -349,6 +349,144 @@ int evaluate_network(void *network, double *input, double *output, bool normaliz
     return 1;
 }
 
+int evaluate_network_leaky(double leakyValue, void *network, double *input, double *output, bool normalizeInput, bool normalizeOutput)
+{
+    bool printFlag = false;
+
+    int i,j,layer;
+    if (network ==NULL)
+    {
+        printf("Data is Null!\n");
+        return -1;
+    }
+
+    //Cast void* to NNet struct pointer
+    NNet *nnet = static_cast<NNet*>(network);
+    int numLayers    = nnet->numLayers;     // 比总层数少1
+    int inputSize    = nnet->inputSize;
+    int outputSize   = nnet->outputSize;
+    int symmetric    = nnet->symmetric;
+
+    double ****matrix = nnet->matrix;
+
+    //Normalize inputs
+
+    if ( normalizeInput )
+    {
+        for (i=0; i<inputSize;i++)
+        {
+            if (input[i]>nnet->maxes[i])
+            {
+                nnet->inputs[i] = (nnet->maxes[i]-nnet->means[i])/(nnet->ranges[i]);
+            }
+            else if (input[i]<nnet->mins[i])
+            {
+                nnet->inputs[i] = (nnet->mins[i]-nnet->means[i])/(nnet->ranges[i]);
+            }
+            else
+            {
+                nnet->inputs[i] = (input[i]-nnet->means[i])/(nnet->ranges[i]);
+            }
+        }
+        if (symmetric==1 && nnet->inputs[2]<0)
+        {
+            nnet->inputs[2] = -nnet->inputs[2]; //Make psi positive
+            nnet->inputs[1] = -nnet->inputs[1]; //Flip across x-axis
+        } else {
+            symmetric = 0;
+        }
+    }
+    else
+    {
+        for (i=0; i<inputSize;i++)
+            nnet->inputs[i] = input[i];
+    }
+
+    double tempVal;
+    printf("number of layers in nnet.cpp = %u\n", numLayers);
+
+    for (layer = 0; layer<(numLayers); layer++)     //循环为0~6，第7层为output，所以不进入计算
+    {
+        if (printFlag){
+            printf("\nwhen compute layer[%u] to layer[%u]\n", layer, layer + 1);
+        }
+        for (i=0; i < nnet->layerSizes[layer+1]; i++)   //第0层时，输出维度要看下一层的节点数，所以取nnet->layerSizes[layer+1]
+        {
+            double **weights = matrix[layer][0];
+            double **biases  = matrix[layer][1];
+            tempVal = 0.0;
+
+            //Perform weighted summation of inputs
+            if (printFlag){
+                printf("\ncompute layer: %u, node : %u\n", layer + 1, i);
+            }
+            for (j=0; j<nnet->layerSizes[layer]; j++)
+            {
+                tempVal += nnet->inputs[j]*weights[i][j];
+                if (printFlag){
+                    printf("%.10lf *= %.10lf * %.10lf \n",tempVal, nnet->inputs[j], weights[i][j]);
+                }
+            }
+
+            //Add bias to weighted sum
+            if (printFlag){
+                printf("tempVal = %.10lf + %.10lf(biases), \n",tempVal, biases[i][0]);
+                tempVal += biases[i][0];
+                printf("now the tempVal = %.10lf \n",tempVal);
+            } else{
+                tempVal += biases[i][0];
+            }
+
+            //Perform ReLU
+            if (tempVal<0.0 && layer<(numLayers-1))
+            {
+                // printf( "doing RELU on layer %u\n", layer );
+//                tempVal = 0.0;
+                tempVal = leakyValue * tempVal;
+                if (printFlag){
+                    printf("ReLU !!! in layer: %u, node : %u, its linear result is negative,so set it to 0\n", layer + 1, i);
+                }
+            }
+            nnet->temp[i]=tempVal;
+        }
+
+        //Output of one layer is the input to the next layer
+        if (printFlag){
+            printf("\nnow we get all result in layer: %u\n", layer + 1);
+        }
+        for (i=0; i < nnet->layerSizes[layer+1]; i++)
+        {
+            nnet->inputs[i] = nnet->temp[i];
+            if (printFlag){
+                printf("\tnode: %u, val: %.10lf\n", i, nnet->temp[i]);
+            }
+        }
+    }
+
+    //Write the final output value to the allocated spot in memory
+    for (i=0; i<outputSize; i++)
+    {
+        if ( normalizeOutput )
+            output[i] = nnet->inputs[i]*nnet->ranges[nnet->inputSize]+nnet->means[nnet->inputSize];
+        else
+            output[i] = nnet->inputs[i];
+    }
+
+    //If symmetric, switch the Qvalues of actions -1.5 and 1.5 as well as -3 and 3
+    if (symmetric == 1)
+    {
+        double tempValue = output[1];
+        output[1] = output[2];
+        output[2] = tempValue;
+        tempValue = output[3];
+        output[3] = output[4];
+        output[4] = tempValue;
+    }
+
+    //Return 1 for success
+    return 1;
+}
+
 //Return the number of inputs to a network
 //Inputs: void *network - pointer to a network struct
 //Output: int - number of inputs to the network, -1 if the network is NULL

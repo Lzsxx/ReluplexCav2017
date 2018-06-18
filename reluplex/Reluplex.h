@@ -795,9 +795,14 @@ public:
                     alreadySAT = true;
                     Map<unsigned, unsigned> indexToVar;
                     /******** change! **********/
-                    unsigned inputLayerSize = 1;
+                    unsigned inputLayerSize = 4;
                     indexToVar[0] = 0;
-                    indexToVar[1] = 5;
+                    indexToVar[1] = 1;
+                    indexToVar[2] = 2;
+                    indexToVar[3] = 3;
+                    indexToVar[4] = 28;    //
+                    indexToVar[5] = 29;
+                    indexToVar[6] = 30;
                     /******* change end ******/
 
                     for (unsigned c = 0; c < num_Node; c++) {
@@ -3982,7 +3987,7 @@ public:
 
     void makeAllBoundsFiniteOnRow( unsigned basic )
     {
-        printf("~~~~basic: %u\n", basic);
+//        printf("~~~~basic: %u\n", basic);
 		// 取得当前basic变量的row入口
         const Tableau::Entry *row = _tableau.getRow( basic );
         const Tableau::Entry *tighteningVar = NULL;
@@ -3991,7 +3996,7 @@ public:
 		// 如果有多个，报错
         while ( row != NULL )
         {
-            printf("~~~~row->getColumn(): %u\n", row->getColumn());
+//            printf("~~~~row->getColumn(): %u\n", row->getColumn());
 
             if ( !_upperBounds[row->getColumn()].finite() || !_lowerBounds[row->getColumn()].finite() )
             {

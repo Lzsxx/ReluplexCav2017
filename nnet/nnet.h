@@ -37,4 +37,5 @@ extern "C" NNet *load_network(const char *filename);
 extern "C" int   num_inputs(void *network);
 extern "C" int   num_outputs(void *network);
 extern "C" int   evaluate_network(void *network, double *input, double *output, bool normalizeInput, bool normalizeOutput);
+extern "C" int   evaluate_network_leaky(double leakyValue, void *network, double *input, double *output, bool normalizeInput, bool normalizeOutput);
 extern "C" void  destroy_network(NNet *network);

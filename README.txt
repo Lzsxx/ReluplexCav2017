@@ -1,10 +1,17 @@
-4.1版本，主要运行代码在/reluplex/RunReluplex.h，（不用管/check_properities/xxx/main.cpp部分的代码）
-修改支持的激励函数为leakyRelu, 在Reluplex()构造完成以后，调用对象的setLeakyRelu来设置leakyRelu的值
-注：此时已经不支持relu函数，虽然这是一个子问题，但此时还没做好兼容
-
-#### 在4.0的基础上，增加了可以找到多个adversarial example，在/reluplex/RunReluplex.h可以运行简单的测试case，但是不能checkmynet
+4.2版本，主要运行代码在/check_properities/checkmynet/main.cpp
+/checkmynet里放的是iris的leakyRelu版本
 
 
+#### 更换case需要修改的代码：查找被 change! 注释的地方，存在于check_properities/xxx/main.cpp和/reluplex/reluplex.h文件中
+- reluplex.h需要修改input层的个数，并且找到input节点和output节点的下标，填入数组中
+- 2xxx/main.cpp中，首先是网络参数的地址
+- 预设input层的值
+- 申请给对抗样本的空间数、希望找到的对抗样本数
+- leakyRelu的值
+- 选择代表input层的点，设置delta
+- 设置runner的轮数，一般是input层的node个数-1
+
+另外，还在/nnet的3个cpp和h文件里添加的evaluate leaky相关的函数，但只是添加，没有修改，对原有函数的调用无影响
 
 *** Reluplex, May 2017 ***
 
