@@ -1100,7 +1100,7 @@ int main( int argc, char **argv )
 //            while ( ( !sat ) && ( i < 4 ) )
 
             /******** change! **********/
-            while ( i < 2 )     // modify by lzs  // 注：4根据input的个数修改，值为input-1
+            while ( i < 2 )     // modify by lzs  // 注：4根据output的个数修改，值为output-1
             {
                 printf( "Performing test for point %u, delta = %.5lf, part %u\n", point, delta, i + 1 );
                 sat = advMain_maximal( argc, argv, point, delta, i );

@@ -2180,7 +2180,9 @@ public:
         }
         else
         {
-            // Non-positive bound.
+            // Negative bound.
+            // 用于检测要更新的var是不是f，如果是f，那么relu要求它是大于等于0的，上界不能为负，所以这里的if是为了检测出这种情况，
+            // 及时抛出错误或退出
             if ( FloatUtils::isNegative( bound ) && _reluPairs.isF( variable ) )
             {
                 _upperBounds[variable].setBound( bound );
