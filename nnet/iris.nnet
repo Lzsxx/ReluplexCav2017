@@ -3,8 +3,8 @@
 //- 0,    // 是否对称，1表示对称，0 表示不对称
 //- xxx   //Load Min  values of inputs
 //- xxx   //Load Max values of inputs
-//- xxx   // Load Mean of inputs
-//- xxx   // Load Range of inputs
+//- xxx   // Load Mean of inputs,这里的值个数一定会比inputSize的大小多1，是用来存放用于标准化output的参数的，但感觉目前暂时不需要对输出做任何标准化
+//- xxx   // Load Range of inputs，最后一个值同上
 3,4,3,8,
 4,8,8,3,
 0,
