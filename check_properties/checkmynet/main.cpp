@@ -21,7 +21,11 @@
 //const char *FULL_NET_PATH = "./nnet/ACASXU_run2a_1_1_batch_2000.nnet";
 
 /******** change! **********/
-const char *FULL_NET_PATH = "./nnet/iris_leakyrelu.nnet";
+//bool normalFlag = false;
+//const char *FULL_NET_PATH = "./nnet/iris_leakyrelu_unnormalize.nnet";
+bool normalFlag = true;
+const char *FULL_NET_PATH = "./nnet/iris_leakyrelu_normalize.nnet";
+
 //Vector<double> inputsTemp = { 5.84, 3.0, 3.75, 1.2 };   // 分类为1，（从0开始，0,1,2
 
 struct Index
@@ -68,6 +72,11 @@ double normalizeInput( unsigned inputIndex, double value, AcasNeuralNetwork &neu
 
 double unnormalizeInput( unsigned inputIndex, double value, AcasNeuralNetwork &neuralNetwork )
 {
+    // add by lzs : 如果没有进行过标准化，那么这里输出的是正常值
+    if (!normalFlag) {
+        return value;
+    }
+    // add end
     double mean = neuralNetwork._network->means[inputIndex];
     double range = neuralNetwork._network->ranges[inputIndex];
 
@@ -98,8 +107,11 @@ void getFixedInputs( Vector<double> &fixedInputs, unsigned pointToUse )
     {
         /******** change! **********/
         case 0:
-        fixedInputs = { 5.84, 3.0, 3.75, 1.2 }; // 分类为1，（从0开始，0,1,2
-//        fixedInputs = { 0, 0, 0, 0, 0 };
+            if (normalFlag) {
+                fixedInputs = { -0.2, 0.1, -0.4, -0.4  }; // 分类为1，（从0开始，0,1,2
+            } else{
+                fixedInputs = {5.1, 3.4, 1.5, 0.2};
+            }
         break;
     case 1:
         fixedInputs = { 0.2, -0.1, 0, -0.3, 0.4 };
@@ -678,7 +690,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
     printf( "Inputs are: \n" );
     for ( unsigned i = 0; i < fixedInputs.size(); ++i )
     {
-        printf( "\tinput[%u] = %lf\n", i, fixedInputs[i] );
+//        printf( "\tinput[%u] = %lf\n", i, fixedInputs[i] );
+        printf( "input[%u] = %lf. Non-Normalized: %1f. \n", i, fixedInputs[i], unnormalizeInput(i, fixedInputs[i], neuralNetwork) );
+
     }
 
     printf( "Outputs are: \n" );
@@ -759,25 +773,35 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
     // Set bounds for inputs
     for ( unsigned i = 0; i < inputLayerSize ; ++i )
     {
-//        double realMax =
-//                ( neuralNetwork._network->maxes[i] - neuralNetwork._network->means[i] )
-//                / ( neuralNetwork._network->ranges[i] );
-//        double realMin =
-//                ( neuralNetwork._network->mins[i] - neuralNetwork._network->means[i] )
-//                / ( neuralNetwork._network->ranges[i] );
+        if (normalFlag) {
+            double realMax =
+                    ( neuralNetwork._network->maxes[i] - neuralNetwork._network->means[i] )
+                    / ( neuralNetwork._network->ranges[i] );
+            double realMin =
+                    ( neuralNetwork._network->mins[i] - neuralNetwork._network->means[i] )
+                    / ( neuralNetwork._network->ranges[i] );
 
-        double min = fixedInputs[i] - inputDelta;
-//        if ( min < realMin )
-//            min = realMin;
+            double min = fixedInputs[i] - inputDelta;   // just this if not normalize
+            if ( min < realMin )
+                min = realMin;
 
-        double max = fixedInputs[i] + inputDelta;
-//        if ( max > realMax )
-//            max = realMax;
+            double max = fixedInputs[i] + inputDelta;    // just this if not normalize
+            if ( max > realMax )
+                max = realMax;
 
-        printf( "Bounds for input %u: [ %.10lf, %.10lf ]\n", i, min, max );
+            printf( "Bounds for input %u: [ %.10lf, %.10lf ]\n", i, min, max );
 
-        reluplex.setLowerBound( nodeToVars[Index(0, i, true)], min );
-        reluplex.setUpperBound( nodeToVars[Index(0, i, true)], max );
+            reluplex.setLowerBound( nodeToVars[Index(0, i, true)], min );
+            reluplex.setUpperBound( nodeToVars[Index(0, i, true)], max );
+        } else {
+            double min = fixedInputs[i] - inputDelta;   // just this if not normalize
+            double max = fixedInputs[i] + inputDelta;    // just this if not normalize
+            printf( "Bounds for input %u: [ %.10lf, %.10lf ]\n", i, min, max );
+
+            reluplex.setLowerBound( nodeToVars[Index(0, i, true)], min );
+            reluplex.setUpperBound( nodeToVars[Index(0, i, true)], max );
+        }
+
     }
 
     /****** 设置表示大于或者小于目标值的约束，通过设置下界为0，保证minimalVar-runnerUp > 0,可以找到比minimal更小的输出（如果存在的话） ********/
@@ -795,10 +819,10 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
 
             reluplex.setReluPair( b, f );
 //            reluplex.setLowerBound( f, 0.0 );
-            reluplex.setLowerBound( f, -9999.0 );
-            reluplex.setUpperBound( f, 9999.0 );
-            reluplex.setLowerBound( b, -9999.0 );
-            reluplex.setUpperBound( b, 9999.0 );
+            reluplex.setLowerBound( f, -999999999.0 );
+            reluplex.setUpperBound( f, 999999999.0 );
+            reluplex.setLowerBound( b, -999999999.0 );
+            reluplex.setUpperBound( b, 999999999.0 );
 
         }
     }
@@ -929,7 +953,7 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
             }
 
             printf( "\nOutput using nnet.cpp:\n" );
-            // change by lzs
+            // changed by lzs
             neuralNetwork.evaluate_leaky( leakyValue, inputs, outputs, outputLayerSize );
             unsigned i = 0;
             for ( const auto &output : outputs )
@@ -962,7 +986,8 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                     double assignment = currentAdversaryE[j-1][k];
                     if( k < inputLayerSize){ //5
 //                        printf( "input[%u] = %lf. Normalized: %lf.\n", k, unnormalizeInput( k, assignment, neuralNetwork ), assignment );
-                        printf( "input[%u] = %lf. \n", k, assignment );
+//                        printf( "input[%u] = %lf. \n", k, assignment );
+                        printf( "input[%u] = %lf. Non-Normalized: %1f. \n", k, assignment, unnormalizeInput(k, assignment, neuralNetwork) );
 
                         inputs.append( assignment );
 
@@ -973,7 +998,7 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                     }
                 }
                 printf( "\nOutput using nnet.cpp:\n" );
-                // change by lzs
+                // changed by lzs
                 neuralNetwork.evaluate_leaky( leakyValue, inputs, outputs, outputLayerSize );
                 unsigned b = inputLayerSize;     // 5
                 for ( const auto &output : outputs )
@@ -1029,7 +1054,9 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                     double assignment = currentAdversaryE[j-1][k];
                     if( k < inputLayerSize){ //5
 //                        printf( "input[%u] = %lf. Normalized: %lf.\n", k, unnormalizeInput( k, assignment, neuralNetwork ), assignment );
-                        printf( "input[%u] = %lf. \n", k, assignment );
+//                        printf( "input[%u] = %lf. \n", k, assignment );
+                        printf( "input[%u] = %lf. Non-Normalized: %1f. \n", k, assignment, unnormalizeInput(k, assignment, neuralNetwork) );
+
                         inputs.append( assignment );
 
                     } else{
@@ -1038,7 +1065,7 @@ bool advMain_maximal( int argc, char **argv, unsigned inputPoint, double inputDe
                     }
                 }
                 printf( "\nOutput using nnet.cpp:\n" );
-                neuralNetwork.evaluate( inputs, outputs, outputLayerSize );
+                neuralNetwork.evaluate_leaky(leakyValue, inputs, outputs, outputLayerSize );
                 unsigned b = inputLayerSize;
                 for ( const auto &output : outputs )
                 {
@@ -1092,7 +1119,7 @@ int main( int argc, char **argv )
     sigaction( SIGQUIT, &sa, NULL );
     /******** change! **********/
     List<unsigned> points = { 0 };  // 表示一组点
-    List<double> deltas = { 1 };    // 表示一组delta，而不是每个相同
+    List<double> deltas = { 0.2 };    // 表示一组delta，而不是每个相同
 
     for ( const auto &point : points )
     {

@@ -266,7 +266,6 @@ int evaluate_network(void *network, double *input, double *output, bool normaliz
     }
 
     double tempVal;
-     printf("number of layers in nnet.cpp = %u\n", numLayers);
 
     for (layer = 0; layer<(numLayers); layer++)     //循环为0~6，第7层为output，所以不进入计算
     {
@@ -329,7 +328,7 @@ int evaluate_network(void *network, double *input, double *output, bool normaliz
     for (i=0; i<outputSize; i++)
     {
         if ( normalizeOutput )
-            output[i] = nnet->inputs[i]*nnet->ranges[nnet->inputSize]+nnet->means[nnet->inputSize];
+            output[i] = nnet->inputs[i]*nnet->ranges[nnet->inputSize]+nnet->means[nnet->inputSize];  //这里用到.nnet的6、7行的最后一个参数，是用于output的标准化的
         else
             output[i] = nnet->inputs[i];
     }
@@ -403,7 +402,6 @@ int evaluate_network_leaky(double leakyValue, void *network, double *input, doub
     }
 
     double tempVal;
-    printf("number of layers in nnet.cpp = %u\n", numLayers);
 
     for (layer = 0; layer<(numLayers); layer++)     //循环为0~6，第7层为output，所以不进入计算
     {

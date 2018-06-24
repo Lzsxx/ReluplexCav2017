@@ -5,6 +5,7 @@
 #### 更换case需要修改的代码：查找被 change! 注释的地方，存在于check_properities/xxx/main.cpp和/reluplex/reluplex.h文件中
 - reluplex.h需要修改input层的个数，并且找到input节点和output节点的下标，填入数组中
 - 2xxx/main.cpp中，首先是网络参数的地址
+- 是否进行标准化，这里只是意味着输出的case的时候是否会输出unnormalize后的值，因为input的值是否标准化，是看自己输入的。
 - 预设input层的值
 - 申请给对抗样本的空间数、希望找到的对抗样本数
 - leakyRelu的值
@@ -12,6 +13,22 @@
 - 设置runner的轮数，一般是input层的node个数-1
 
 另外，还在/nnet的3个cpp和h文件里添加的evaluate leaky相关的函数，但只是添加，没有修改，对原有函数的调用无影响
+
+/*****  2018.06.21 *******/
+新增了/checkmynet/main.cpp里可以验证标准化参数后训练的网络
+注意点：
+    1、input设置的点和delta要以标准化后的值来算
+    2、output其实不需要标准化，只需要给出是否是某个分类大于某个分类即可
+    3、得到结果后，要将input进行 unnormalize ，得到的非标准化的值，要原样放到神经网络里去跑，因为神经网络在跑之前会将这个参数再次标准化。
+
+/*****  2018.06.24 *******/
+新增可以验证normalize后的网络
+要点：
+    1、在/checkmynet/main.cpp 里，用normalFlag来控制是否用normalize后的网络来验证，如果需要更换case，要在/nnet里添加新的网络的参数文件，然后在/main.cpp里更改相应的网络参数文件
+    2、更换case的时候，还要注意leakyRelu的系数是否发生改变
+    2、另：在神经网络的训练中，也要注意leakyRelu的系数、是否normalize等的更改，如果有Normalize,要注意设置mean和range数组
+
+
 
 *** Reluplex, May 2017 ***
 
